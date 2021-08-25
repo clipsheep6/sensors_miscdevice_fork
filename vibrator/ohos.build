@@ -1,0 +1,10 @@
+{
+  "subsystem": "sensors",
+  "parts": {
+    "vibrator_native": {
+      "module_list": [
+        "//base/sensors/vibrator:vibrator_native_packages"
+      ]
+    }
+  }
+}
