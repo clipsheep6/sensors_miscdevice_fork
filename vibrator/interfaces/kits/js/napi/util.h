@@ -21,6 +21,13 @@
 #include <napi/native_node_api.h>
 #include <string>
 
+#define GET_PARAMS(env, info, num) \
+    size_t argc = num;             \
+    napi_value argv[num];          \
+    napi_value thisVar;            \
+    void* data;                    \
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, &data)
+
 static inline napi_status util_value_to_stdstring(napi_env env, napi_value data, std::string *str)
 {
     napi_status status;

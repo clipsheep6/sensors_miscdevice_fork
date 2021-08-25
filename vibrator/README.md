@@ -1,4 +1,4 @@
-# Timing and Time<a name="EN-US_TOPIC_0000001115554184"></a>
+# Vibrator<a name="EN-US_TOPIC_0000001115554184"></a>
 
 -   [Introduction](#section11660541593)
 -   [Directory Structure](#section161941989596)
@@ -14,16 +14,16 @@ The vibrator module provides APIs for managing vibrator.
 ## Directory Structure<a name="section161941989596"></a>
 
 ```
-/base/sensors/time
+/base/sensors/vibrator
 ├── figures                  # Architecture diagram
 ├── interfaces               # APIs for external systems and applications
-│   └── kits                # APIs
+│   └── kits                 # APIs
 ```
 
 
 ## Repositories Involved<a name="section1371113476307"></a>
 
-**Sensor subsystem**
+**Misc subsystem**
 
 sensors\_vibrator
 

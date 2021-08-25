@@ -23,6 +23,6 @@
 
 ## 相关仓<a name="section1371113476307"></a>
 
-**Sensor软件服务子系统**
+**Misc软件服务子系统**
 
 sensors\_vibrator
