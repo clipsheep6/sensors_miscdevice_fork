@@ -1,18 +1,19 @@
 /*
- *    Copyright 2021 Institute of Software Chinese Academy of Sciences, ISRC
+ * Copyright 2021 Institute of Software Chinese Academy of Sciences, ISRC
 
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 #ifndef __asyncworkdata_h__
 #define __asyncworkdata_h__
 
@@ -31,15 +32,13 @@ public:
     }
     ~AsyncWorkData()
     {
-        for (unsigned int i = 0; i < sizeof(callbacks) / sizeof(napi_ref); ++i)
-        {
+        for (unsigned int i = 0; i < sizeof(callbacks) / sizeof(napi_ref); ++i) {
             if (callbacks[i])
             {
                 napi_delete_reference(env, callbacks[i]);
             }
         }
-        if (async_work)
-        {
+        if (async_work) {
             napi_delete_async_work(env, async_work);
         }
     }
@@ -51,28 +50,22 @@ public:
 
         NAPI_CALL_BASE(env, napi_typeof(env, object, &type), false);
         NAPI_ASSERT_BASE(env, type == napi_object, "Wrong paramater type. Object expected.", false);
-        for (unsigned int i = 0; i < 3; ++i)
-        {
+        for (unsigned int i = 0; i < 3; ++i) {
             NAPI_CALL_BASE(env, napi_get_named_property(env, object, callback_name[i], &cb[i]), false);
             NAPI_CALL_BASE(env, napi_typeof(env, cb[i], &type), false);
-            if (type == napi_undefined || type == napi_null)
-            {
+            if (type == napi_undefined || type == napi_null) {
                 cb[i] = nullptr;
                 continue;
             }
             NAPI_ASSERT_BASE(env, type == napi_function, "Wrong property type. Function expected.", false);
         }
-        for (unsigned int i = 0; i < 3; ++i)
-        {
-            if (cb[i])
-            {
+        for (unsigned int i = 0; i < 3; ++i) {
+            if (cb[i]) {
                 NAPI_CALL_BASE(env, napi_create_reference(env, cb[i], 1, &callbacks[i]), false);
             }
         }
-        for (unsigned int i = 0; i < sizeof(callbacks) / sizeof(napi_ref); ++i)
-        {
-            if (callbacks[i])
-            {
+        for (unsigned int i = 0; i < sizeof(callbacks) / sizeof(napi_ref); ++i) {
+            if (callbacks[i]) {
                 *retval = nullptr;
                 return true;
             }
@@ -86,27 +79,21 @@ public:
         napi_valuetype type;
 
         NAPI_ASSERT_BASE(env, argc <= 3, "Wrong number of arguments", false);
-        for (unsigned int i = 0; i < argc; ++i)
-        {
+        for (unsigned int i = 0; i < argc; ++i) {
             NAPI_CALL_BASE(env, napi_typeof(env, argv[i], &type), false);
-            if (type == napi_undefined || type == napi_null)
-            {
+            if (type == napi_undefined || type == napi_null) {
                 continue;
             }
             NAPI_ASSERT_BASE(env, type == napi_function, "Wrong argument type. Function expected.", false);
             cb[i] = argv[i];
         }
-        for (unsigned int i = 0; i < argc; ++i)
-        {
-            if (cb[i])
-            {
+        for (unsigned int i = 0; i < argc; ++i) {
+            if (cb[i]) {
                 NAPI_CALL_BASE(env, napi_create_reference(env, cb[i], 1, &callbacks[i]), false);
             }
         }
-        for (unsigned int i = 0; i < sizeof(callbacks) / sizeof(napi_ref); ++i)
-        {
-            if (callbacks[i])
-            {
+        for (unsigned int i = 0; i < sizeof(callbacks) / sizeof(napi_ref); ++i) {
+            if (callbacks[i]) {
                 *retval = nullptr;
                 return true;
             }
@@ -119,118 +106,88 @@ public:
     {
         napi_value param;
         // promise mode
-        if (!deferred)
-        {
+        if (!deferred) {
             goto callback_mode;
         }
-        if (napi_create_object(env, &param) != napi_ok)
-        {
+        if (napi_create_object(env, &param) != napi_ok) {
             goto callback_mode;
         }
-        for (size_t i = 0; i < argc; ++i)
-        {
-            if (napi_set_named_property(env, param, names[i], argv[i]) != napi_ok)
-            {
+        for (size_t i = 0; i < argc; ++i) {
+            if (napi_set_named_property(env, param, names[i], argv[i]) != napi_ok) {
                 goto callback_mode;
             }
         }
-        if (resolved)
-        {
+        if (resolved) {
             napi_resolve_deferred(env, deferred, param);
-        }
-        else
-        {
+        } else {
             napi_reject_deferred(env, deferred, param);
         }
     callback_mode:
         // callback mode
         napi_value undefined;
-        if (napi_get_undefined(env, &undefined) != napi_ok)
-        {
+        if (napi_get_undefined(env, &undefined) != napi_ok) {
             return;
         }
         auto make_callback = [this, undefined](napi_ref ref_function, size_t argc, napi_value argv[])
         {
             napi_value cb, call_result;
-            if (!ref_function)
-            {
+            if (!ref_function) {
                 return;
             }
-            if (napi_get_reference_value(env, ref_function, &cb) != napi_ok)
-            {
+            if (napi_get_reference_value(env, ref_function, &cb) != napi_ok) {
                 return;
             }
-            if (argc)
-            {
+            if (argc) {
                 napi_call_function(env, undefined, cb, argc, argv, &call_result);
-            }
-            else
-            {
+            } else {
                 napi_call_function(env, undefined, cb, 0, nullptr, &call_result);
             }
         };
 
-        if (resolved)
-        {
+        if (resolved) {
             make_callback(callbacks[0], argc, argv);
-        }
-        else
-        {
+        } else {
             make_callback(callbacks[1], argc, argv);
         }
         make_callback(callbacks[2], 0, nullptr);
-
     }
 
     void notify(napi_value param, bool resolved = true)
     {
         // notify promise
-        if (deferred)
-        {
-            if (resolved)
-            {
+        if (deferred) {
+            if (resolved) {
                 napi_resolve_deferred(env, deferred, param);
-            }
-            else
-            {
+            } else {
                 napi_reject_deferred(env, deferred, param);
             }
         }
         // callback mode
         napi_value undefined;
 
-        if (napi_get_undefined(env, &undefined) != napi_ok)
-        {
+        if (napi_get_undefined(env, &undefined) != napi_ok) {
             return;
         }
 
         auto make_callback = [this, undefined](napi_ref ref_function, napi_value param)
         {
             napi_value cb, call_result;
-            if (!ref_function)
-            {
+            if (!ref_function) {
                 return;
             }
-            if (napi_get_reference_value(env, ref_function, &cb) != napi_ok)
-            {
+            if (napi_get_reference_value(env, ref_function, &cb) != napi_ok) {
                 return;
             }
-            if (param)
-            {
+            if (param) {
                 napi_call_function(env, undefined, cb, 1, &param, &call_result);
-            }
-            else
-            {
+            } else {
                 napi_call_function(env, undefined, cb, 0, nullptr, &call_result);
             }
         };
         // make success or fail callback
-        if (resolved)
-        {
+        if (resolved) {
             make_callback(callbacks[0], param);
-        }
-        else
-        {
+        } else {
             make_callback(callbacks[1], param);
         }
         make_callback(callbacks[2], nullptr);
