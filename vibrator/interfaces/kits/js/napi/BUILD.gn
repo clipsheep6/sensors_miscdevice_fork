@@ -1,0 +1,34 @@
+import("//build/ohos.gni")
+
+ohos_shared_library("vibrator") {
+  include_dirs = [
+    "//drivers/peripheral/misc/vibrator/interfaces/include",
+    "//foundation/ace/napi/interfaces/kits",
+    "//third_party/node/src",
+    "//utils/system/safwk/native/include",
+    "./",
+  ]
+  cflags = [
+    "-fPIC",
+    "-g3",
+  ]
+  sources = [
+    "vibrator.cpp",
+    "native_module.cpp",
+  ]
+
+  deps = [
+    "//drivers/peripheral/misc/vibrator/hal:hdi_vibrator",
+    "//foundation/ace/napi:ace_napi",
+  ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  relative_install_dir = "module"
+
+  subsystem_name = "sensors"
+  part_name = "sensors_miscdevice"
+}
