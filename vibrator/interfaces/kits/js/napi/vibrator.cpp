@@ -1,17 +1,17 @@
 /*
- *    Copyright 2021 Institute of Software Chinese Academy of Sciences, ISRC
+ * Copyright 2021 Institute of Software Chinese Academy of Sciences, ISRC
 
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #include "vibrator.h"
@@ -38,8 +38,7 @@ napi_value NAPI_Vibrator_vibrate(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
     struct VibratorData *callback_data = new VibratorData { env };
     std::unique_ptr<VibratorData> cleaner { callback_data };
-    if (!callback_data->parse_callback_args(argc - 1, argv + 1, &retval))
-    {
+    if (!callback_data->parse_callback_args(argc - 1, argv + 1, &retval)) {
         return nullptr;
     }
     NAPI_CALL(env, napi_get_value_uint32(env, argv[0], &callback_data->duration));
@@ -60,7 +59,7 @@ napi_value NAPI_Vibrator_vibrate(napi_env env, napi_callback_info info)
             }
             callback_data->code = 0;
         },
-        [](napi_env env, napi_status status, void *data){
+        [](napi_env env, napi_status status, void *data) {
             struct VibratorData *callback_data = (struct VibratorData *)data;
             std::unique_ptr<VibratorData> cleaner { callback_data };
 

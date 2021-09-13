@@ -1,17 +1,17 @@
 /*
- *    Copyright 2021 Institute of Software Chinese Academy of Sciences, ISRC
+ * Copyright 2021 Institute of Software Chinese Academy of Sciences, ISRC
 
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #ifndef __NAPI_UTIL_H__
@@ -52,28 +52,30 @@ static inline napi_status util_get_property_ref(napi_env env, napi_value object,
     napi_status status;
     napi_value value;
 
-  	status = napi_get_named_property(env, object, key, &value);
+    status = napi_get_named_property(env, object, key, &value);
     if (status != napi_ok) {
         return status;
     }
-   	return napi_create_reference(env, value, 1, data);
+    return napi_create_reference(env, value, 1, data);
 }
 
-static inline napi_status util_get_property_stdstring(napi_env env, napi_value object, const char *key, std::string *data)
+static inline napi_status util_get_property_stdstring(napi_env env, napi_value object,
+    const char *key, std::string *data)
 {
     napi_status status;
-  	napi_value value;
+    napi_value value;
 
-  	status = napi_get_named_property(env, object, key, &value);
+    status = napi_get_named_property(env, object, key, &value);
     if (status != napi_ok)
         return status;
     return util_value_to_stdstring(env, value, data);
 }
 
-static inline napi_status util_set_property_stdstring(napi_env env, napi_value object, const char *key, const std::string &data)
+static inline napi_status util_set_property_stdstring(napi_env env, napi_value object,
+    const char *key, const std::string &data)
 {
     napi_status status;
-  	napi_value value;
+    napi_value value;
 
     status = napi_create_string_utf8(env, data.c_str(), data.size(), &value);
     if (status != napi_ok)
@@ -84,7 +86,7 @@ static inline napi_status util_set_property_stdstring(napi_env env, napi_value o
 static inline napi_status util_set_property_int32(napi_env env, napi_value object, const char *key, int32_t data)
 {
     napi_status status;
-  	napi_value value;
+    napi_value value;
 
     status = napi_create_int32(env, data, &value);
     if (status != napi_ok)
