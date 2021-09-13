@@ -1,6 +1,5 @@
 /*
  * Copyright 2021 Institute of Software Chinese Academy of Sciences, ISRC
-
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +19,6 @@
 #include <napi/native_common.h>
 #include <napi/native_node_api.h>
 
-napi_value NAPI_Vibrator_vibrate(napi_env env, napi_callback_info info);
+napi_value NAPIVibrator(napi_env env, napi_callback_info info);
 
 #endif

@@ -1,6 +1,5 @@
 /*
  * Copyright 2021 Institute of Software Chinese Academy of Sciences, ISRC
-
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef __NAPI_UTIL_H__
-#define __NAPI_UTIL_H__
+#ifndef NAPI_UTIL_H
+#define NAPI_UTIL_H
 
 #include <napi/native_common.h>
 #include <napi/native_node_api.h>
@@ -28,7 +27,8 @@
     void* data;                    \
     napi_get_cb_info(env, info, &argc, argv, &thisVar, &data)
 
-static inline napi_status util_value_to_stdstring(napi_env env, napi_value data, std::string *str)
+static inline napi_status util_value_to_stdstring(napi_env env, napi_value data,
+    std::string *str)
 {
     napi_status status;
     size_t size, size2;
@@ -38,7 +38,7 @@ static inline napi_status util_value_to_stdstring(napi_env env, napi_value data,
         return status;
 
     str->resize(size);
-    status = napi_get_value_string_utf8(env, data, &(*str)[0], size+1, &size2);
+    status = napi_get_value_string_utf8(env, data, &(*str)[0], size + 1, &size2);
     if (status != napi_ok)
         return status;
 
@@ -47,7 +47,8 @@ static inline napi_status util_value_to_stdstring(napi_env env, napi_value data,
     return napi_ok;
 }
 
-static inline napi_status util_get_property_ref(napi_env env, napi_value object, const char *key, napi_ref *data)
+static inline napi_status util_get_property_ref(napi_env env, napi_value object,
+    const char *key, napi_ref *data)
 {
     napi_status status;
     napi_value value;

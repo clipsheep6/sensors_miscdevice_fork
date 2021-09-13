@@ -14,8 +14,8 @@
  */
 
 #include <pthread.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include <unistd.h>
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
@@ -28,7 +28,7 @@ EXTERN_C_START
 static napi_value VibratorExport(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_FUNCTION("vibrate", NAPI_Vibrator_vibrate),
+        DECLARE_NAPI_FUNCTION("vibrate", NAPIVibrator),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     return exports;
@@ -38,13 +38,15 @@ EXTERN_C_END
 /*
  * Module define
  */
-static napi_module _module = {.nm_version = 1,
+static napi_module _module = {
+    .nm_version = 1,
     .nm_flags = 0,
     .nm_filename = nullptr,
     .nm_register_func = VibratorExport,
     .nm_modname = "vibrator",
     .nm_priv = ((void *)0),
-    .reserved = {0}};
+    .reserved = {0}
+};
 
 /*
  * Module register function

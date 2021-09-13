@@ -14,7 +14,7 @@
 ## 目录<a name="section161941989596"></a>
 
 ```
-/base/sensors/vibrator
+base/sensors/miscdevice/vibrator
 ├── figures                  # 构架图
 ├── interfaces               # 组件对外提供的接口代码
     └── kits                 # 对应用提供的接口

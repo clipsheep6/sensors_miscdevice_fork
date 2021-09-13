@@ -14,7 +14,7 @@ The vibrator module provides APIs for managing vibrator.
 ## Directory Structure<a name="section161941989596"></a>
 
 ```
-/base/sensors/vibrator
+base/sensors/miscdevice/vibrator
 ├── figures                  # Architecture diagram
 ├── interfaces               # APIs for external systems and applications
 │   └── kits                 # APIs
