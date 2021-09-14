@@ -13,7 +13,6 @@
 
 #import("//build/config/ohos/rules.gni")
 import("//build/ohos.gni")
-
 ohos_shared_library("vibrator_js") {
   include_dirs = [
     "//third_party/node/src",
@@ -21,21 +20,21 @@ ohos_shared_library("vibrator_js") {
     "../native/vibrator/include",
     "./include",
     "./vibrate/include",
-    "//utils/native/base/include"
+    "//utils/native/base/include",
   ]
-    defines = [
-      "APP_LOG_TAG = \"vibrateJs\"",
-      "LOG_DOMAIN = 0xD002700",
-    ]
+  defines = [
+    "APP_LOG_TAG = \"vibrateJs\"",
+    "LOG_DOMAIN = 0xD002700",
+  ]
 
   sources = [
     "./vibrate/src/vibrate_js.cpp",
-    "./vibrate/src/vibrator_napi_utils.cpp"
+    "./vibrate/src/vibrator_napi_utils.cpp",
   ]
 
   deps = [
-    "//foundation/ace/napi:ace_napi",
     "../native/vibrator:vibrator_interface_native",
+    "//foundation/ace/napi:ace_napi",
     "//utils/native/base:utils",
   ]
   external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
