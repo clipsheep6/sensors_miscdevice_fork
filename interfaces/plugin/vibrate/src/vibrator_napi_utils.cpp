@@ -20,7 +20,6 @@
 
 using namespace OHOS::HiviewDFX;
 static constexpr HiLogLabel LABEL = {LOG_CORE, 0xD002708, "VibrateJsAPI"};
-constexpr int32_t BUF_LENGTH = 256;
 
 bool IsMatchType(napi_value value, napi_valuetype type, napi_env env)
 {
