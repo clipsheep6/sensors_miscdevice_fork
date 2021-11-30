@@ -1,0 +1,10 @@
+{
+  "subsystem": "sensors",
+  "parts": {
+    "sensors_miscdevice": {
+      "module_list": [
+        "//base/sensors/miscdevice/vibrator:sensors_miscdevice_packages"
+      ]
+    }
+  }
+}
