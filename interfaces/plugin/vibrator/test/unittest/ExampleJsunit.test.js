@@ -196,7 +196,7 @@ describe("VibratorJsTest", function () {
                 done();
             }, 500);
         }
-        vibrator.vibrate("haptic.clock.timer", vibrateCallback);
+        vibrator.vibrate(vibrator.EffectId.EFFECT_CLOCK_TIMER, vibrateCallback);
     })
 
     /*
@@ -218,7 +218,7 @@ describe("VibratorJsTest", function () {
                 done();
             }, 500);
         }
-        vibrator.stop("preset", vibrateCallback);
+        vibrator.stop(vibrator.VibratorStopMode.VIBRATOR_STOP_MODE_PRESET, vibrateCallback);
     })
 
     /*
@@ -231,7 +231,7 @@ describe("VibratorJsTest", function () {
         console.info('----------------------SensorJsTest001---------------------------');
         function stopPromise() {
             return new Promise((resolve, reject) => {
-                vibrator.stop("time", (error)=>{
+                vibrator.stop(vibrator.VibratorStopMode.VIBRATOR_STOP_MODE_TIME, (error)=>{
                     if (error) {
                         console.info('VibratorJsTest009  stop error');
                         expect(false).assertTrue();
@@ -370,7 +370,7 @@ describe("VibratorJsTest", function () {
      * @tc.require: Issue Number
      */
     it("VibratorJsTest014", 0, async function (done) {
-        vibrator.vibrate("haptic.clock.timer").then(() => {
+        vibrator.vibrate(vibrator.EffectId.EFFECT_CLOCK_TIMER).then(() => {
             console.log("VibratorJsTest014  vibrate success");
             expect(true).assertTrue();
             setTimeout(()=>{
@@ -436,7 +436,7 @@ describe("VibratorJsTest", function () {
      * @tc.require: Issue Number
      */
     it("VibratorJsTest017", 0, async function (done) {
-        vibrator.stop("preset").then(() => {
+        vibrator.stop(vibrator.VibratorStopMode.VIBRATOR_STOP_MODE_PRESET).then(() => {
             console.log("VibratorJsTest017  off success");
             expect(true).assertTrue();
             setTimeout(()=>{
@@ -460,7 +460,7 @@ describe("VibratorJsTest", function () {
     it("VibratorJsTest018", 0, async function (done) {
         function stopPromise() {
             return new Promise((resolve, reject) => {
-                vibrator.stop("time").then(() => {
+                vibrator.stop(vibrator.VibratorStopMode.VIBRATOR_STOP_MODE_TIME).then(() => {
                     console.log("VibratorJsTest018  stop success");
                     expect(true).assertTrue();
                     setTimeout(()=>{
