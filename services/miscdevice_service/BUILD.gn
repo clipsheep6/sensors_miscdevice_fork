@@ -34,7 +34,6 @@ ohos_shared_library("libmiscdevice_service") {
     "$SUBSYSTEM_DIR/miscdevice/utils/include",
     "hdi_connection/adpter/include",
     "hdi_connection/interface/include",
-    "//third_party/cJSON",
   ]
 
   cflags = [ "-Wno-error=inconsistent-missing-override" ]
@@ -49,7 +48,6 @@ ohos_shared_library("libmiscdevice_service") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
   ]
 
   part_name = "miscdevice"
