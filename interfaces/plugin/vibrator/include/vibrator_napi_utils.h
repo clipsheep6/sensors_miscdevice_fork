@@ -15,11 +15,15 @@
 #ifndef VIBRATOR_NAPI_UTILS_H
 #define VIBRATOR_NAPI_UTILS_H
 
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
 #include <cstring>
 #include <iostream>
+#include <map>
+#include <optional>
+
+#include "napi/native_api.h"
+#include "napi/native_node_api.h"
 #include "refbase.h"
+#include "sensors_errors.h"
 
 namespace OHOS {
 namespace Sensors {
@@ -61,12 +65,39 @@ void EmitPromiseWork(sptr<AsyncCallbackInfo> asyncCallbackInfo);
 napi_value GreateCallbackError(const napi_env &env, const int32_t errCode,
     const string errMessage, const string errName, const string errStack);
 
+struct NapiError {
+    std::string errorCode;
+    std::string message;
+};
+
+const std::map<int32_t, NapiError> ERROR_MESSAGES = {
+    {DEVICE_OPERATION_FAILED,  {"14600101", "Device operation failed."}},
+    {PERMISSION_DENIED,  {"201", "Permission denied."}},
+    {PARAMETER_ERROR,  {"401", "The parameter invalid."}},
+};
+
+inline const std::optional<NapiError> GetNapiError(int32_t errorCode) {
+    auto iter = ERROR_MESSAGES.find(errorCode);
+    if (iter != ERROR_MESSAGES.end()) {
+        return iter->second;
+    }
+    return std::nullopt;
+}
+
+#define THROWERR(env, code, message) \
+    do { \
+        MISC_HILOGE("message: %{public}s, code: %{public}s", #message, (#code)); \
+        auto error = GetNapiError(code); \
+        if (error.has_value()) { \
+            auto napiError = error.value(); \
+            napi_throw_error(env, napiError.codes.c_str(), napiError.message.c_str()); \
+        }\
+    } while (0)
+
 #define CHKNRR(env, state, message, retVal) \
     do { \
         if ((state) != napi_ok) { \
             MISC_HILOGE("(%{public}s) fail", #message); \
-            auto errDesc = std::string(__FUNCTION__) + ": " + #message; \
-            napi_throw_error(env, nullptr, errDesc.c_str()); \
             return retVal; \
         } \
     } while (0)
@@ -75,8 +106,6 @@ napi_value GreateCallbackError(const napi_env &env, const int32_t errCode,
     do { \
         if (!(cond)) { \
             MISC_HILOGE("(%{public}s)", #message); \
-            auto errDesc = std::string(__FUNCTION__) + ": " + #message; \
-            napi_throw_error(env, nullptr, errDesc.c_str()); \
             return nullptr; \
         } \
     } while (0)
@@ -85,8 +114,6 @@ napi_value GreateCallbackError(const napi_env &env, const int32_t errCode,
     do { \
         if ((state) != (ret)) { \
             MISC_HILOGE("(%{public}s)", #message); \
-            auto errDesc = std::string(__FUNCTION__) + ": " + #message; \
-            napi_throw_error(env, nullptr, errDesc.c_str()); \
             return false; \
         } \
     } while (0)
