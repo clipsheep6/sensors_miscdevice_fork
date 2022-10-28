@@ -45,6 +45,10 @@ JsonParser::~JsonParser()
 
 cJSON* JsonParser::GetObjectItem(cJSON *json, const std::string& key) const
 {
+    if (json == nullptr) {
+        MISC_HILOGE("The first input parameter is null");
+        return nullptr;
+    }
     if (!cJSON_IsObject(json)) {
         MISC_HILOGE("The json is not object");
         return nullptr;
@@ -65,6 +69,10 @@ int32_t JsonParser::ParseJsonArray(cJSON *json, const std::string& key,
     std::vector<std::string>& vals) const
 {
     cJSON* jsonArray = GetObjectItem(json, key);
+    if (jsonArray == nullptr) {
+        MISC_HILOGE("GetObjectItem failed, return nullptr");
+        return ERROR;
+    }
     if (!cJSON_IsArray(jsonArray)) {
         MISC_HILOGE("The value of %{public}s is not array", key.c_str());
         return ERROR;
@@ -72,6 +80,10 @@ int32_t JsonParser::ParseJsonArray(cJSON *json, const std::string& key,
     int32_t size = cJSON_GetArraySize(jsonArray);
     for (int32_t i = 0; i < size; ++i) {
         cJSON* val = cJSON_GetArrayItem(jsonArray, i);
+        if (val == nullptr) {
+            MISC_HILOGE("cJSON_GetArrayItem of index %{public}d return nullptr", i);
+            return ERROR;
+        }
         if ((!cJSON_IsString(val)) || (val->valuestring == nullptr)) {
             MISC_HILOGE("The value of index %{public}d is not string", i);
             return ERROR;
