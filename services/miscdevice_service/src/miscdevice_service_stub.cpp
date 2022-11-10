@@ -162,6 +162,7 @@ int32_t MiscdeviceServiceStub::PlayCustomVibratorEffectPb(MessageParcel &data, M
         MISC_HILOGE("result: %{public}d", ret);
         return PERMISSION_DENIED;
     }
+    int32_t vibratorId;
     std::vector<int32_t> timing;
     std::vector<int32_t> intensity;
     int32_t periodCount;
