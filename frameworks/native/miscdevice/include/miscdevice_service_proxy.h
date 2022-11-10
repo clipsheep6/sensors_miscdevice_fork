@@ -39,7 +39,6 @@ public:
     virtual int32_t SetVibratorParameter(int32_t vibratorId, const std::string &cmd) override;
     virtual std::string GetVibratorParameter(int32_t vibratorId, const std::string &cmd) override;
     virtual std::vector<LightInfo> GetLightList() override;
-    // std::vector<LightInfo> GetLightList();
     virtual int32_t TurnOn(int32_t lightId, const LightColor color, const LightAnimation animation) override;
     virtual int32_t TurnOff(int32_t lightId) override;
 
