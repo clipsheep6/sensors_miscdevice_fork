@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef LIGHT_SERVICE_CLIENT_H
-#define LIGHT_SERVICE_CLIENT_H
+#ifndef LIGHT_CLIENT_H
+#define LIGHT_CLIENT_H
 
 #include <mutex>
 #include "iremote_object.h"
@@ -23,21 +23,23 @@
 
 namespace OHOS {
 namespace Sensors {
-class LightServiceClient : public Singleton<LightServiceClient> {
+class LightClient : public Singleton<LightClient> {
 public:
-    std::vector<int32_t> GetLightIdList();
-    bool IsLightEffectSupport(int32_t lightId, const std::string &effectId);
-    int32_t Light(int32_t lightId, uint64_t brightness, uint32_t timeOn, uint32_t timeOff);
-    int32_t PlayLightEffect(int32_t lightId, const std::string &type);
-    int32_t StopLightEffect(int32_t lightId);
+    int32_t GetLightList(LightInfo **lightInfo, int32_t *count);
+    int32_t TurnOn(int32_t lightId, const LightColor color, const LightAnimation animation);
+    int32_t TurnOff(int32_t lightId);
+    bool IsValid(int32_t lightId);
     void ProcessDeathObserver(const wptr<IRemoteObject> &object);
+    void ClearLightInfos();
+    int32_t ConvertLightInfos();
 
 private:
-    int32_t InitServiceClient();
+    int32_t InitLightClient();
     sptr<IRemoteObject::DeathRecipient> serviceDeathObserver_;
     sptr<IMiscdeviceService> miscdeviceProxy_;
+    std::vector<LightInfo> lightList_;
     std::mutex clientMutex_;
 };
 }  // namespace Sensors
 }  // namespace OHOS
-#endif  // LIGHT_SERVICE_CLIENT_H
+#endif  // LIGHT_CLIENT_H

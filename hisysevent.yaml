@@ -32,3 +32,18 @@ MISC_SERVICE_EXCEPTION:
   __BASE: {type: FAULT, level: MINOR, desc: sensor service exception}
   PKG_NAME: {type: STRING, desc: package name}
   ERROR_CODE: {type: INT32, desc: error code}
+
+LIGHT_SERVICE_EXCEPTION:
+  __BASE: {type: FAULT, level: MINOR, desc: light service exception}
+  PKG_NAME: {type: STRING, desc: package name}
+  ERROR_CODE: {type: INT32, desc: error code}
+
+LIGHT_HDF_SERVICE_EXCEPTION:
+  __BASE: {type: FAULT, level: MINOR, desc: light hdf service exception}
+  PKG_NAME: {type: STRING, desc: package name}
+  ERROR_CODE: {type: INT32, desc: error code}
+
+LIGHT_SERVICE_IPC_EXCEPTION:
+  __BASE: {type: FAULT, level: MINOR, desc: light service ipc exception}
+  PKG_NAME: {type: STRING, desc: package name}
+  ERROR_CODE: {type: INT32, desc: error code}

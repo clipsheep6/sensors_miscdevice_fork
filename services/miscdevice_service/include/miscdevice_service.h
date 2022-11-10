@@ -27,6 +27,7 @@
 #include "system_ability.h"
 #include "thread_ex.h"
 
+#include "light_hdi_connection.h"
 #include "miscdevice_common.h"
 #include "miscdevice_dump.h"
 #include "miscdevice_service_stub.h"
@@ -50,6 +51,7 @@ public:
     void OnDump() override;
     void OnStart() override;
     void OnStop() override;
+    bool IsValid(int32_t lightId);
     int32_t Dump(int32_t fd, const std::vector<std::u16string> &args) override;
     virtual bool IsAbilityAvailable(MiscdeviceDeviceId groupID) override;
     virtual bool IsVibratorEffectAvailable(int32_t vibratorId, const std::string &effectType) override;
@@ -63,22 +65,24 @@ public:
     virtual int32_t StopVibratorEffect(int32_t vibratorId, const std::string &effect) override;
     virtual int32_t SetVibratorParameter(int32_t vibratorId, const std::string &cmd) override;
     virtual std::string GetVibratorParameter(int32_t vibratorId, const std::string &cmd) override;
-    virtual std::vector<int32_t> GetLightSupportId() override;
-    virtual bool IsLightEffectSupport(int32_t lightId, const std::string &effectId) override;
-    virtual int32_t Light(int32_t lightId, uint64_t brightness, uint32_t timeOn, uint32_t timeOff) override;
-    virtual int32_t PlayLightEffect(int32_t lightId, const std::string &type) override;
-    virtual int32_t StopLightEffect(int32_t lightId) override;
+    virtual std::vector<LightInfo> GetLightList() override;
+    virtual int32_t TurnOn(int32_t lightId, const LightColor color, const LightAnimation animation) override;
+    virtual int32_t TurnOff(int32_t lightId) override;
 
 private:
     DISALLOW_COPY_AND_MOVE(MiscdeviceService);
     bool InitInterface();
+    bool InitLightInterface();
     std::string GetPackageName(AccessTokenID tokenId);
     void StartVibrateThread(VibrateInfo info);
     bool ShouldIgnoreVibrate(const VibrateInfo &info);
+    bool InitLightList();
     VibratorHdiConnection &vibratorHdiConnection_ = VibratorHdiConnection::GetInstance();
+    LightHdiConnection &lightHdiConnection_ = LightHdiConnection::GetInstance();
     bool lightExist_;
     bool vibratorExist_;
     std::set<LightId> lightSupportId_;
+    std::vector<LightInfo> lightInfos_;
     std::map<MiscdeviceDeviceId, bool> miscDdeviceIdMap_;
     MiscdeviceServiceState state_;
     std::shared_ptr<VibratorThread> vibratorThread_;

@@ -15,7 +15,10 @@
 
 #include "miscdevice_service_proxy.h"
 
+#include <memory.h>
+
 #include "hisysevent.h"
+#include "securec.h"
 #include "sensors_errors.h"
 
 namespace OHOS {
@@ -332,149 +335,95 @@ std::string MiscdeviceServiceProxy::GetVibratorParameter(int32_t vibratorId, con
     return reply.ReadString();
 }
 
-std::vector<int32_t> MiscdeviceServiceProxy::GetLightSupportId()
+std::vector<LightInfo> MiscdeviceServiceProxy::GetLightList()
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
-    std::vector<int32_t> idVec;
+    std::vector<LightInfo> lightInfos;
     if (!data.WriteInterfaceToken(MiscdeviceServiceProxy::GetDescriptor())) {
-        MISC_HILOGE("write descriptor failed");
-        return idVec;
+        MISC_HILOGE("WriteInterfaceToken failed");
+        return lightInfos;
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         MISC_HILOGE("remote is null");
-        return idVec;
+        return lightInfos;
     }
-    int32_t ret = remote->SendRequest(GET_LIGHT_SUPPORT_ID, data, reply, option);
+    int32_t ret = remote->SendRequest(GET_LIGHT_LIST, data, reply, option);
     if (ret != NO_ERROR) {
-        HiSysEvent::Write(HiSysEvent::Domain::MISCDEVICE, "MISC_SERVICE_IPC_EXCEPTION",
-            HiSysEvent::EventType::FAULT, "PKG_NAME", "GetLightSupportId", "ERROR_CODE", ret);
-        MISC_HILOGE("sendRequest failed, ret : %{public}d", ret);
+        HiSysEvent::Write(HiSysEvent::Domain::MISCDEVICE, "LIGHT_SERVICE_IPC_EXCEPTION",
+            HiSysEvent::EventType::FAULT, "PKG_NAME", "GetLightList", "ERROR_CODE", ret);
+        MISC_HILOGE("failed, ret:%{public}d", ret);
+        return lightInfos;
     }
-    uint32_t setCount = reply.ReadUint32();
-    if (setCount == 0 || setCount > MAX_LIGHT_COUNT) {
-        MISC_HILOGE("setCount: %{public}d is invalid", setCount);
-        return idVec;
+    int32_t lightCount = reply.ReadInt32();
+    MISC_HILOGD("lightCount:%{public}d", lightCount);
+    if (lightCount > MAX_LIGHT_COUNT) {
+        lightCount = MAX_LIGHT_COUNT;
     }
-    idVec.resize(setCount);
-    reply.ReadInt32Vector(&idVec);
-    return idVec;
+    for (int32_t i = 0; i < lightCount; i++) {
+        const unsigned char *info = reply.ReadBuffer(sizeof(LightInfo));
+        LightInfo lightInfo;
+        if (memcpy_s(&lightInfo, sizeof(LightInfo), info, sizeof(LightInfo)) != SUCCESS) {
+            return lightInfos;
+        }
+        lightInfos.push_back(lightInfo);
+    }
+    return lightInfos;
 }
 
-bool MiscdeviceServiceProxy::IsLightEffectSupport(int32_t lightId, const std::string &effectId)
+int32_t MiscdeviceServiceProxy::TurnOn(int32_t lightId, const LightColor color, const LightAnimation animation)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(MiscdeviceServiceProxy::GetDescriptor())) {
         MISC_HILOGE("write descriptor failed");
-        return false;
+        return WRITE_MSG_ERR;
+    }
+    if (!data.WriteInt32(lightId)) {
+        MISC_HILOGE("WriteUint32 lightId failed");
+        return WRITE_MSG_ERR;
+    }
+    if (!data.WriteBuffer(&color, sizeof(LightColor))) {
+        MISC_HILOGE("WriteBuffer color failed");
+        return WRITE_MSG_ERR;
+    }
+    if (!data.WriteBuffer(&animation, sizeof(LightAnimation))) {
+        MISC_HILOGE("WriteBuffer animation failed");
+        return WRITE_MSG_ERR;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    CHKPR(remote, ERROR);
+    int32_t ret = remote->SendRequest(TURN_ON, data, reply, option);
+    if (ret != NO_ERROR) {
+        HiSysEvent::Write(HiSysEvent::Domain::MISCDEVICE, "LIGHT_SERVICE_IPC_EXCEPTION",
+            HiSysEvent::EventType::FAULT, "PKG_NAME", "TurnOn", "ERROR_CODE", ret);
+        MISC_HILOGE("sendRequest failed, ret : %{public}d", ret);
+    }
+    return ret;
+}
+
+int32_t MiscdeviceServiceProxy::TurnOff(int32_t lightId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(MiscdeviceServiceProxy::GetDescriptor())) {
+        MISC_HILOGE("write descriptor failed");
+        return WRITE_MSG_ERR;
     }
     if (!data.WriteInt32(lightId)) {
         MISC_HILOGE("WriteInt32 lightId failed");
-        return false;
-    }
-    if (!data.WriteString(effectId)) {
-        MISC_HILOGE("WriteString effectId failed");
-        return false;
-    }
-    sptr<IRemoteObject> remote = Remote();
-    CHKPF(remote);
-    int32_t ret = remote->SendRequest(IS_LIGHT_EFFECT_SUPPORT, data, reply, option);
-    if (ret != NO_ERROR) {
-        HiSysEvent::Write(HiSysEvent::Domain::MISCDEVICE, "MISC_SERVICE_IPC_EXCEPTION",
-            HiSysEvent::EventType::FAULT, "PKG_NAME", "IsLightEffectSupport", "ERROR_CODE", ret);
-        MISC_HILOGE("sendRequest failed, ret : %{public}d", ret);
-        return false;
-    }
-    return reply.ReadBool();
-}
-
-int32_t MiscdeviceServiceProxy::Light(int32_t id, uint64_t brightness, uint32_t timeOn, uint32_t timeOff)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(MiscdeviceServiceProxy::GetDescriptor())) {
-        MISC_HILOGE("write descriptor failed");
-        return WRITE_MSG_ERR;
-    }
-    if (!data.WriteInt32(id)) {
-        MISC_HILOGE("WriteInt32 id failed");
-        return WRITE_MSG_ERR;
-    }
-    if (!data.WriteUint64(brightness)) {
-        MISC_HILOGE("WriteUint64 brightness failed");
-        return WRITE_MSG_ERR;
-    }
-    if (!data.WriteUint32(timeOn)) {
-        MISC_HILOGE("WriteUint32 timeOn failed");
-        return WRITE_MSG_ERR;
-    }
-    if (!data.WriteUint32(timeOff)) {
-        MISC_HILOGE("WriteUint32 timeOff failed");
         return WRITE_MSG_ERR;
     }
     sptr<IRemoteObject> remote = Remote();
     CHKPR(remote, ERROR);
-    int32_t ret = remote->SendRequest(LIGHT, data, reply, option);
+    int32_t ret = remote->SendRequest(TURN_OFF, data, reply, option);
     if (ret != NO_ERROR) {
-        HiSysEvent::Write(HiSysEvent::Domain::MISCDEVICE, "MISC_SERVICE_IPC_EXCEPTION",
-            HiSysEvent::EventType::FAULT, "PKG_NAME", "Light", "ERROR_CODE", ret);
-        MISC_HILOGE("sendRequest failed, ret : %{public}d", ret);
-    }
-    return ret;
-}
-
-int32_t MiscdeviceServiceProxy::PlayLightEffect(int32_t id, const std::string &type)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(MiscdeviceServiceProxy::GetDescriptor())) {
-        MISC_HILOGE("write descriptor failed");
-        return WRITE_MSG_ERR;
-    }
-    if (!data.WriteInt32(id)) {
-        MISC_HILOGE("WriteInt32 id failed");
-        return WRITE_MSG_ERR;
-    }
-    if (!data.WriteString(type)) {
-        MISC_HILOGE("WriteString type failed");
-        return WRITE_MSG_ERR;
-    }
-    sptr<IRemoteObject> remote = Remote();
-    CHKPR(remote, ERROR);
-    int32_t ret = remote->SendRequest(PLAY_LIGHT_EFFECT, data, reply, option);
-    if (ret != NO_ERROR) {
-        HiSysEvent::Write(HiSysEvent::Domain::MISCDEVICE, "MISC_SERVICE_IPC_EXCEPTION",
-            HiSysEvent::EventType::FAULT, "PKG_NAME", "PlayLightEffect", "ERROR_CODE", ret);
-        MISC_HILOGE("sendRequest failed, ret : %{public}d", ret);
-    }
-    return ret;
-}
-
-int32_t MiscdeviceServiceProxy::StopLightEffect(int32_t id)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(MiscdeviceServiceProxy::GetDescriptor())) {
-        MISC_HILOGE("write descriptor failed");
-        return WRITE_MSG_ERR;
-    }
-    if (!data.WriteInt32(id)) {
-        MISC_HILOGE("WriteInt32 id failed");
-        return WRITE_MSG_ERR;
-    }
-    sptr<IRemoteObject> remote = Remote();
-    CHKPR(remote, ERROR);
-    int32_t ret = remote->SendRequest(STOP_LIGHT_EFFECT, data, reply, option);
-    if (ret != NO_ERROR) {
-        HiSysEvent::Write(HiSysEvent::Domain::MISCDEVICE, "MISC_SERVICE_IPC_EXCEPTION",
-            HiSysEvent::EventType::FAULT, "PKG_NAME", "StopLightEffect", "ERROR_CODE", ret);
+        HiSysEvent::Write(HiSysEvent::Domain::MISCDEVICE, "LIGHT_SERVICE_IPC_EXCEPTION",
+            HiSysEvent::EventType::FAULT, "PKG_NAME", "TurnOff", "ERROR_CODE", ret);
         MISC_HILOGE("sendRequest failed, ret : %{public}d", ret);
     }
     return ret;
