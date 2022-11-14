@@ -56,7 +56,12 @@ bool MiscdeviceServiceProxy::IsAbilityAvailable(MiscdeviceDeviceId groupID)
         MISC_HILOGE("sendRequest failed, ret : %{public}d", ret);
         return false;
     }
-    return reply.ReadBool();
+    bool isAbilityAvailable;
+    if (!reply.ReadBool(isAbilityAvailable)) {
+        MISC_HILOGE("Parcel read failed");
+        return false;
+    }
+    return isAbilityAvailable;
 }
 
 bool MiscdeviceServiceProxy::IsVibratorEffectAvailable(int32_t vibratorId, const std::string &effectType)
@@ -85,7 +90,12 @@ bool MiscdeviceServiceProxy::IsVibratorEffectAvailable(int32_t vibratorId, const
         MISC_HILOGE("SendRequest failed, ret : %{public}d", ret);
         return false;
     }
-    return reply.ReadBool();
+    bool isVibratorEffectAvailable;
+    if (!reply.ReadBool(isVibratorEffectAvailable)) {
+        MISC_HILOGE("Parcel read failed");
+        return false;
+    }
+    return isVibratorEffectAvailable;
 }
 
 std::vector<int32_t> MiscdeviceServiceProxy::GetVibratorIdList()
@@ -110,7 +120,11 @@ std::vector<int32_t> MiscdeviceServiceProxy::GetVibratorIdList()
         MISC_HILOGE("SendRequest failed, ret : %{public}d", ret);
         return idVec;
     }
-    uint32_t setCount = reply.ReadUint32();
+    uint32_t setCount;
+    if (!reply.ReadUint32(setCount)) {
+        MISC_HILOGE("Parcel read failed");
+        return idVec;
+    }
     if (setCount == 0 || setCount > MAX_VIBRATOR_COUNT) {
         MISC_HILOGE("setCount: %{public}d is invalid", setCount);
         return idVec;
@@ -332,7 +346,12 @@ std::string MiscdeviceServiceProxy::GetVibratorParameter(int32_t vibratorId, con
         MISC_HILOGE("ret : %{public}d", ret);
         return "";
     }
-    return reply.ReadString();
+    std::string vibratorParameter;
+    if (!reply.ReadString(vibratorParameter)) {
+        MISC_HILOGE("Parcel read failed");
+        return "";
+    }
+    return vibratorParameter;
 }
 
 std::vector<LightInfo> MiscdeviceServiceProxy::GetLightList()
