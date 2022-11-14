@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,7 +38,7 @@ int32_t GetLightList(LightInfo **lightInfo, int32_t &count)
     return SUCCESS;
 }
 
-int32_t TurnOn(int32_t lightId, const LightColor color, const LightAnimation animation)
+int32_t TurnOn(int32_t lightId, const LightColor &color, const LightAnimation &animation)
 {
     if (lightId < 0) {
         MISC_HILOGE("lightId is error");

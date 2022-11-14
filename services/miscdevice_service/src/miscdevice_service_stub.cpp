@@ -233,7 +233,7 @@ int32_t MiscdeviceServiceStub::GetLightListPb(MessageParcel &data, MessageParcel
     reply.WriteInt32(lightCount);
     for (int32_t i = 0; i < lightCount; i++) {
         if (!reply.WriteBuffer(&lightInfos[i], sizeof(LightInfo))) {
-            MISC_HILOGE("cff WriteBuffer failed");
+            MISC_HILOGE("WriteBuffer failed");
             return WRITE_MSG_ERR;
         }
     }
@@ -246,14 +246,14 @@ int32_t MiscdeviceServiceStub::TurnOnPb(MessageParcel &data, MessageParcel &repl
     const unsigned char *info = data.ReadBuffer(sizeof(LightColor));
     CHKPR(info, ERROR);
     LightColor lightColor;
-    if (memcpy_s(&lightColor, sizeof(LightColor), info, sizeof(LightColor)) != SUCCESS) {
+    if (memcpy_s(&lightColor, sizeof(LightColor), info, sizeof(LightColor)) != EOK) {
         return ERROR;
     }
 
     const unsigned char *buf = data.ReadBuffer(sizeof(LightColor));
     CHKPR(buf, ERROR);
     LightAnimation lightAnimation;
-    if (memcpy_s(&lightAnimation, sizeof(LightAnimation), buf, sizeof(LightAnimation)) != SUCCESS) {
+    if (memcpy_s(&lightAnimation, sizeof(LightAnimation), buf, sizeof(LightAnimation)) != EOK) {
         return ERROR;
     }
     return TurnOn(lightId, lightColor, lightAnimation);
@@ -268,7 +268,7 @@ int32_t MiscdeviceServiceStub::TurnOffPb(MessageParcel &data, MessageParcel &rep
 int32_t MiscdeviceServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
                                                MessageOption &option)
 {
-    MISC_HILOGD("remoterequest begin, cmd : %{public}u", code);
+    MISC_HILOGD("remoterequest begin, cmd:%{public}u", code);
     std::u16string descriptor = MiscdeviceServiceStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,7 +26,7 @@ public:
     HdiLightConnection() = default;
     virtual ~HdiLightConnection() {};
     int32_t ConnectHdi() override;
-    int32_t GetLightList(std::vector<LightInfo>& lightList) override;
+    int32_t GetLightList(std::vector<LightInfo>& lightList) const override;
     int32_t TurnOn(int32_t lightId, const HDI::Light::V1_0::HdfLightEffect& effect) override;
     int32_t TurnOff(int32_t lightId) override;
     int32_t DestroyHdiConnection() override;
@@ -38,7 +38,7 @@ private:
     sptr<ILightInterface> lightInterface_ = nullptr;
     void RegisterHdiDeathRecipient();
     void UnregisterHdiDeathRecipient();
-    void reconnect();
+    void Reconnect();
 };
 }  // namespace Sensors
 }  // namespace OHOS

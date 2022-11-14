@@ -13,11 +13,12 @@
  * limitations under the License.
  */
 
-#ifndef DIRECT_LIGHT_CONNECTION_H
-#define DIRECT_LIGHT_CONNECTION_H
+#ifndef COMPATIBLE_LIGHT_CONNECTION_H
+#define COMPATIBLE_LIGHT_CONNECTION_H
 #include <atomic>
 #include <thread>
 #include <vector>
+
 #include "i_light_hdi_connection.h"
 namespace OHOS {
 namespace Sensors {
@@ -26,7 +27,7 @@ public:
     CompatibleLightConnection() = default;
     virtual ~CompatibleLightConnection() {};
     int32_t ConnectHdi() override;
-    int32_t GetLightList(std::vector<LightInfo>& lightList) override;
+    int32_t GetLightList(std::vector<LightInfo>& lightList) const override;
     int32_t TurnOn(int32_t lightId, const HDI::Light::V1_0::HdfLightEffect& effect) override;
     int32_t TurnOff(int32_t lightId) override;
     int32_t DestroyHdiConnection() override;
@@ -38,4 +39,4 @@ private:
 };
 }  // namespace Sensors
 }  // namespace OHOS
-#endif  // DIRECT_LIGHT_CONNECTION_H
+#endif  // COMPATIBLE_LIGHT_CONNECTION_H

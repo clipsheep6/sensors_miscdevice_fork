@@ -26,7 +26,7 @@ namespace Sensors {
 using namespace OHOS::HiviewDFX;
 
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, MISC_LOG_DOMAIN, "LightHdiConnection::" };
+constexpr HiLogLabel LABEL = { LOG_CORE, MISC_LOG_DOMAIN, "LightHdiConnection" };
 }
 
 int32_t LightHdiConnection::ConnectHdi()
@@ -44,7 +44,7 @@ int32_t LightHdiConnection::ConnectHdi()
         MISC_HILOGE("hdi connection failed");
         return LIGHT_HDF_CONNECT_ERR;
     }
-    ret = iLightHdiConnection_->GetLightList(lightList_);
+    ret = iLightHdiConnection_->GetLightList(lightInfoList_);
     if (ret != 0) {
         MISC_HILOGE("GetLightList failed");
         return LIGHT_ERR;
@@ -52,9 +52,9 @@ int32_t LightHdiConnection::ConnectHdi()
     return ERR_OK;
 }
 
-int32_t LightHdiConnection::GetLightList(std::vector<LightInfo>& lightList)
+int32_t LightHdiConnection::GetLightList(std::vector<LightInfo>& lightList) const
 {
-    lightList.assign(lightList_.begin(), lightList_.end());
+    lightList.assign(lightInfoList_.begin(), lightInfoList_.end());
     return ERR_OK;
 }
 
@@ -62,7 +62,7 @@ int32_t LightHdiConnection::TurnOn(int32_t lightId, const HDI::Light::V1_0::HdfL
 {
     if (iLightHdiConnection_ == nullptr) {
         MISC_HILOGE("iLightHdiConnection_ is null");
-        return -1;
+        return ERROR;
     }
     int32_t ret = iLightHdiConnection_->TurnOn(lightId, effect);
     if (ret != 0) {

@@ -27,7 +27,7 @@ namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, MISC_LOG_DOMAIN, "CompatibleLightConnection" };
 }
 std::vector<LightInfo> lightInfo = {
-    {"name_test111", 1, 3}
+    {"light_test", 1, 3}
 };
 std::vector<int32_t> supportLights = {0};
 std::atomic_bool CompatibleLightConnection::isStop_ = false;
@@ -38,7 +38,7 @@ int32_t CompatibleLightConnection::ConnectHdi()
     return ERR_OK;
 }
 
-int32_t CompatibleLightConnection::GetLightList(std::vector<LightInfo>& lightList)
+int32_t CompatibleLightConnection::GetLightList(std::vector<LightInfo>& lightList) const
 {
     CALL_LOG_ENTER;
     lightList.assign(lightInfo.begin(), lightInfo.end());
@@ -72,11 +72,12 @@ int32_t CompatibleLightConnection::TurnOff(int32_t lightId)
         return ERR_OK;
     }
     std::vector<int32_t>::iterator iter;
-    for (iter = turnOnLights_.begin(); iter != turnOnLights_.end(); ++iter) {
+    for (iter = turnOnLights_.begin(); iter != turnOnLights_.end();) {
         if (*iter == lightId) {
             turnOnLights_.erase(iter++);
             break;
         }
+        ++iter;
     }
     if (turnOnLights_.empty()) {
         isStop_ = true;

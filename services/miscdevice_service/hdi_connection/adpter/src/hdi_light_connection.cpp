@@ -12,11 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "hdi_light_connection.h"
 
 #include <securec.h>
 #include <thread>
 #include <vector>
-#include "hdi_light_connection.h"
+
 #include "hisysevent.h"
 #include "sensors_errors.h"
 #include "v1_0/light_interface_proxy.h"
@@ -41,7 +42,7 @@ int32_t HdiLightConnection::ConnectHdi()
             return ERR_OK;
         }
         retry++;
-        MISC_HILOGW("connect hdi service failed, retry : %{public}d", retry);
+        MISC_HILOGW("connect hdi service failed, retry:%{public}d", retry);
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
     }
     HiSysEvent::Write(HiviewDFX::HiSysEvent::Domain::MISCDEVICE, "LIGHT_HDF_SERVICE_EXCEPTION",
@@ -50,7 +51,7 @@ int32_t HdiLightConnection::ConnectHdi()
     return ERR_INVALID_VALUE;
 }
 
-int32_t HdiLightConnection::GetLightList(std::vector<LightInfo> &lightList)
+int32_t HdiLightConnection::GetLightList(std::vector<LightInfo> &lightList) const
 {
     CALL_LOG_ENTER;
     std::vector<HDI::Light::V1_0::HdfLightInfo> lightInfos;
@@ -63,13 +64,10 @@ int32_t HdiLightConnection::GetLightList(std::vector<LightInfo> &lightList)
     }
     for (size_t i = 0; i < lightInfos.size(); i++) {
         LightInfo light;
-        // auto ret = memcpy_s(light.lightName, NAME_MAX_LEN, lightInfos[i].lightName.c_str(),
-                    // lightInfos[i].lightName.size());
-        // CHKCR(ret != EOK, ret, ERROR);
         light.lightId = lightInfos[i].lightId;
         light.lightNumber = lightInfos[i].reserved;
         lightList.push_back(light);
-        MISC_HILOGE("cff lightId:%{public}d, lightNumber:%{public}d", lightInfos[i].lightId, lightInfos[i].reserved);
+        MISC_HILOGD("lightId:%{public}d, lightNumber:%{public}d", lightInfos[i].lightId, lightInfos[i].reserved);
     }
     return ERR_OK;
 }
@@ -138,15 +136,15 @@ void HdiLightConnection::ProcessDeathObserver(const wptr<IRemoteObject> &object)
         return;
     }
     hdiService->RemoveDeathRecipient(hdiDeathObserver_);
-    reconnect();
+    Reconnect();
 }
 
-void HdiLightConnection::reconnect()
+void HdiLightConnection::Reconnect()
 {
     int32_t ret = ConnectHdi();
     if (ret != ERR_OK) {
         HiSysEvent::Write(HiSysEvent::Domain::MISCDEVICE, "LIGHT_HDF_SERVICE_EXCEPTION",
-            HiSysEvent::EventType::FAULT, "PKG_NAME", "reconnect", "ERROR_CODE", ret);
+            HiSysEvent::EventType::FAULT, "PKG_NAME", "Reconnect", "ERROR_CODE", ret);
         MISC_HILOGE("connect hdi fail");
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,12 +38,12 @@ public:
     virtual int32_t PlayVibratorEffect(int32_t vibratorId, const std::string &effect,
                                        int32_t loopCount, int32_t usage) = 0;
     virtual int32_t PlayCustomVibratorEffect(int32_t vibratorId, const std::vector<int32_t> &timing,
-                                            const std::vector<int32_t> &intensity, int32_t periodCount) = 0;
+                                             const std::vector<int32_t> &intensity, int32_t periodCount) = 0;
     virtual int32_t StopVibratorEffect(int32_t vibratorId, const std::string &effect) = 0;
     virtual int32_t SetVibratorParameter(int32_t vibratorId, const std::string &cmd) = 0;
     virtual std::string GetVibratorParameter(int32_t vibratorId, const std::string &cmd) = 0;
     virtual std::vector<LightInfo> GetLightList() = 0;
-    virtual int32_t TurnOn(int32_t lightId, const LightColor color, const LightAnimation animation) = 0;
+    virtual int32_t TurnOn(int32_t lightId, const LightColor &color, const LightAnimation &animation) = 0;
     virtual int32_t TurnOff(int32_t lightId) = 0;
 
     enum {

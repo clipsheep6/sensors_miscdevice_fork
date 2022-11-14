@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -311,11 +311,9 @@ std::string MiscdeviceService::GetVibratorParameter(int32_t vibratorId, const st
 
 std::vector<LightInfo> MiscdeviceService::GetLightList()
 {
-    if (!lightInfos_.empty()) {
-        MISC_HILOGE("lightInfos_ is not init");
-    }
     if (!InitLightList()) {
         MISC_HILOGE("InitLightList init filed");
+        return lightInfos_;
     }
     return lightInfos_;
 }
@@ -330,7 +328,7 @@ bool MiscdeviceService::InitLightList()
     return true;
 }
 
-int32_t MiscdeviceService::TurnOn(int32_t lightId, const LightColor color, const LightAnimation animation)
+int32_t MiscdeviceService::TurnOn(int32_t lightId, const LightColor &color, const LightAnimation &animation)
 {
     CALL_LOG_ENTER;
     if (!IsValid(lightId)) {
@@ -340,7 +338,7 @@ int32_t MiscdeviceService::TurnOn(int32_t lightId, const LightColor color, const
     HDI::Light::V1_0::HdfLightEffect hdfLightEffect;
     int32_t ret = lightHdiConnection_.TurnOn(lightId, hdfLightEffect);
     if (ret != ERR_OK) {
-        MISC_HILOGE("TurnOn failed, error: %{public}d", ret);
+        MISC_HILOGE("TurnOn failed, error:%{public}d", ret);
         return ERROR;
     }
     return ret;
@@ -355,7 +353,7 @@ int32_t MiscdeviceService::TurnOff(int32_t lightId)
     }
     int32_t ret = lightHdiConnection_.TurnOff(lightId);
     if (ret != ERR_OK) {
-        MISC_HILOGE("TurnOff failed, error: %{public}d", ret);
+        MISC_HILOGE("TurnOff failed, error:%{public}d", ret);
         return ERROR;
     }
     return ret;

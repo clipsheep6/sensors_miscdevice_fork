@@ -49,7 +49,7 @@ int32_t GetLightList(LightInfo **lightInfo, int32_t &count);
  *
  * @since 10
  */
-int32_t TurnOn(int32_t lightId, const LightColor color, const LightAnimation animation);
+int32_t TurnOn(int32_t lightId, const LightColor &color, const LightAnimation &animation);
 
 /**
  * @brief 控制多灯亮

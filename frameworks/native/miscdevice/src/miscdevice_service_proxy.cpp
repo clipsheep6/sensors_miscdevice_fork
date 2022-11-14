@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -365,7 +365,8 @@ std::vector<LightInfo> MiscdeviceServiceProxy::GetLightList()
     for (int32_t i = 0; i < lightCount; i++) {
         const unsigned char *info = reply.ReadBuffer(sizeof(LightInfo));
         LightInfo lightInfo;
-        if (memcpy_s(&lightInfo, sizeof(LightInfo), info, sizeof(LightInfo)) != SUCCESS) {
+        if (memcpy_s(&lightInfo, sizeof(LightInfo), info, sizeof(LightInfo)) != EOK) {
+            MISC_HILOGE("memcpy_s failed");
             return lightInfos;
         }
         lightInfos.push_back(lightInfo);
@@ -373,7 +374,7 @@ std::vector<LightInfo> MiscdeviceServiceProxy::GetLightList()
     return lightInfos;
 }
 
-int32_t MiscdeviceServiceProxy::TurnOn(int32_t lightId, const LightColor color, const LightAnimation animation)
+int32_t MiscdeviceServiceProxy::TurnOn(int32_t lightId, const LightColor &color, const LightAnimation &animation)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -400,7 +401,7 @@ int32_t MiscdeviceServiceProxy::TurnOn(int32_t lightId, const LightColor color, 
     if (ret != NO_ERROR) {
         HiSysEvent::Write(HiSysEvent::Domain::MISCDEVICE, "LIGHT_SERVICE_IPC_EXCEPTION",
             HiSysEvent::EventType::FAULT, "PKG_NAME", "TurnOn", "ERROR_CODE", ret);
-        MISC_HILOGE("sendRequest failed, ret : %{public}d", ret);
+        MISC_HILOGE("sendRequest failed, ret:%{public}d", ret);
     }
     return ret;
 }
@@ -424,7 +425,7 @@ int32_t MiscdeviceServiceProxy::TurnOff(int32_t lightId)
     if (ret != NO_ERROR) {
         HiSysEvent::Write(HiSysEvent::Domain::MISCDEVICE, "LIGHT_SERVICE_IPC_EXCEPTION",
             HiSysEvent::EventType::FAULT, "PKG_NAME", "TurnOff", "ERROR_CODE", ret);
-        MISC_HILOGE("sendRequest failed, ret : %{public}d", ret);
+        MISC_HILOGE("sendRequest failed, ret:%{public}d", ret);
     }
     return ret;
 }

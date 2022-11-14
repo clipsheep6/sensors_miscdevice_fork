@@ -15,8 +15,10 @@
 
 #include "light_client.h"
 
-#include <securec.h>
 #include <thread>
+
+#include <securec.h>
+
 #include "death_recipient_template.h"
 #include "hisysevent.h"
 #include "iservice_registry.h"
@@ -28,14 +30,11 @@ namespace Sensors {
 using namespace OHOS::HiviewDFX;
 
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, MISC_LOG_DOMAIN, "LightServiceClient" };
+constexpr HiLogLabel LABEL = { LOG_CORE, MISC_LOG_DOMAIN, "LightClient" };
 constexpr int32_t GET_SERVICE_MAX_COUNT = 30;
 constexpr int32_t MAX_LIGHT_LIST_SIZE = 200;
 constexpr uint32_t WAIT_MS = 200;
 }  // namespace
-
-LightInfo *lightInfos_ = nullptr;
-int32_t lightInfoCount_ = 0;
 
 int32_t LightClient::InitLightClient()
 {
@@ -52,15 +51,15 @@ int32_t LightClient::InitLightClient()
         miscdeviceProxy_ = iface_cast<IMiscdeviceService>(systemManager->GetSystemAbility(
             MISCDEVICE_SERVICE_ABILITY_ID));
         if (miscdeviceProxy_ != nullptr) {
-            MISC_HILOGD("miscdeviceProxy_ get service success, retry : %{public}d", retry);
+            MISC_HILOGD("miscdeviceProxy_ get service success, retry:%{public}d", retry);
             serviceDeathObserver_ = new (std::nothrow) DeathRecipientTemplate(*const_cast<LightClient *>(this));
             if (serviceDeathObserver_ != nullptr) {
                 miscdeviceProxy_->AsObject()->AddDeathRecipient(serviceDeathObserver_);
             }
-            lightList_ = miscdeviceProxy_->GetLightList();
+            lightInfoList_ = miscdeviceProxy_->GetLightList();
             return ERR_OK;
         }
-        MISC_HILOGW("get service failed, retry : %{public}d", retry);
+        MISC_HILOGW("get service failed, retry:%{public}d", retry);
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
         retry++;
     }
@@ -77,7 +76,7 @@ bool LightClient::IsValid(int32_t lightId)
         MISC_HILOGE("InitLightClient failed, ret:%{public}d", ret);
         return false;
     }
-    for (const auto &item : lightList_) {
+    for (const auto &item : lightInfoList_) {
         if (lightId == item.lightId) {
             return true;
         }
@@ -97,7 +96,7 @@ int32_t LightClient::GetLightList(LightInfo **lightInfo, int32_t *count)
     }
     if (lightInfos_ != nullptr) {
         int32_t ret = ConvertLightInfos();
-        if (ret != SUCCESS) {
+        if (ret != ERR_OK) {
             MISC_HILOGE("convert light lists failed");
             ClearLightInfos();
             return ERROR;
@@ -105,10 +104,10 @@ int32_t LightClient::GetLightList(LightInfo **lightInfo, int32_t *count)
     }
     *lightInfo = lightInfos_;
     *count = lightInfoCount_;
-    return SUCCESS;
+    return ERR_OK;
 }
 
-int32_t LightClient::TurnOn(int32_t lightId, const LightColor color, const LightAnimation animation)
+int32_t LightClient::TurnOn(int32_t lightId, const LightColor &color, const LightAnimation &animation)
 {
     CALL_LOG_ENTER;
     if (!IsValid(lightId)) {
@@ -135,7 +134,7 @@ void LightClient::ProcessDeathObserver(const wptr<IRemoteObject> &object)
     miscdeviceProxy_ = nullptr;
     auto ret = InitLightClient();
     if (ret != ERR_OK) {
-        MISC_HILOGE("InitLightClient failed, ret : %{public}d", ret);
+        MISC_HILOGE("InitLightClient failed, ret:%{public}d", ret);
         return;
     }
 }
@@ -150,23 +149,23 @@ void LightClient::ClearLightInfos()
 int32_t LightClient::ConvertLightInfos()
 {
     CALL_LOG_ENTER;
-    if (lightList_.empty()) {
+    if (lightInfoList_.empty()) {
         MISC_HILOGE("get light lists failed");
         return ERROR;
     }
-    size_t count = lightList_.size();
+    size_t count = lightInfoList_.size();
     if (count > MAX_LIGHT_LIST_SIZE) {
-        MISC_HILOGE("The number of lights exceeds the maximum value");
+        MISC_HILOGE("The number of lights exceed the maximum value");
         return ERROR;
     }
     lightInfos_ = static_cast<LightInfo *>(malloc(sizeof(LightInfo) *count));
     CHKPR(lightInfos_, ERROR);
     for (size_t i = 0; i < count; ++i) {
-        auto ret = memcpy_s((lightInfos_ + i)->lightName, NAME_MAX_LEN, lightList_[i].lightName,
-            strlen(lightList_[i].lightName));
-        CHKCR(ret != SUCCESS, ret, ERROR);
-        (lightInfos_ + i)->lightId = static_cast<int32_t>(lightList_[i].lightId);
-        (lightInfos_ + i)->lightNumber = static_cast<int32_t>(lightList_[i].lightNumber);
+        auto ret = memcpy_s((lightInfos_ + i)->lightName, NAME_MAX_LEN, lightInfoList_[i].lightName,
+            strlen(lightInfoList_[i].lightName));
+        CHKCR(ret != EOK, ret, ERROR);
+        (lightInfos_ + i)->lightId = static_cast<int32_t>(lightInfoList_[i].lightId);
+        (lightInfos_ + i)->lightNumber = static_cast<int32_t>(lightInfoList_[i].lightNumber);
     }
     lightInfoCount_ = static_cast<int32_t>(count);
     return SUCCESS;

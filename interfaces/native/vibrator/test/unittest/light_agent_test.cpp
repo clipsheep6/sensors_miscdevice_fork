@@ -38,16 +38,14 @@ class LightAgentTest : public testing::Test {
 public:
     static void SetUpTestCase() {}
     static void TearDownTestCase() {}
-    void SetUp();
-    void TearDown();
-private:
+    void SetUp() {}
+    void TearDown() {}
+
 };
 
-void LightAgentTest::SetUp()
-{}
+// void LightAgentTest::SetUp() {}
 
-void LightAgentTest::TearDown()
-{}
+// void LightAgentTest::TearDown() {}
 
 HWTEST_F(LightAgentTest, StartLightTest_001, TestSize.Level1)
 {

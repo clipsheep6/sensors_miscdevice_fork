@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,7 +26,7 @@ namespace Sensors {
 class LightClient : public Singleton<LightClient> {
 public:
     int32_t GetLightList(LightInfo **lightInfo, int32_t *count);
-    int32_t TurnOn(int32_t lightId, const LightColor color, const LightAnimation animation);
+    int32_t TurnOn(int32_t lightId, const LightColor &color, const LightAnimation &animation);
     int32_t TurnOff(int32_t lightId);
     bool IsValid(int32_t lightId);
     void ProcessDeathObserver(const wptr<IRemoteObject> &object);
@@ -35,9 +35,11 @@ public:
 
 private:
     int32_t InitLightClient();
+    LightInfo *lightInfos_ {nullptr};
+    int32_t lightInfoCount_ {0};
     sptr<IRemoteObject::DeathRecipient> serviceDeathObserver_;
     sptr<IMiscdeviceService> miscdeviceProxy_;
-    std::vector<LightInfo> lightList_;
+    std::vector<LightInfo> lightInfoList_;
     std::mutex clientMutex_;
 };
 }  // namespace Sensors
