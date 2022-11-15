@@ -16,10 +16,12 @@
 #include "miscdevice_service_stub.h"
 
 #include <string>
+#include <memory.h>
 #include <unistd.h>
 
 #include "hisysevent.h"
 #include "ipc_skeleton.h"
+#include "securec.h"
 #include "message_parcel.h"
 
 #include "permission_util.h"
@@ -47,11 +49,9 @@ MiscdeviceServiceStub::MiscdeviceServiceStub()
     baseFuncs_[STOP_VIBRATOR_EFFECT] = &MiscdeviceServiceStub::StopVibratorEffectPb;
     baseFuncs_[SET_VIBRATOR_PARA] = &MiscdeviceServiceStub::SetVibratorParameterPb;
     baseFuncs_[GET_VIBRATOR_PARA] = &MiscdeviceServiceStub::GetVibratorParameterPb;
-    baseFuncs_[GET_LIGHT_SUPPORT_ID] = &MiscdeviceServiceStub::GetLightSupportIdPb;
-    baseFuncs_[IS_LIGHT_EFFECT_SUPPORT] = &MiscdeviceServiceStub::IsLightEffectSupportPb;
-    baseFuncs_[LIGHT] = &MiscdeviceServiceStub::LightPb;
-    baseFuncs_[PLAY_LIGHT_EFFECT] = &MiscdeviceServiceStub::PlayLightEffectPb;
-    baseFuncs_[STOP_LIGHT_EFFECT] = &MiscdeviceServiceStub::StopLightEffectPb;
+    baseFuncs_[GET_LIGHT_LIST] = &MiscdeviceServiceStub::GetLightListPb;
+    baseFuncs_[TURN_ON] = &MiscdeviceServiceStub::TurnOnPb;
+    baseFuncs_[TURN_OFF] = &MiscdeviceServiceStub::TurnOffPb;
 }
 
 MiscdeviceServiceStub::~MiscdeviceServiceStub()
@@ -225,65 +225,50 @@ int32_t MiscdeviceServiceStub::GetVibratorParameterPb(MessageParcel &data, Messa
     return NO_ERROR;
 }
 
-int32_t MiscdeviceServiceStub::GetLightSupportIdPb(MessageParcel &data, MessageParcel &reply)
+int32_t MiscdeviceServiceStub::GetLightListPb(MessageParcel &data, MessageParcel &reply)
 {
-    std::vector<int32_t> idSet = GetLightSupportId();
-    reply.WriteUint32(static_cast<uint32_t>(idSet.size()));
-    reply.WriteInt32Vector(idSet);
+    (void)data;
+    std::vector<LightInfo> lightInfos(GetLightList());
+    int32_t lightCount = int32_t { lightInfos.size() };
+    reply.WriteInt32(lightCount);
+    for (int32_t i = 0; i < lightCount; i++) {
+        if (!reply.WriteBuffer(&lightInfos[i], sizeof(LightInfo))) {
+            MISC_HILOGE("WriteBuffer failed");
+            return WRITE_MSG_ERR;
+        }
+    }
     return NO_ERROR;
 }
 
-int32_t MiscdeviceServiceStub::IsLightEffectSupportPb(MessageParcel &data, MessageParcel &reply)
+int32_t MiscdeviceServiceStub::TurnOnPb(MessageParcel &data, MessageParcel &reply)
 {
-    int32_t id;
-    std::string effect;
-    if ((!data.ReadInt32(id)) || (!data.ReadString(effect))) {
-        MISC_HILOGE("Parcel read failed");
+    int32_t lightId = data.ReadInt32();
+    const unsigned char *info = data.ReadBuffer(sizeof(LightColor));
+    CHKPR(info, ERROR);
+    LightColor lightColor;
+    if (memcpy_s(&lightColor, sizeof(LightColor), info, sizeof(LightColor)) != EOK) {
         return ERROR;
     }
-    reply.WriteBool(IsLightEffectSupport(id, effect));
-    return NO_ERROR;
+
+    const unsigned char *buf = data.ReadBuffer(sizeof(LightColor));
+    CHKPR(buf, ERROR);
+    LightAnimation lightAnimation;
+    if (memcpy_s(&lightAnimation, sizeof(LightAnimation), buf, sizeof(LightAnimation)) != EOK) {
+        return ERROR;
+    }
+    return TurnOn(lightId, lightColor, lightAnimation);
 }
 
-int32_t MiscdeviceServiceStub::LightPb(MessageParcel &data, MessageParcel &reply)
+int32_t MiscdeviceServiceStub::TurnOffPb(MessageParcel &data, MessageParcel &reply)
 {
-    int32_t id;
-    uint64_t brightness;
-    uint32_t timeOn;
-    uint32_t timeOff;
-    if ((!data.ReadInt32(id)) || (!data.ReadUint64(brightness)) ||
-        (!data.ReadUint32(timeOn)) || (!data.ReadUint32(timeOff))) {
-        MISC_HILOGE("Parcel read failed");
-        return ERROR;
-    }
-    return Light(id, brightness, timeOn, timeOff);
-}
-
-int32_t MiscdeviceServiceStub::PlayLightEffectPb(MessageParcel &data, MessageParcel &reply)
-{
-    int32_t id;
-    std::string type;
-    if ((!data.ReadInt32(id)) || (!data.ReadString(type))) {
-        MISC_HILOGE("Parcel read failed");
-        return ERROR;
-    }
-    return PlayLightEffect(id, type);
-}
-
-int32_t MiscdeviceServiceStub::StopLightEffectPb(MessageParcel &data, MessageParcel &reply)
-{
-    int32_t id;
-    if (!data.ReadInt32(id)) {
-        MISC_HILOGE("Parcel read failed");
-        return ERROR;
-    }
-    return StopLightEffect(id);
+    int32_t lightId = data.ReadInt32();
+    return TurnOff(lightId);
 }
 
 int32_t MiscdeviceServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
                                                MessageOption &option)
 {
-    MISC_HILOGD("remoterequest begin, cmd : %{public}u", code);
+    MISC_HILOGD("remoterequest begin, cmd:%{public}u", code);
     std::u16string descriptor = MiscdeviceServiceStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,7 @@
 #include "sensors_errors.h"
 #include "system_ability_definition.h"
 #include "vibration_priority_manager.h"
+#include "v1_0/light_interface_proxy.h"
 
 namespace OHOS {
 namespace Sensors {
@@ -67,6 +68,10 @@ void MiscdeviceService::OnStart()
         MISC_HILOGE("Init interface error");
         return;
     }
+    if (!InitLightInterface()) {
+        MISC_HILOGE("InitLightInterface failed");
+        return;
+    }
     if (!SystemAbility::Publish(this)) {
         MISC_HILOGE("publish MiscdeviceService failed");
         return;
@@ -92,6 +97,27 @@ bool MiscdeviceService::InitInterface()
         return false;
     }
     return true;
+}
+
+bool MiscdeviceService::InitLightInterface()
+{
+    auto ret = lightHdiConnection_.ConnectHdi();
+    if (ret != ERR_OK) {
+        MISC_HILOGE("ConnectHdi failed");
+        return false;
+    }
+    return true;
+}
+
+bool MiscdeviceService::IsValid(int32_t lightId)
+{
+    CALL_LOG_ENTER;
+    for (const auto &item : lightInfos_) {
+        if (lightId == item.lightId) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void MiscdeviceService::OnStop()
@@ -136,7 +162,7 @@ bool MiscdeviceService::ShouldIgnoreVibrate(const VibrateInfo &info)
 
 int32_t MiscdeviceService::Vibrate(int32_t vibratorId, int32_t timeOut, int32_t usage)
 {
-    if ((timeOut <= MIN_VIBRATOR_TIME) || (timeOut > MAX_VIBRATOR_TIME)
+    if ((timeOut < MIN_VIBRATOR_TIME) || (timeOut > MAX_VIBRATOR_TIME)
         || (usage >= USAGE_MAX) || (usage < 0)) {
         MISC_HILOGE("Invalid parameter");
         return PARAMETER_ERROR;
@@ -283,30 +309,54 @@ std::string MiscdeviceService::GetVibratorParameter(int32_t vibratorId, const st
     return cmd;
 }
 
-std::vector<int32_t> MiscdeviceService::GetLightSupportId()
+std::vector<LightInfo> MiscdeviceService::GetLightList()
 {
-    std::vector<int32_t> list;
-    return list;
+    if (!InitLightList()) {
+        MISC_HILOGE("InitLightList init filed");
+        return lightInfos_;
+    }
+    return lightInfos_;
 }
 
-bool MiscdeviceService::IsLightEffectSupport(int32_t lightId, const std::string &effectId)
+bool MiscdeviceService::InitLightList()
 {
-    return false;
+    int32_t ret = lightHdiConnection_.GetLightList(lightInfos_);
+    if (ret != ERR_OK) {
+        MISC_HILOGE("InitLightList failed, ret:%{public}d", ret);
+        return false;
+    }
+    return true;
 }
 
-int32_t MiscdeviceService::Light(int32_t lightId, uint64_t brightness, uint32_t timeOn, uint32_t timeOff)
+int32_t MiscdeviceService::TurnOn(int32_t lightId, const LightColor &color, const LightAnimation &animation)
 {
-    return 0;
+    CALL_LOG_ENTER;
+    if (!IsValid(lightId)) {
+        MISC_HILOGE("lightId is invalid, lightId:%{pubilc}d", lightId);
+        return MISCDEVICE_NATIVE_SAM_ERR;
+    }
+    HDI::Light::V1_0::HdfLightEffect hdfLightEffect;
+    int32_t ret = lightHdiConnection_.TurnOn(lightId, hdfLightEffect);
+    if (ret != ERR_OK) {
+        MISC_HILOGE("TurnOn failed, error:%{public}d", ret);
+        return ERROR;
+    }
+    return ret;
 }
 
-int32_t MiscdeviceService::PlayLightEffect(int32_t lightId, const std::string &type)
+int32_t MiscdeviceService::TurnOff(int32_t lightId)
 {
-    return 0;
-}
-
-int32_t MiscdeviceService::StopLightEffect(int32_t lightId)
-{
-    return 0;
+    CALL_LOG_ENTER;
+    if (!IsValid(lightId)) {
+        MISC_HILOGE("lightId is invalid, lightId:%{pubilc}d", lightId);
+        return MISCDEVICE_NATIVE_SAM_ERR;
+    }
+    int32_t ret = lightHdiConnection_.TurnOff(lightId);
+    if (ret != ERR_OK) {
+        MISC_HILOGE("TurnOff failed, error:%{public}d", ret);
+        return ERROR;
+    }
+    return ret;
 }
 
 int32_t MiscdeviceService::Dump(int32_t fd, const std::vector<std::u16string> &args)
