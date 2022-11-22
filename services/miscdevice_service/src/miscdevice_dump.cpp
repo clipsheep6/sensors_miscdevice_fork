@@ -188,7 +188,7 @@ std::string MiscdeviceDump::GetUsageName(int32_t usage)
 {
     auto it = usageMap_.find(usage);
     if (it == usageMap_.end()) {
-        MISC_HILOGE("usage: %{public}d is invalid", usage);
+        MISC_HILOGE("usage:%{public}d is invalid", usage);
         return {};
     }
     return it->second;

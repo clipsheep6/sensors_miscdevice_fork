@@ -58,7 +58,7 @@ int32_t StartVibrator(const char *effectId)
     auto &client = VibratorServiceClient::GetInstance();
     int32_t ret = client.Vibrate(DEFAULT_VIBRATOR_ID, effectId, g_loopCount, g_usage);
     if (ret != ERR_OK) {
-        MISC_HILOGE("vibrator effectId failed, ret: %{public}d", ret);
+        MISC_HILOGE("vibrator effectId failed, ret:%{public}d", ret);
         return NormalizeErrCode(ret);
     }
     g_loopCount = 1;
@@ -75,7 +75,7 @@ int32_t StartVibratorOnce(int32_t duration)
     auto &client = VibratorServiceClient::GetInstance();
     int32_t ret = client.Vibrate(DEFAULT_VIBRATOR_ID, duration, g_usage);
     if (ret != ERR_OK) {
-        MISC_HILOGE("vibrator duration failed, ret: %{public}d", ret);
+        MISC_HILOGE("vibrator duration failed, ret:%{public}d", ret);
         return NormalizeErrCode(ret);
     }
     g_usage = USAGE_UNKNOWN;
@@ -92,7 +92,7 @@ int32_t StopVibrator(const char *mode)
     auto &client = VibratorServiceClient::GetInstance();
     int32_t ret = client.Stop(DEFAULT_VIBRATOR_ID, mode);
     if (ret != ERR_OK) {
-        MISC_HILOGE("client is failed, ret: %{public}d", ret);
+        MISC_HILOGE("client is failed, ret:%{public}d", ret);
         return NormalizeErrCode(ret);
     }
     return SUCCESS;

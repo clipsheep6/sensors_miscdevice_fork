@@ -36,7 +36,7 @@ AsyncCallbackInfo::~AsyncCallbackInfo()
     }
     for (int32_t i = 0; i < CALLBACK_NUM; ++i) {
         if (callback[i] != nullptr) {
-            MISC_HILOGD("delete reference, i: %{public}d", i);
+            MISC_HILOGD("delete reference, i:%{public}d", i);
             napi_delete_reference(env, callback[i]);
         }
     }
@@ -196,7 +196,7 @@ void EmitAsyncCallbackWork(sptr<AsyncCallbackInfo> asyncCallbackInfo)
             if (asyncCallbackInfo->error.code != SUCCESS) {
                 auto msg = GetNapiError(asyncCallbackInfo->error.code);
                 if (!msg) {
-                    MISC_HILOGE("errCode: %{public}d is invalid", asyncCallbackInfo->error.code);
+                    MISC_HILOGE("errCode:%{public}d is invalid", asyncCallbackInfo->error.code);
                     return;
                 }
                 result = CreateBusinessError(env, asyncCallbackInfo->error.code, msg.value());
@@ -253,7 +253,7 @@ void EmitPromiseWork(sptr<AsyncCallbackInfo> asyncCallbackInfo)
             } else {
                 auto msg = GetNapiError(asyncCallbackInfo->error.code);
                 if (!msg) {
-                    MISC_HILOGE("errCode: %{public}d is invalid", asyncCallbackInfo->error.code);
+                    MISC_HILOGE("errCode:%{public}d is invalid", asyncCallbackInfo->error.code);
                     return;
                 }
                 result = CreateBusinessError(env, asyncCallbackInfo->error.code, msg.value());

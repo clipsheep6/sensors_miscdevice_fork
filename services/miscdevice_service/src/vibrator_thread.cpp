@@ -31,7 +31,7 @@ bool VibratorThread::Run()
     if (currentVibration_.mode == "time") {
         int32_t ret = VibratorDevice.StartOnce(static_cast<uint32_t>(info.duration));
         if (ret != SUCCESS) {
-            MISC_HILOGE("StartOnce fail, duration: %{public}d, pid: %{public}d",
+            MISC_HILOGE("StartOnce fail, duration:%{public}d, pid:%{public}d",
                 info.duration, info.pid);
             return false;
         }
@@ -39,8 +39,7 @@ bool VibratorThread::Run()
         VibratorDevice.Stop(IVibratorHdiConnection::VIBRATOR_STOP_MODE_TIME);
         std::unique_lock<std::mutex> readyLck(readyMutex_);
         if (ready_) {
-            MISC_HILOGI("Stop duration: %{public}d, pid: %{public}d",
-                info.duration, info.pid);
+            MISC_HILOGI("Stop duration:%{public}d, pid:%{public}d", info.duration, info.pid);
             SetReadyStatus(false);
         }
     } else if (info.mode == "preset") {
@@ -48,14 +47,14 @@ bool VibratorThread::Run()
             std::string effect = info.effect;
             int32_t ret = VibratorDevice.Start(effect);
             if (ret != SUCCESS) {
-                MISC_HILOGE("Vibrate effect %{public}s failed, pid: %{public}d", effect.c_str(), info.pid);
+                MISC_HILOGE("Vibrate effect %{public}s failed, pid:%{public}d", effect.c_str(), info.pid);
                 return false;
             }
             cv_.wait_for(vibrateLck, std::chrono::milliseconds(info.duration));
             VibratorDevice.Stop(IVibratorHdiConnection::VIBRATOR_STOP_MODE_PRESET);
             std::unique_lock<std::mutex> readyLck(readyMutex_);
             if (ready_) {
-                MISC_HILOGI("Stop effect %{public}s failed, pid: %{public}d", effect.c_str(), currentVibration_.pid);
+                MISC_HILOGI("Stop effect %{public}s failed, pid:%{public}d", effect.c_str(), currentVibration_.pid);
                 SetReadyStatus(false);
                 break;
             }

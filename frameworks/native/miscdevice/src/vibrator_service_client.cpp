@@ -50,7 +50,7 @@ int32_t VibratorServiceClient::InitServiceClient()
     while (retry < GET_SERVICE_MAX_COUNT) {
         miscdeviceProxy_ = iface_cast<IMiscdeviceService>(sm->GetSystemAbility(MISCDEVICE_SERVICE_ABILITY_ID));
         if (miscdeviceProxy_ != nullptr) {
-            MISC_HILOGD("get service success, retry : %{public}d", retry);
+            MISC_HILOGD("get service success, retry:%{public}d", retry);
             serviceDeathObserver_ =
                 new (std::nothrow) DeathRecipientTemplate(*const_cast<VibratorServiceClient *>(this));
             if (serviceDeathObserver_ != nullptr) {
@@ -58,7 +58,7 @@ int32_t VibratorServiceClient::InitServiceClient()
             }
             return ERR_OK;
         }
-        MISC_HILOGW("get service failed, retry : %{public}d", retry);
+        MISC_HILOGE("get service failed, retry:%{public}d", retry);
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
         retry++;
     }
@@ -70,10 +70,10 @@ int32_t VibratorServiceClient::InitServiceClient()
 
 int32_t VibratorServiceClient::Vibrate(int32_t vibratorId, int32_t timeOut, int32_t usage)
 {
-    MISC_HILOGD("Vibrate begin, timeOut : %{public}u", timeOut);
+    MISC_HILOGD("Vibrate begin, timeOut:%{public}u", timeOut);
     int32_t ret = InitServiceClient();
     if (ret != ERR_OK) {
-        MISC_HILOGE("InitServiceClient failed, ret : %{public}d", ret);
+        MISC_HILOGE("InitServiceClient failed, ret:%{public}d", ret);
         return MISC_NATIVE_GET_SERVICE_ERR;
     }
     CHKPR(miscdeviceProxy_, ERROR);
@@ -86,10 +86,10 @@ int32_t VibratorServiceClient::Vibrate(int32_t vibratorId, int32_t timeOut, int3
 int32_t VibratorServiceClient::Vibrate(int32_t vibratorId, const std::string &effect,
     int32_t loopCount, int32_t usage)
 {
-    MISC_HILOGD("Vibrate begin, effect : %{public}s", effect.c_str());
+    MISC_HILOGD("Vibrate begin, effect:%{public}s", effect.c_str());
     int32_t ret = InitServiceClient();
     if (ret != ERR_OK) {
-        MISC_HILOGE("InitServiceClient failed, ret : %{public}d", ret);
+        MISC_HILOGE("InitServiceClient failed, ret:%{public}d", ret);
         return MISC_NATIVE_GET_SERVICE_ERR;
     }
     CHKPR(miscdeviceProxy_, ERROR);
@@ -101,10 +101,10 @@ int32_t VibratorServiceClient::Vibrate(int32_t vibratorId, const std::string &ef
 
 int32_t VibratorServiceClient::Stop(int32_t vibratorId, const std::string &type)
 {
-    MISC_HILOGD("Stop begin, vibratorId : %{public}d, type : %{public}s", vibratorId, type.c_str());
+    MISC_HILOGD("Stop begin, vibratorId:%{public}d, type:%{public}s", vibratorId, type.c_str());
     int32_t ret = InitServiceClient();
     if (ret != ERR_OK) {
-        MISC_HILOGE("InitServiceClient failed, ret : %{public}d", ret);
+        MISC_HILOGE("InitServiceClient failed, ret:%{public}d", ret);
         return MISC_NATIVE_GET_SERVICE_ERR;
     }
     CHKPR(miscdeviceProxy_, ERROR);
@@ -125,7 +125,7 @@ void VibratorServiceClient::ProcessDeathObserver(const wptr<IRemoteObject> &obje
     miscdeviceProxy_ = nullptr;
     int32_t ret = InitServiceClient();
     if (ret != ERR_OK) {
-        MISC_HILOGE("InitServiceClient failed, ret : %{public}d", ret);
+        MISC_HILOGE("InitServiceClient failed, ret:%{public}d", ret);
         return;
     }
 }

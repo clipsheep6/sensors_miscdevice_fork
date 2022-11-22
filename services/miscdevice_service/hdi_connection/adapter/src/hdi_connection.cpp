@@ -37,7 +37,7 @@ int32_t HdiConnection::ConnectHdi()
             return ERR_OK;
         }
         retry++;
-        MISC_HILOGW("connect hdi service failed, retry : %{public}d", retry);
+        MISC_HILOGE("connect hdi service failed, retry:%{public}d", retry);
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
     }
     HiSysEvent::Write(HiviewDFX::HiSysEvent::Domain::MISCDEVICE, "VIBRATOR_HDF_SERVICE_EXCEPTION",
