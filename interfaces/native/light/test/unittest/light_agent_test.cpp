@@ -44,7 +44,7 @@ int32_t lightType_ = -1;
  * @tc.name: StartLightTest_001
  * @tc.desc: Verify GetLightList
  * @tc.type: FUNC
- * @tc.require:
+ * @tc.require: I63TFA
  */
 HWTEST_F(LightAgentTest, StartLightTest_001, TestSize.Level1)
 {
@@ -64,7 +64,7 @@ HWTEST_F(LightAgentTest, StartLightTest_001, TestSize.Level1)
  * @tc.name: StartLightTest_002
  * @tc.desc: Verify GetLightList
  * @tc.type: FUNC
- * @tc.require:
+ * @tc.require: I63TFA
  */
 HWTEST_F(LightAgentTest, StartLightTest_002, TestSize.Level1)
 {
@@ -110,7 +110,7 @@ bool GetLightColor(LightColor &color, int32_t lightType)
  * @tc.name: StartLightTest_003
  * @tc.desc: Verify TurnOn
  * @tc.type: FUNC
- * @tc.require:
+ * @tc.require: I63TFA
  */
 HWTEST_F(LightAgentTest, StartLightTest_003, TestSize.Level1)
 {
@@ -133,7 +133,7 @@ HWTEST_F(LightAgentTest, StartLightTest_003, TestSize.Level1)
  * @tc.name: StartLightTest_004
  * @tc.desc: Verify TurnOn
  * @tc.type: FUNC
- * @tc.require:
+ * @tc.require: I63TFA
  */
 HWTEST_F(LightAgentTest, StartLightTest_004, TestSize.Level1)
 {
@@ -156,7 +156,7 @@ HWTEST_F(LightAgentTest, StartLightTest_004, TestSize.Level1)
  * @tc.name: StartLightTest_005
  * @tc.desc: Verify TurnOn
  * @tc.type: FUNC
- * @tc.require:
+ * @tc.require: I63TFA
  */
 HWTEST_F(LightAgentTest, StartLightTest_005, TestSize.Level1)
 {
@@ -179,7 +179,7 @@ HWTEST_F(LightAgentTest, StartLightTest_005, TestSize.Level1)
  * @tc.name: StartLightTest_006
  * @tc.desc: Verify GetLightList
  * @tc.type: FUNC
- * @tc.require:
+ * @tc.require: I63TFA
  */
 HWTEST_F(LightAgentTest, StartLightTest_006, TestSize.Level1)
 {
@@ -202,7 +202,7 @@ HWTEST_F(LightAgentTest, StartLightTest_006, TestSize.Level1)
  * @tc.name: StartLightTest_007
  * @tc.desc: Verify GetLightList
  * @tc.type: FUNC
- * @tc.require:
+ * @tc.require: I63TFA
  */
 HWTEST_F(LightAgentTest, StartLightTest_007, TestSize.Level1)
 {
@@ -225,7 +225,7 @@ HWTEST_F(LightAgentTest, StartLightTest_007, TestSize.Level1)
  * @tc.name: StartLightTest_008
  * @tc.desc: Verify GetLightList
  * @tc.type: FUNC
- * @tc.require:
+ * @tc.require: I63TFA
  */
 HWTEST_F(LightAgentTest, StartLightTest_008, TestSize.Level1)
 {
@@ -248,7 +248,7 @@ HWTEST_F(LightAgentTest, StartLightTest_008, TestSize.Level1)
  * @tc.name: StartLightTest_009
  * @tc.desc: Verify GetLightList
  * @tc.type: FUNC
- * @tc.require:
+ * @tc.require: I63TFA
  */
 HWTEST_F(LightAgentTest, StartLightTest_009, TestSize.Level1)
 {
@@ -261,7 +261,7 @@ HWTEST_F(LightAgentTest, StartLightTest_009, TestSize.Level1)
  * @tc.name: StartLightTest_010
  * @tc.desc: Verify GetLightList
  * @tc.type: FUNC
- * @tc.require:
+ * @tc.require: I63TFA
  */
 HWTEST_F(LightAgentTest, StartLightTest_010, TestSize.Level1)
 {
