@@ -32,7 +32,6 @@ ohos_shared_library("liblight_native") {
   ]
   cflags = [ "-fstack-protector-all" ]
   deps = [
-    "$SUBSYSTEM_DIR/miscdevice/interfaces/native/light:light_ndk_header",
     "$SUBSYSTEM_DIR/miscdevice/utils:libmiscdevice_utils",
   ]
 

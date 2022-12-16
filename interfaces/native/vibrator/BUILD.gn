@@ -14,20 +14,6 @@
 import("//build/ohos.gni")
 
 SUBSYSTEM_DIR = "//base/sensors/miscdevice"
-ohos_ndk_library("libvibrator_ndk") {
-  output_name = "vibrator_agent"
-  ndk_description_file = "./libvibrator.json"
-  min_compact_version = "6"
-}
-
-ohos_ndk_headers("vibrator_ndk_header") {
-  dest_dir = "$ndk_headers_out_dir/sensors"
-  sources = [
-    "./include/vibrator_agent.h",
-    "./include/vibrator_agent_type.h",
-  ]
-}
-
 config("vibrator_config") {
   include_dirs = [ "include" ]
 }
@@ -49,8 +35,6 @@ ohos_shared_library("vibrator_interface_native") {
 
   deps = [
     "$SUBSYSTEM_DIR/frameworks/native/miscdevice:libvibrator_native",
-    "$SUBSYSTEM_DIR/interfaces/native/light:light_ndk_header",
-    "$SUBSYSTEM_DIR/interfaces/native/vibrator:libvibrator_ndk",
   ]
 
   external_deps = [
