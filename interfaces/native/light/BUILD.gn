@@ -32,9 +32,7 @@ ohos_shared_library("light_interface_native") {
 
   cflags = [ "-Wno-error=inconsistent-missing-override" ]
 
-  deps = [
-    "$SUBSYSTEM_DIR/frameworks/native/miscdevice:liblight_native",
-  ]
+  deps = [ "$SUBSYSTEM_DIR/frameworks/native/miscdevice:liblight_native" ]
 
   external_deps = [
     "c_utils:utils",

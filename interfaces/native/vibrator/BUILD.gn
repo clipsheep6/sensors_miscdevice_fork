@@ -33,9 +33,7 @@ ohos_shared_library("vibrator_interface_native") {
 
   cflags = [ "-Wno-error=inconsistent-missing-override" ]
 
-  deps = [
-    "$SUBSYSTEM_DIR/frameworks/native/miscdevice:libvibrator_native",
-  ]
+  deps = [ "$SUBSYSTEM_DIR/frameworks/native/miscdevice:libvibrator_native" ]
 
   external_deps = [
     "c_utils:utils",
