@@ -1,0 +1,94 @@
+{
+    "MetaData": {
+        "Create": "2023-02-01",
+        "Description": "a json file format demo",
+        "Version": 1.0,
+        "ChannelNumber": 2
+    },
+    "Channels": [
+        {
+            "Parameters": {
+                "Index": 1,
+                "Curve": [
+                    {
+                        "StartTime": 123,
+                        "Intensity": 0.0,
+                        "Frequency": -33
+                    },
+                    {
+                        "StartTime": 791,
+                        "Intensity": 1.0,
+                        "Frequency": 63
+                    }
+                ]
+            },
+            "Pattern": [
+                {
+                    "Events": {
+                        "Type": "transient",
+                        "StartTime": 0,
+                        "Parameters": {
+                            "Intensity": 65,
+                            "Frequency": 55
+                        }
+                    }
+                },
+                {
+                    "Events": {
+                        "Type": "continuous",
+                        "StartTime": 300,
+                        "Duration": 597,
+                        "Parameters": {
+                            "Intensity": 80,
+                            "Frequency": 40,
+                            "Curve": [
+                                {
+                                    "Time": 0,
+                                    "Intensity": 0.0,
+                                    "Frequency": 0
+                                },
+                                {
+                                    "Time": 423,
+                                    "Intensity": 0.31,
+                                    "Frequency": -45
+                                },
+                                {
+                                    "Time": 597,
+                                    "Intensity": 0.0,
+                                    "Frequency": -14
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Parameters": {
+                "Index": 2
+            },
+            "Pattern": [
+                {
+                    "Events": {
+                        "Type": "transient",
+                        "StartTime": 0,
+                        "Parameters": {
+                            "Intensity": 80,
+                            "Frequency": 40
+                        }
+                    }
+                },
+                {
+                    "Events": {
+                        "Type": "transient",
+                        "StartTime": 340,
+                        "Parameters": {
+                            "Intensity": 48,
+                            "Frequency": 89
+                        }
+                    }
+                }
+            ]
+        }
+    ] 
+}
