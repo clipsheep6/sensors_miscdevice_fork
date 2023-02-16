@@ -74,14 +74,23 @@ int32_t GetFileSize(const std::string& filePath)
     return statbuf.st_size;
 }
 
+<<<<<<< HEAD
 int32_t GetFileSize(int32_t fd)
+=======
+int64_t GetFileSize(int32_t fd)
+>>>>>>> bef164e846fb873c6f4a9bf7719c42a0d57d19dc
 {
     if (fd < 0) {
         MISC_HILOGE("fd is invalid, fd:%{public}d", fd);
         return INVALID_FILE_SIZE;
     }
+<<<<<<< HEAD
     struct stat statbuf = { 0 };
     if (fstat(fd, &statbuf) != 0) {
+=======
+    struct stat64 statbuf = { 0 };
+    if (fstat64(fd, &statbuf) != 0) {
+>>>>>>> bef164e846fb873c6f4a9bf7719c42a0d57d19dc
         MISC_HILOGE("fstat error, errno:%{public}d", errno);
         return INVALID_FILE_SIZE;
     }
@@ -137,6 +146,7 @@ std::string ReadFile(const std::string &filePath)
     return dataStr;
 }
 
+<<<<<<< HEAD
 std::string ReadFd(int32_t fd)
 {
     if (fd < 0) {
@@ -146,19 +156,53 @@ std::string ReadFd(int32_t fd)
     FILE* fp = fdopen(fd, "r");
     CHKPS(fp);
     fseek(fp, 0L, SEEK_SET);
+=======
+std::string ReadFd(const RawFileDescriptor &rawFd)
+{
+    if (rawFd.fd < 0) {
+        MISC_HILOGE("fd is invalid, fd:%{public}d", rawFd.fd);
+        return {};
+    }
+    int64_t fdSize = GetFileSize(rawFd.fd);
+    if (rawFd.offset < 0 || rawFd.offset > fdSize) {
+        MISC_HILOGE("offset is invalid, offset:%{public}lld", static_cast<long long>(rawFd.offset));
+        return {};
+    }
+    if (rawFd.length <= 0 || rawFd.length > fdSize - rawFd.offset) {
+        MISC_HILOGE("length is invalid, length:%{public}lld", static_cast<long long>(rawFd.length));
+        return {};
+    }
+    FILE* fp = fdopen(rawFd.fd, "r");
+    CHKPS(fp);
+    if (fseek(fp, rawFd.offset, SEEK_SET) != 0) {
+        MISC_HILOGE("fseek failed, errno:%{public}d", errno);
+        return {};
+    }
+>>>>>>> bef164e846fb873c6f4a9bf7719c42a0d57d19dc
     std::string dataStr;
     char buf[READ_DATA_BUFF_SIZE] = { '\0' };
     while (fgets(buf, sizeof(buf), fp) != nullptr) {
         dataStr += buf;
+<<<<<<< HEAD
     }
     if (fclose(fp) != 0) {
         MISC_HILOGW("Close file failed, errno:%{public}d", errno);
+=======
+        int64_t location = ftell(fp);
+        if (location - rawFd.offset >= rawFd.length) {
+            break;
+        }
+    }
+    if (fclose(fp) != 0) {
+        MISC_HILOGW("close file failed, errno:%{public}d", errno);
+>>>>>>> bef164e846fb873c6f4a9bf7719c42a0d57d19dc
     }
     return dataStr;
 }
 
 std::string GetFileSuffix(int32_t fd)
 {
+<<<<<<< HEAD
     char buf[FILE_PATH_MAX] = { '\0' };
     if (snprintf_s(buf, sizeof(buf), sizeof(buf) - 1, "/proc/self/fd/%d", fd) < 0) {
         MISC_HILOGE("snprintf_s failed, errno:%{public}d", errno);
@@ -172,6 +216,22 @@ std::string GetFileSuffix(int32_t fd)
     std::string fileAbsolutePath(filePath);
     MISC_HILOGD("fileAbsolutePath:%{public}s", fileAbsolutePath.c_str());
     return fileAbsolutePath.substr(fileAbsolutePath.find_last_of('.') + 1);
+=======
+    std::string fdPath = "/proc/self/fd/" + std::to_string(fd);
+    char filePath[FILE_PATH_MAX + 1] = { '\0' };
+    ssize_t ret = readlink(fdPath.c_str(), filePath, FILE_PATH_MAX);
+    if (ret < 0 || ret > FILE_PATH_MAX) {
+        MISC_HILOGE("readlink failed, errno:%{public}d", errno);
+        return {};
+    }
+    std::string fileAbsolutePath(filePath);
+    size_t pos = fileAbsolutePath.find_last_of('.');
+    if (pos == std::string::npos) {
+        MISC_HILOGE("file suffix is invalid, fileAbsolutePath:%{public}s", fileAbsolutePath.c_str());
+        return {};
+    }
+    return fileAbsolutePath.substr(pos + 1);
+>>>>>>> bef164e846fb873c6f4a9bf7719c42a0d57d19dc
 }
 }  // namespace Sensors
 }  // namespace OHOS
