@@ -36,9 +36,15 @@ JsonParser::JsonParser(const std::string &filePath)
     cJson_ = cJSON_Parse(jsonStr.c_str());
 }
 
+<<<<<<< HEAD
+JsonParser::JsonParser(int32_t fd)
+{
+    std::string jsonStr = ReadFd(fd);
+=======
 JsonParser::JsonParser(const RawFileDescriptor &rawFd)
 {
     std::string jsonStr = ReadFd(rawFd);
+>>>>>>> bef164e846fb873c6f4a9bf7719c42a0d57d19dc
     if (jsonStr.empty()) {
         MISC_HILOGE("Read fd fail");
         return;

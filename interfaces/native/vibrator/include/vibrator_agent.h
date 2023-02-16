@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -77,6 +77,16 @@ int32_t StartVibrator(const char *effectId);
 int32_t StartVibratorOnce(int32_t duration);
 
 /**
+ * @brief 播放自定义振动序列.
+ *
+ * @param fd 自定义振动序列的文件句柄.
+ * @return 返回0表示成功，否则表示失败.
+ *
+ * @since 10
+ */
+int32_t PlayVibratorCustom(int32_t fd);
+
+/**
  * @brief Sets the number of cycles for vibration.
  * @param count Indicates the number of cycles for vibration.
  * @since 9
@@ -84,14 +94,21 @@ int32_t StartVibratorOnce(int32_t duration);
 bool SetLoopCount(int32_t count);
 
 /**
- * @brief Stops the vibration of this vibrator.
+ * @brief 根据传入的模式停止马达振动.
  *
  * @param mode Indicates the mode of the vibration to stop. The values can be <b>time</b> and <b>preset</b>,
- * respectively representing a one-shot vibration effect and a preset vibration effect.
+ * respectively representing a one-shot vibration mode and a preset vibration mode.
  * @return Returns <b>0</b> if the vibration is stopped as expected; returns <b>-1</b> otherwise.
  * @since 6
  */
 int32_t StopVibrator(const char *mode);
+
+/**
+ * @brief 停止当前马达振动.
+ * @return 返回0表示成功，否则表示失败.
+ * @since 10
+ */
+int32_t StopVibratorAll();
 
 /**
  * @brief Set the usage of vibration.

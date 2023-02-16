@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 
 #include "accesstoken_kit.h"
 #include "nativetoken_kit.h"
+#include "parameters.h"
 #include "token_setproc.h"
 
 #include "vibrator_agent.h"
@@ -31,6 +32,9 @@ using namespace Security::AccessToken;
 using Security::AccessToken::AccessTokenID;
 
 namespace {
+const std::string PHONE_TYPE = "phone";
+const std::string TABLET_TYPE = "tablet";
+std::string deviceType_ = "";
 constexpr HiLogLabel LABEL = { LOG_CORE, MISC_LOG_DOMAIN, "VibratorAgentTest" };
 PermissionDef infoManagerTestPermDef_ = {
     .permissionName = "ohos.permission.VIBRATE",
@@ -86,6 +90,8 @@ void VibratorAgentTest::SetUpTestCase()
     tokenID_ = tokenIdEx.tokenIdExStruct.tokenID;
     ASSERT_NE(0, tokenID_);
     ASSERT_EQ(0, SetSelfTokenID(tokenID_));
+    deviceType_ = OHOS::system::GetDeviceType();
+    MISC_HILOGI("deviceType:%{public}s", deviceType_.c_str());
 }
 
 void VibratorAgentTest::TearDownTestCase()
@@ -105,7 +111,12 @@ void VibratorAgentTest::TearDown()
 HWTEST_F(VibratorAgentTest, StartVibratorTest_001, TestSize.Level1)
 {
     HiLog::Info(LABEL, "%{public}s begin", __func__);
-    int32_t ret = StartVibrator("haptic.clock.timer");
+    int ret = 0;
+    if (deviceType_ == TABLET_TYPE) {
+        ret = StartVibrator("haptic.common.click");
+    } else {
+        ret = StartVibrator("haptic.clock.timer");
+    }
     ASSERT_EQ(ret, 0);
 }
 
@@ -228,6 +239,394 @@ HWTEST_F(VibratorAgentTest, SetUsage_003, TestSize.Level1)
     HiLog::Info(LABEL, "%{public}s begin", __func__);
     bool ret = SetUsage(USAGE_MAX);
     ASSERT_FALSE(ret);
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_001, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t fd = open("/data/test/vibrator/coin_drop.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        int32_t ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_EQ(ret, 0);
+        sleep(5);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_002, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t fd = open("/data/test/vibrator/on_carpet.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        int32_t ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_EQ(ret, 0);
+        sleep(5);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_003, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t ret = SetLoopCount(2);
+        ASSERT_TRUE(ret);
+        ret = StartVibrator("haptic.clock.timer");
+        ASSERT_EQ(ret, 0);
+        int32_t fd = open("/data/test/vibrator/on_carpet.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_NE(ret, 0);
+        sleep(5);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_004, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t ret = SetUsage(USAGE_ALARM);
+        ASSERT_TRUE(ret);
+        ret = StartVibrator("haptic.clock.timer");
+        ASSERT_EQ(ret, 0);
+        int32_t fd = open("/data/test/vibrator/on_carpet.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_NE(ret, 0);
+        sleep(5);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_005, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t ret = SetUsage(USAGE_UNKNOWN);
+        ASSERT_TRUE(ret);
+        ret = StartVibrator("haptic.clock.timer");
+        ASSERT_EQ(ret, 0);
+        int32_t fd = open("/data/test/vibrator/on_carpet.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_EQ(ret, 0);
+        sleep(5);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_006, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t ret = SetUsage(USAGE_ALARM);
+        ASSERT_TRUE(ret);
+        int32_t fd = open("/data/test/vibrator/on_carpet.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_EQ(ret, 0);
+        ret = StartVibrator("haptic.clock.timer");
+        ASSERT_NE(ret, 0);
+        sleep(5);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_007, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t ret = SetUsage(USAGE_UNKNOWN);
+        ASSERT_TRUE(ret);
+        int32_t fd = open("/data/test/vibrator/on_carpet.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_EQ(ret, 0);
+        ret = StartVibrator("haptic.clock.timer");
+        ASSERT_EQ(ret, 0);
+        sleep(5);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_008, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t ret = SetUsage(USAGE_ALARM);
+        ASSERT_TRUE(ret);
+        ret = StartVibratorOnce(500);
+        ASSERT_EQ(ret, 0);
+        int32_t fd = open("/data/test/vibrator/on_carpet.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_NE(ret, 0);
+        sleep(5);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_009, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t ret = SetUsage(USAGE_UNKNOWN);
+        ASSERT_TRUE(ret);
+        ret = StartVibratorOnce(500);
+        ASSERT_EQ(ret, 0);
+        int32_t fd = open("/data/test/vibrator/on_carpet.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_EQ(ret, 0);
+        sleep(5);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_010, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t ret = SetUsage(USAGE_ALARM);
+        ASSERT_TRUE(ret);
+        int32_t fd = open("/data/test/vibrator/on_carpet.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_EQ(ret, 0);
+        ret = StartVibratorOnce(500);
+        ASSERT_NE(ret, 0);
+        sleep(5);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_011, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t ret = SetUsage(USAGE_UNKNOWN);
+        ASSERT_TRUE(ret);
+        int32_t fd = open("/data/test/vibrator/on_carpet.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_EQ(ret, 0);
+        ret = StartVibratorOnce(500);
+        ASSERT_EQ(ret, 0);
+        sleep(5);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_012, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t fd = open("/data/test/vibrator/test_128_event.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        int32_t ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_EQ(ret, 0);
+        sleep(7);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_013, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t fd = open("/data/test/vibrator/test_invalid_type.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        int32_t ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_NE(ret, 0);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_014, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t fd = open("/data/test/vibrator/test_invalid_startTime.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        int32_t ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_NE(ret, 0);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_015, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t fd = open("/data/test/vibrator/test_invalid_duration.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        int32_t ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_NE(ret, 0);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_016, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t fd = open("/data/test/vibrator/test_invalid_intensity.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        int32_t ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_NE(ret, 0);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_017, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t fd = open("/data/test/vibrator/test_invalid_frequency.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        int32_t ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_NE(ret, 0);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_018, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t fd = open("/data/test/vibrator/test_129_event.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        int32_t ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_NE(ret, 0);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_019, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t fd = open("/data/test/vibrator/test_big_file_size.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        int32_t ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_NE(ret, 0);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_020, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t fd = open("/data/test/vibrator/test_event_overlap_1.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        int32_t ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_NE(ret, 0);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StartVibratorCustom_021, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t fd = open("/data/test/vibrator/test_event_overlap_2.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        int32_t ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_NE(ret, 0);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StopVibratorAll_001, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    int32_t ret = StopVibratorAll();
+    ASSERT_NE(ret, 0);
+}
+
+HWTEST_F(VibratorAgentTest, StopVibratorAll_002, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    if (deviceType_ == PHONE_TYPE) {
+        int32_t fd = open("/data/test/vibrator/coin_drop.json", O_RDONLY);
+        MISC_HILOGD("test fd:%{public}d", fd);
+        int32_t ret = PlayVibratorCustom(fd);
+        close(fd);
+        ASSERT_EQ(ret, 0);
+        ret = StopVibratorAll();
+        ASSERT_EQ(ret, 0);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, StopVibratorAll_003, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    int32_t ret = StartVibratorOnce(500);
+    ASSERT_EQ(ret, 0);
+    ret = StopVibratorAll();
+    ASSERT_EQ(ret, 0);
+}
+
+HWTEST_F(VibratorAgentTest, StopVibratorAll_004, TestSize.Level1)
+{
+    HiLog::Info(LABEL, "%{public}s begin", __func__);
+    int ret = 0;
+    if (deviceType_ == TABLET_TYPE) {
+        ret = StartVibrator("haptic.common.click");
+    } else {
+        ret = StartVibrator("haptic.clock.timer");
+    }
+    ASSERT_EQ(ret, 0);
+    ret = StopVibratorAll();
+    ASSERT_EQ(ret, 0);
 }
 }  // namespace Sensors
 }  // namespace OHOS

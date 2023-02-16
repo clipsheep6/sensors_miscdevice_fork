@@ -22,8 +22,11 @@
 
 #include <unistd.h>
 
+<<<<<<< HEAD
+=======
 #include "raw_file_descriptor.h"
 
+>>>>>>> bef164e846fb873c6f4a9bf7719c42a0d57d19dc
 namespace OHOS {
 namespace Sensors {
 std::string ReadJsonFile(const std::string &filePath);
@@ -33,8 +36,13 @@ bool CheckFileExtendName(const std::string& filePath, const std::string& checkEx
 bool CheckFileSize(const std::string& filePath);
 bool IsFileExists(const std::string& fileName);
 int32_t GetFileSize(const std::string& filePath);
+<<<<<<< HEAD
+int32_t GetFileSize(int32_t fd);
+std::string ReadFd(int32_t fd);
+=======
 int64_t GetFileSize(int32_t fd);
 std::string ReadFd(const RawFileDescriptor &rawFd);
+>>>>>>> bef164e846fb873c6f4a9bf7719c42a0d57d19dc
 std::string GetFileSuffix(int32_t fd);
 }  // namespace Sensors
 }  // namespace OHOS

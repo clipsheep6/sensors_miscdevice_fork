@@ -29,7 +29,11 @@ namespace Sensors {
 class JsonParser {
 public:
     explicit JsonParser(const std::string &filePath);
+<<<<<<< HEAD
+    explicit JsonParser(int32_t fd);
+=======
     explicit JsonParser(const RawFileDescriptor &rawFd);
+>>>>>>> bef164e846fb873c6f4a9bf7719c42a0d57d19dc
     ~JsonParser();
     int32_t ParseJsonArray(cJSON *json, const std::string& key, std::vector<std::string>& vals) const;
     int32_t ParseJsonArray(const std::string& key, std::vector<std::string>& vals) const;

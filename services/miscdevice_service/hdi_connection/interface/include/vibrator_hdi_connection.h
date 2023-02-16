@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,25 +16,25 @@
 #ifndef VIBRATOR_HDI_CONNECTION_H
 #define VIBRATOR_HDI_CONNECTION_H
 
-#include "i_vibrator_hdi_connection.h"
 #include "singleton.h"
+
+#include "i_vibrator_hdi_connection.h"
 
 namespace OHOS {
 namespace Sensors {
 class VibratorHdiConnection : public IVibratorHdiConnection, public Singleton<VibratorHdiConnection> {
 public:
     VibratorHdiConnection() = default;
-
     virtual ~VibratorHdiConnection() {}
-
     int32_t ConnectHdi() override;
-
     int32_t StartOnce(uint32_t duration) override;
-
     int32_t Start(const std::string &effectType) override;
-
-    int32_t Stop(VibratorStopMode mode) override;
-
+#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
+    int32_t EnableCompositeEffect(const HdfCompositeEffect &vibratorCompositeEffect) override;
+    bool IsVibratorRunning() override;
+    int32_t GetEffectInfo(const std::string &effect, HdfEffectInfo &effectInfo) override;
+#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
+    int32_t Stop(HdfVibratorMode mode) override;
     int32_t DestroyHdiConnection() override;
 
 private:
