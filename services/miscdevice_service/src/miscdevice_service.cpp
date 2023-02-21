@@ -16,6 +16,7 @@
 #include "miscdevice_service.h"
 
 #include <algorithm>
+#include <cmath>
 #include <string_ex.h>
 
 #include "sensors_errors.h"
@@ -44,7 +45,8 @@ constexpr int32_t MIN_VIBRATOR_TIME = 0;
 constexpr int32_t MAX_VIBRATOR_TIME = 1800000;
 
 #ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
-constexpr int32_t MAX_JSON_FILE_SIZE = 64000;
+constexpr int32_t MAX_JSON_FILE_SIZE = 512000;
+constexpr int32_t PART_SIZE = 128;
 const std::string PHONE_TYPE = "phone";
 #endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 }  // namespace
@@ -326,6 +328,44 @@ int32_t MiscdeviceService::DecodeCustomEffect(const RawFileDescriptor &rawFd, st
     return NO_ERROR;
 }
 
+int32_t MiscdeviceService::StartCustomVibration(const RawFileDescriptor &rawFd)
+{
+    std::set<VibrateEvent> vibrateSet;
+    int32_t ret = DecodeCustomEffect(rawFd, vibrateSet);
+    if (ret != SUCCESS) {
+        MISC_HILOGE("decoder custom effect error");
+        return ERROR;
+    }
+    CustomVibrationMatcher matcher;
+    std::vector<CompositeEffect> compositeEffects;
+    ret = matcher.TransformEffect(vibrateSet, compositeEffects);
+    if (ret != SUCCESS) {
+        MISC_HILOGE("transform custom effect error");
+        return ERROR;
+    }
+    size_t size = compositeEffects.size();
+    MISC_HILOGD("the count of match result:%{public}zu", size);
+    for (size_t i = 0; i < size; ++i) {
+        MISC_HILOGD("match result at %{public}zu th, delay:%{public}d, effectId:%{public}d",
+            i, compositeEffects[i].primitiveEffect.delay, compositeEffects[i].primitiveEffect.effectId);
+    }
+    size_t sendTimes = std::ceil(static_cast<float>(size) / PART_SIZE);
+    for (size_t i = 0; i < sendTimes; ++i) {
+        auto left = compositeEffects.begin() + PART_SIZE * i;
+        auto right = std::min(compositeEffects.begin() + PART_SIZE * (i + 1), compositeEffects.end());
+        HdfCompositeEffect hdfCompositeEffect = {
+            .type = HDF_EFFECT_TYPE_PRIMITIVE,
+            .compositeEffects = std::vector<CompositeEffect>(left, right)
+        };
+        ret = vibratorHdiConnection_.EnableCompositeEffect(hdfCompositeEffect);
+        if (ret != ERR_OK) {
+            MISC_HILOGE("EnableCompositeEffect error, times:%{public}zu", i);
+            return ERROR;
+        }
+    }
+    return NO_ERROR;
+}
+
 int32_t MiscdeviceService::PlayVibratorCustom(int32_t vibratorId, const RawFileDescriptor &rawFd, int32_t usage)
 {
     if (OHOS::system::GetDeviceType() != PHONE_TYPE) {
@@ -341,27 +381,6 @@ int32_t MiscdeviceService::PlayVibratorCustom(int32_t vibratorId, const RawFileD
             rawFd.fd, static_cast<long long>(rawFd.offset), static_cast<long long>(rawFd.length));
         return PARAMETER_ERROR;
     }
-    std::set<VibrateEvent> vibrateSet;
-    int32_t ret = DecodeCustomEffect(rawFd, vibrateSet);
-    if (ret != SUCCESS) {
-        MISC_HILOGE("decoder custom effect error");
-        return ERROR;
-    }
-    HdfCompositeEffect vibratorCompositeEffect;
-    vibratorCompositeEffect.type = HDF_EFFECT_TYPE_PRIMITIVE;
-    CustomVibrationMatcher matcher;
-    ret = matcher.TransformEffect(vibrateSet, vibratorCompositeEffect.compositeEffects);
-    if (ret != SUCCESS) {
-        MISC_HILOGE("transform custom effect error");
-        return ERROR;
-    }
-    auto& compositeEffects = vibratorCompositeEffect.compositeEffects;
-    size_t size = compositeEffects.size();
-    MISC_HILOGD("the count of match result:%{public}zu", size);
-    for (size_t i = 0; i < size; ++i) {
-        MISC_HILOGD("match result at %{public}zu th, delay:%{public}d, effectId:%{public}d",
-        i, compositeEffects[i].primitiveEffect.delay, compositeEffects[i].primitiveEffect.effectId);
-    }
     VibrateInfo info = {
         .mode = "custom",
         .packageName = GetPackageName(GetCallingTokenID()),
@@ -375,7 +394,7 @@ int32_t MiscdeviceService::PlayVibratorCustom(int32_t vibratorId, const RawFileD
         return ERROR;
     }
     StartVibrateThread(info);
-    return vibratorHdiConnection_.EnableCompositeEffect(vibratorCompositeEffect);
+    return StartCustomVibration(rawFd);
 }
 #endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 
