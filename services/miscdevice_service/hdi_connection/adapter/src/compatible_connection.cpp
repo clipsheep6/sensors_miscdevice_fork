@@ -70,7 +70,7 @@ int32_t CompatibleConnection::Stop(VibratorStopMode mode)
 {
     CALL_LOG_ENTER;
     if (mode < 0 || mode >= VIBRATOR_STOP_MODE_INVALID) {
-        MISC_HILOGE("mode: %{public}d invalid", mode);
+        MISC_HILOGE("mode:%{public}d invalid", mode);
         return VIBRATOR_OFF_ERR;
     }
     if (vibrateMode_ != mode) {

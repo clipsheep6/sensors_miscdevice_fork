@@ -58,7 +58,7 @@ int32_t MiscdeviceServiceStub::VibratePb(MessageParcel &data, MessageParcel &rep
     if (ret != PERMISSION_GRANTED) {
         HiSysEventWrite(HiSysEvent::Domain::MISCDEVICE, "VIBRATOR_PERMISSIONS_EXCEPTION",
             HiSysEvent::EventType::SECURITY, "PKG_NAME", "VibratePb", "ERROR_CODE", ret);
-        MISC_HILOGE("result: %{public}d", ret);
+        MISC_HILOGD("result:%{public}d", ret);
         return PERMISSION_DENIED;
     }
     int32_t vibratorId;
@@ -78,7 +78,7 @@ int32_t MiscdeviceServiceStub::CancelVibratorPb(MessageParcel &data, MessageParc
     if (ret != PERMISSION_GRANTED) {
         HiSysEventWrite(HiSysEvent::Domain::MISCDEVICE, "VIBRATOR_PERMISSIONS_EXCEPTION",
             HiSysEvent::EventType::SECURITY, "PKG_NAME", "CancelVibratorPb", "ERROR_CODE", ret);
-        MISC_HILOGE("result: %{public}d", ret);
+        MISC_HILOGE("result:%{public}d", ret);
         return PERMISSION_DENIED;
     }
     int32_t vibratorId;
@@ -96,7 +96,7 @@ int32_t MiscdeviceServiceStub::PlayVibratorEffectPb(MessageParcel &data, Message
     if (ret != PERMISSION_GRANTED) {
         HiSysEventWrite(HiSysEvent::Domain::MISCDEVICE, "VIBRATOR_PERMISSIONS_EXCEPTION",
             HiSysEvent::EventType::SECURITY, "PKG_NAME", "PlayVibratorEffectPb", "ERROR_CODE", ret);
-        MISC_HILOGE("result: %{public}d", ret);
+        MISC_HILOGD("result:%{public}d", ret);
         return PERMISSION_DENIED;
     }
     int32_t vibratorId;
@@ -118,7 +118,7 @@ int32_t MiscdeviceServiceStub::StopVibratorEffectPb(MessageParcel &data, Message
     if (ret != PERMISSION_GRANTED) {
         HiSysEventWrite(HiSysEvent::Domain::MISCDEVICE, "VIBRATOR_PERMISSIONS_EXCEPTION",
             HiSysEvent::EventType::SECURITY, "PKG_NAME", "StopVibratorEffectPb", "ERROR_CODE", ret);
-        MISC_HILOGE("result: %{public}d", ret);
+        MISC_HILOGE("result:%{public}d", ret);
         return PERMISSION_DENIED;
     }
     int32_t vibratorId;
@@ -179,7 +179,7 @@ int32_t MiscdeviceServiceStub::TurnOffPb(MessageParcel &data, MessageParcel &rep
 int32_t MiscdeviceServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
                                                MessageOption &option)
 {
-    MISC_HILOGD("remoterequest begin, cmd : %{public}u", code);
+    MISC_HILOGD("remoterequest begin, cmd:%{public}u", code);
     std::u16string descriptor = MiscdeviceServiceStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {

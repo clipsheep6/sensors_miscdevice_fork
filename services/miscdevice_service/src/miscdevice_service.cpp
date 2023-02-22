@@ -60,7 +60,7 @@ void MiscdeviceService::OnStart()
 {
     CALL_LOG_ENTER;
     if (state_ == MiscdeviceServiceState::STATE_RUNNING) {
-        MISC_HILOGW("state_ already started");
+        MISC_HILOGD("state_ already started");
         return;
     }
     if (!InitInterface()) {
@@ -185,7 +185,7 @@ int32_t MiscdeviceService::CancelVibrator(int32_t vibratorId)
         return ERROR;
     }
     while (vibratorThread_->IsRunning()) {
-        MISC_HILOGD("Notify the vibratorThread, vibratorId : %{public}d", vibratorId);
+        MISC_HILOGD("Notify the vibratorThread, vibratorId:%{public}d", vibratorId);
         vibratorThread_->NotifyExit();
     }
     return NO_ERROR;
@@ -244,7 +244,7 @@ int32_t MiscdeviceService::StopVibratorEffect(int32_t vibratorId, const std::str
         return ERROR;
     }
     while (vibratorThread_->IsRunning()) {
-        MISC_HILOGD("notify the vibratorThread, vibratorId : %{public}d", vibratorId);
+        MISC_HILOGD("notify the vibratorThread, vibratorId:%{public}d", vibratorId);
         vibratorThread_->NotifyExit();
     }
     return NO_ERROR;
@@ -339,7 +339,7 @@ int32_t MiscdeviceService::Dump(int32_t fd, const std::vector<std::u16string> &a
 {
     CALL_LOG_ENTER;
     if (fd < 0) {
-        MISC_HILOGE("Invalid fd");
+        MISC_HILOGD("Invalid fd");
         return DUMP_PARAM_ERR;
     }
     if (args.empty()) {

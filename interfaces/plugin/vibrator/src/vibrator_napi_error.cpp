@@ -45,10 +45,10 @@ std::optional<std::string> GetNapiError(int32_t errorCode)
 
 void ThrowErr(const napi_env &env, const int32_t errCode, const std::string &printMsg)
 {
-    MISC_HILOGE("message: %{public}s, code: %{public}d", printMsg.c_str(), errCode);
+    MISC_HILOGD("message:%{public}s, code:%{public}d", printMsg.c_str(), errCode);
     auto msg = GetNapiError(errCode);
     if (!msg) {
-        MISC_HILOGE("errCode: %{public}d is invalid", errCode);
+        MISC_HILOGE("errCode:%{public}d is invalid", errCode);
         return;
     }
     napi_value error = CreateBusinessError(env, errCode, msg.value());
