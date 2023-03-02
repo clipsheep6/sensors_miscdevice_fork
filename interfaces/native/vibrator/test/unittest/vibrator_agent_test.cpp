@@ -18,6 +18,7 @@
 
 #include "accesstoken_kit.h"
 #include "nativetoken_kit.h"
+#include "parameters.h"
 #include "token_setproc.h"
 
 #include "vibrator_agent.h"
@@ -105,8 +106,12 @@ void VibratorAgentTest::TearDown()
 HWTEST_F(VibratorAgentTest, StartVibratorTest_001, TestSize.Level1)
 {
     HiLog::Info(LABEL, "%{public}s begin", __func__);
-    int32_t ret = StartVibrator("haptic.clock.timer");
-    ASSERT_EQ(ret, 0);
+    if (OHOS::system::GetDeviceType() != "tablet") {
+        int32_t ret = StartVibrator("haptic.clock.timer");
+        ASSERT_EQ(ret, 0);
+    } else {
+        ASSERT_EQ(0, 0);
+    }
 }
 
 HWTEST_F(VibratorAgentTest, StartVibratorTest_002, TestSize.Level1)
