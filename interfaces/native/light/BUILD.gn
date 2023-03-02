@@ -14,20 +14,6 @@
 import("//build/ohos.gni")
 
 SUBSYSTEM_DIR = "//base/sensors/miscdevice"
-ohos_ndk_library("liblight_ndk") {
-  output_name = "light_agent"
-  ndk_description_file = "./liblight.json"
-  min_compact_version = "7"
-}
-
-ohos_ndk_headers("light_ndk_header") {
-  dest_dir = "$ndk_headers_out_dir/sensors"
-  sources = [
-    "./include/light_agent.h",
-    "./include/light_agent_type.h",
-  ]
-}
-
 config("light_config") {
   include_dirs = [ "include" ]
 }
@@ -46,11 +32,7 @@ ohos_shared_library("light_interface_native") {
 
   cflags = [ "-Wno-error=inconsistent-missing-override" ]
 
-  deps = [
-    "$SUBSYSTEM_DIR/frameworks/native/miscdevice:liblight_native",
-    "$SUBSYSTEM_DIR/interfaces/native/light:liblight_ndk",
-    "$SUBSYSTEM_DIR/interfaces/native/light:light_ndk_header",
-  ]
+  deps = [ "$SUBSYSTEM_DIR/frameworks/native/miscdevice:liblight_native" ]
 
   external_deps = [
     "c_utils:utils",
