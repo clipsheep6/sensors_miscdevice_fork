@@ -111,6 +111,26 @@ The APIs provided for the vibrator are used to trigger and stop vibration. The f
 <td class="cellrowborder" valign="top" width="68.78999999999999%" headers="mcps1.2.3.1.2 "><p id="p14875916142317"><a name="p14875916142317"></a><a name="p14875916142317"></a>Stops vibration based on the mode specified by <strong id="b128871517589"><a name="b128871517589"></a><a name="b128871517589"></a>stopMode</strong>. There are two modes: <strong id="b16566172217582"><a name="b16566172217582"></a><a name="b16566172217582"></a>VIBRATOR_STOP_MODE_TIME</strong> and <strong id="b1757216228581"><a name="b1757216228581"></a><a name="b1757216228581"></a>VIBRATOR_STOP_MODE_PRESET</strong>, which are used to stop vibration triggered by <strong id="b257214227586"><a name="b257214227586"></a><a name="b257214227586"></a>duration</strong> and <strong id="b457362275812"><a name="b457362275812"></a><a name="b457362275812"></a>effectId</strong>, respectively. This API uses a promise to indicate whether the vibration is stopped successfully.</p>
 </td>
 </tr>
+<tr id="row10382181218477"><td class="cellrowborder" valign="top" width="31.209999999999997%" headers="mcps1.2.3.1.1 "><p id="p764313511343"><a name="p764313511343"></a><a name="p764313511343"></a>stopVibration(callback: AsyncCallback&lt;void&gt;)</p>
+</td>
+<td class="cellrowborder" valign="top" width="68.78999999999999%" headers="mcps1.2.3.1.2 "><p id="p1738291234712"><a name="p1738291234712"></a><a name="p1738291234712"></a>停止所有模式的马达振动，callback为停止振动是否成功。</p>
+</td>
+</tr>
+<tr id="row2087541618235"><td class="cellrowborder" valign="top" width="31.209999999999997%" headers="mcps1.2.3.1.1 "><p id="p13875201620231"><a name="p13875201620231"></a><a name="p13875201620231"></a>stopVibration(): Promise&lt;void&gt;</p>
+</td>
+<td class="cellrowborder" valign="top" width="68.78999999999999%" headers="mcps1.2.3.1.2 "><p id="p14875916142317"><a name="p14875916142317"></a><a name="p14875916142317"></a>停止所有模式的马达振动，返回Promise表示触发振动是否成功。</p>
+</td>
+</tr>
+<tr id="row10382181218477"><td class="cellrowborder" valign="top" width="31.209999999999997%" headers="mcps1.2.3.1.1 "><p id="p764313511343"><a name="p764313511343"></a><a name="p764313511343"></a>isSupportEffect(effectId: string, callback: AsyncCallback&lt;boolean&gt;)</p>
+</td>
+<td class="cellrowborder" valign="top" width="68.78999999999999%" headers="mcps1.2.3.1.2 "><p id="p1738291234712"><a name="p1738291234712"></a><a name="p1738291234712"></a>查询是否支持传入的参数effectId，返回true则表示支持，否则不支持。</p>
+</td>
+</tr>
+<tr id="row2087541618235"><td class="cellrowborder" valign="top" width="31.209999999999997%" headers="mcps1.2.3.1.1 "><p id="p13875201620231"><a name="p13875201620231"></a><a name="p13875201620231"></a>isSupportEffect(effectId: string): Promise&lt;boolean&gt;</p>
+</td>
+<td class="cellrowborder" valign="top" width="68.78999999999999%" headers="mcps1.2.3.1.2 "><p id="p14875916142317"><a name="p14875916142317"></a><a name="p14875916142317"></a>查询是否支持传入的参数effectId，返回true则表示支持，否则不支持。</p>
+</td>
+</tr>
 </tbody>
 </table>
 
@@ -121,6 +141,8 @@ The APIs provided for the vibrator are used to trigger and stop vibration. The f
 3.  Stop vibration that is triggered with a specific duration.
 4.  Trigger vibration with a specific effect.
 5.  Stop vibration that is triggered with a specific effect.
+6.  Query whether 'haptic. lock. timer' is supported. If so, vibrate the effectId.
+7.  Stop all types of vibration.
 
 The following sample code provides a complete process of using the vibrator APIs:
 
@@ -154,7 +176,7 @@ export default {
              }
              console.info("Succeeded in triggering vibration.");
         });
-        // Step 54 Stop vibration that is triggered with a specific effect.
+        // Step 5 Stop vibration that is triggered with a specific effect.
         vibrator.stop("preset", function(error) {
              if (error) {
                  console.error("Failed to stop vibration. Error code: " + error.code);
@@ -162,6 +184,49 @@ export default {
              }
              console.info("Succeeded in stopping vibration.");
         });
+        // Step 6 Query whether 'haptic. lock. timer' is supported. If so, vibrate the effectId.
+        try {
+            vibrator.isSupportEffect('haptic.clock.timer').then((err, state) => {
+                if (err) {
+                    console.error('isSupportEffect failed. Error msg:' + JSON.stringify(err));
+                    return;
+                }
+                console.log('The effectId is ' + (state ? 'supported' : 'unsupported'));
+                if (state) {
+                    try {
+                        vibrator.startVibration({
+                            type: 'preset',
+                            effectId: 'haptic.clock.timer',
+                            count: 1,
+                        }, {
+                            usage: 'unknown'
+                        }).then(()=>{
+                            console.log('Promise returned to indicate a successful vibration');
+                        }).catch((error)=>{
+                            console.error('Promise returned to indicate a failed vibration:' + JSON.stringify(error));
+                        });
+                    } catch (error) {
+                        console.error('exception in, error:' + JSON.stringify(error));
+                    }
+                }
+            }, (error) => {
+                console.error('isSupportEffect failed, error:' + JSON.stringify(error));
+            })
+        } catch (error) {
+            console.error('Exception in, error:' + JSON.stringify(error));
+        }
+        // Step 7 Stop all types of vibration.
+        try {
+            vibrator.stopVibration(function (error) {
+                if (error) {
+                    console.log('error.code' + error.code + 'error.message' + error.message);
+                    return;
+                }
+                console.log('Callback returned to indicate successful.');
+            })
+        } catch (error) {
+            console.info('errCode: ' + error.code + ' ,msg: ' + error.message);
+        }
     }
     onDestroy() {
         console.info('AceApplication onDestroy');

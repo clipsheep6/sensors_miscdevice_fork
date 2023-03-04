@@ -111,6 +111,26 @@
 <td class="cellrowborder" valign="top" width="68.78999999999999%" headers="mcps1.2.3.1.2 "><p id="p14875916142317"><a name="p14875916142317"></a><a name="p14875916142317"></a>按照指定的要停止的振动模式来停止震动。stopMode为枚举马达两种振动类型，VIBRATOR_STOP_MODE_TIME、VIBRATOR_STOP_MODE_PRESET分别为停止duration模式的振动和停止预置EffectId模式的振动，返回Promise表示触发振动是否成功。</p>
 </td>
 </tr>
+<tr id="row10382181218477"><td class="cellrowborder" valign="top" width="31.209999999999997%" headers="mcps1.2.3.1.1 "><p id="p764313511343"><a name="p764313511343"></a><a name="p764313511343"></a>stopVibration(callback: AsyncCallback&lt;void&gt;)</p>
+</td>
+<td class="cellrowborder" valign="top" width="68.78999999999999%" headers="mcps1.2.3.1.2 "><p id="p1738291234712"><a name="p1738291234712"></a><a name="p1738291234712"></a>停止所有模式的马达振动，callback为停止振动是否成功。</p>
+</td>
+</tr>
+<tr id="row2087541618235"><td class="cellrowborder" valign="top" width="31.209999999999997%" headers="mcps1.2.3.1.1 "><p id="p13875201620231"><a name="p13875201620231"></a><a name="p13875201620231"></a>stopVibration(): Promise&lt;void&gt;</p>
+</td>
+<td class="cellrowborder" valign="top" width="68.78999999999999%" headers="mcps1.2.3.1.2 "><p id="p14875916142317"><a name="p14875916142317"></a><a name="p14875916142317"></a>停止所有模式的马达振动，返回Promise表示触发振动是否成功。</p>
+</td>
+</tr>
+<tr id="row10382181218477"><td class="cellrowborder" valign="top" width="31.209999999999997%" headers="mcps1.2.3.1.1 "><p id="p764313511343"><a name="p764313511343"></a><a name="p764313511343"></a>isSupportEffect(effectId: string, callback: AsyncCallback&lt;boolean&gt;)</p>
+</td>
+<td class="cellrowborder" valign="top" width="68.78999999999999%" headers="mcps1.2.3.1.2 "><p id="p1738291234712"><a name="p1738291234712"></a><a name="p1738291234712"></a>查询是否支持传入的参数effectId，返回true则表示支持，否则不支持。</p>
+</td>
+</tr>
+<tr id="row2087541618235"><td class="cellrowborder" valign="top" width="31.209999999999997%" headers="mcps1.2.3.1.1 "><p id="p13875201620231"><a name="p13875201620231"></a><a name="p13875201620231"></a>isSupportEffect(effectId: string): Promise&lt;boolean&gt;</p>
+</td>
+<td class="cellrowborder" valign="top" width="68.78999999999999%" headers="mcps1.2.3.1.2 "><p id="p14875916142317"><a name="p14875916142317"></a><a name="p14875916142317"></a>查询是否支持传入的参数effectId，返回true则表示支持，否则不支持。</p>
+</td>
+</tr>
 </tbody>
 </table>
 
@@ -121,6 +141,8 @@
 3.  停止马达按照指定持续时间振动。
 4.  触发按照指定振动效果字符串振动。
 5.  停止按照指定振动效果字符串振动。
+6.  查询是否支持'haptic.clock.timer'，如果支持则振动该effectId。
+7.  停止所有类型振动。
 
 下述的代码示例中，提供了马达震动使用的完整流程。
 
@@ -162,6 +184,49 @@ export default {
              }
              console.info("Succeeded in stopping vibration.");
         });
+        //步骤6 查询是否支持'haptic.clock.timer'，如果支持则振动该effectId
+        try {
+            vibrator.isSupportEffect('haptic.clock.timer').then((err, state) => {
+                if (err) {
+                    console.error('isSupportEffect failed. Error msg:' + JSON.stringify(err));
+                    return;
+                }
+                console.log('The effectId is ' + (state ? 'supported' : 'unsupported'));
+                if (state) {
+                    try {
+                        vibrator.startVibration({
+                            type: 'preset',
+                            effectId: 'haptic.clock.timer',
+                            count: 1,
+                        }, {
+                            usage: 'unknown'
+                        }).then(()=>{
+                            console.log('Promise returned to indicate a successful vibration');
+                        }).catch((error)=>{
+                            console.error('Promise returned to indicate a failed vibration:' + JSON.stringify(error));
+                        });
+                    } catch (error) {
+                        console.error('exception in, error:' + JSON.stringify(error));
+                    }
+                }
+            }, (error) => {
+                console.error('isSupportEffect failed, error:' + JSON.stringify(error));
+            })
+        } catch (error) {
+            console.error('Exception in, error:' + JSON.stringify(error));
+        }
+        //步骤7 停止所有类型振动
+        try {
+            vibrator.stopVibration(function (error) {
+                if (error) {
+                    console.log('error.code' + error.code + 'error.message' + error.message);
+                    return;
+                }
+                console.log('Callback returned to indicate successful.');
+            })
+        } catch (error) {
+            console.info('errCode: ' + error.code + ' ,msg: ' + error.message);
+        }
     }
     onDestroy() {
         console.info('AceApplication onDestroy');
