@@ -186,9 +186,9 @@ export default {
         });
         //步骤6 查询是否支持'haptic.clock.timer'，如果支持则振动该effectId
         try {
-            vibrator.isSupportEffect('haptic.clock.timer').then((err, state) => {
+            vibrator.isSupportEffect('haptic.clock.timer', function (err, state) {
                 if (err) {
-                    console.error('isSupportEffect failed. Error msg:' + JSON.stringify(err));
+                    console.error('isSupportEffect failed, error:' + JSON.stringify(err));
                     return;
                 }
                 console.log('The effectId is ' + (state ? 'supported' : 'unsupported'));
@@ -200,17 +200,17 @@ export default {
                             count: 1,
                         }, {
                             usage: 'unknown'
-                        }).then(()=>{
-                            console.log('Promise returned to indicate a successful vibration');
-                        }).catch((error)=>{
-                            console.error('Promise returned to indicate a failed vibration:' + JSON.stringify(error));
+                        }, (error) => {
+                            if(error) {
+                                console.error('haptic.clock.timer vibrator error:'  + JSON.stringify(error));
+                            } else {
+                                console.log('haptic.clock.timer vibrator success');
+                            }
                         });
                     } catch (error) {
-                        console.error('exception in, error:' + JSON.stringify(error));
+                        console.error('Exception in, error:' + JSON.stringify(error));
                     }
                 }
-            }, (error) => {
-                console.error('isSupportEffect failed, error:' + JSON.stringify(error));
             })
         } catch (error) {
             console.error('Exception in, error:' + JSON.stringify(error));
