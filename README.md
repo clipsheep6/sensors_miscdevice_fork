@@ -114,12 +114,12 @@ The APIs provided for the vibrator are used to trigger and stop vibration. The f
 </tr>
 <tr id="row10382181218477"><td class="cellrowborder" valign="top" width="31.209999999999997%" headers="mcps1.2.3.1.1 "><p id="p764313511343"><a name="p764313511343"></a><a name="p764313511343"></a>isSupportEffect(effectId: string, callback: AsyncCallback&lt;boolean&gt;)</p>
 </td>
-<td class="cellrowborder" valign="top" width="68.78999999999999%" headers="mcps1.2.3.1.2 "><p id="p1738291234712"><a name="p1738291234712"></a><a name="p1738291234712"></a>Query whether the <strong id="b128871517589"><a name="b128871517589"></a><a name="b128871517589"></a>effectId</strong> is supported. This API uses a callback to indicate whether the query structure of EffectId is successful.</p>
+<td class="cellrowborder" valign="top" width="68.78999999999999%" headers="mcps1.2.3.1.2 "><p id="p1738291234712"><a name="p1738291234712"></a><a name="p1738291234712"></a>Query whether the <strong id="b128871517589"><a name="b128871517589"></a><a name="b128871517589"></a>effectId</strong> is supported. This API uses a callback to indicate whether the query result of EffectId is successful.</p>
 </td>
 </tr>
 <tr id="row2087541618235"><td class="cellrowborder" valign="top" width="31.209999999999997%" headers="mcps1.2.3.1.1 "><p id="p13875201620231"><a name="p13875201620231"></a><a name="p13875201620231"></a>isSupportEffect(effectId: string): Promise&lt;boolean&gt;</p>
 </td>
-<td class="cellrowborder" valign="top" width="68.78999999999999%" headers="mcps1.2.3.1.2 "><p id="p14875916142317"><a name="p14875916142317"></a><a name="p14875916142317"></a>Query whether the <strong id="b128871517589"><a name="b128871517589"></a><a name="b128871517589"></a>effectId</strong> is supported. This API uses a promise to indicate whether the vibration is stopped successfully.</p>
+<td class="cellrowborder" valign="top" width="68.78999999999999%" headers="mcps1.2.3.1.2 "><p id="p14875916142317"><a name="p14875916142317"></a><a name="p14875916142317"></a>Query whether the <strong id="b128871517589"><a name="b128871517589"></a><a name="b128871517589"></a>effectId</strong> is supported. This API uses a promise to indicate whether the query result of EffectId is successful.</p>
 </td>
 </tr>
 </tbody>
