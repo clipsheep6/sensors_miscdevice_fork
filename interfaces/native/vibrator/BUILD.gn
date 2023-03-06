@@ -66,6 +66,8 @@ ohos_shared_library("vibrator_interface_native") {
   ]
 
   public_configs = [ ":vibrator_config" ]
+  install_images = [ system_base_dir ]
+  relative_install_dir = "platformsdk"
   part_name = "miscdevice"
   subsystem_name = "sensors"
 }
