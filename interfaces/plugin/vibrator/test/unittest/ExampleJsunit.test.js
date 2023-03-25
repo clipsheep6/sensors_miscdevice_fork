@@ -20,6 +20,8 @@ import {describe, beforeAll, beforeEach, afterEach, afterAll, it, expect} from '
 
 describe("VibratorJsTest", function () {
     var g_execute = true;
+    let EFFECT_ID = "haptic.clock.timer";
+    let INVALID_EFFECT_ID = "haptic.xxx.yyy";
     beforeAll(function() {
         /*
          * @tc.setup: setup invoked before all testcases
@@ -1145,7 +1147,7 @@ describe("VibratorJsTest", function () {
      * @tc.name:VibrateTest015
      * @tc.desc:verify app info is not null
      * @tc.type: FUNC
-     * @tc.require: I53SGE
+     * @tc.require: I6HKTI
      */
     it("VibrateTest015", 0, async function (done) {
         if (g_execute) {
@@ -1203,7 +1205,7 @@ describe("VibratorJsTest", function () {
      * @tc.name:VibrateTest016
      * @tc.desc:verify app info is not null
      * @tc.type: FUNC
-     * @tc.require: I53SGE
+     * @tc.require: I6HKTI
      */
     it("VibrateTest016", 0, async function (done) {
         if (g_execute) {
@@ -1264,7 +1266,7 @@ describe("VibratorJsTest", function () {
      * @tc.name:VibrateTest017
      * @tc.desc:verify app info is not null
      * @tc.type: FUNC
-     * @tc.require: I53SGE
+     * @tc.require: I6HKTI
      */
     it("VibrateTest017", 0, async function (done) {
         if (g_execute) {
@@ -1324,7 +1326,7 @@ describe("VibratorJsTest", function () {
      * @tc.name:VibrateTest018
      * @tc.desc:verify app info is not null
      * @tc.type: FUNC
-     * @tc.require: I53SGE
+     * @tc.require: I6HKTI
      */
     it("VibrateTest018", 0, async function (done) {
         if (g_execute) {
@@ -1717,4 +1719,346 @@ describe("VibratorJsTest", function () {
         })
         done();
     })
+
+    /*
+     * @tc.name:VibrateTest026
+     * @tc.desc:verify the isSupportEffect and stopVibration interface
+     * @tc.type: FUNC
+     * @tc.require: I6HLLL
+     */
+    it("VibrateTest026", 0, async function (done) {
+        vibrator.isSupportEffect(INVALID_EFFECT_ID, (error, state) => {
+            if (error) {
+                console.info('VibrateTest026 error');
+                expect(false).assertTrue();
+            } else {
+                console.info('VibrateTest026 success');
+                expect(!state).assertTrue();
+            }
+            done();
+        });
+    })
+
+    /*
+     * @tc.name:VibrateTest027
+     * @tc.desc:verify the isSupportEffect and stopVibration interface
+     * @tc.type: FUNC
+     * @tc.require: I6HLLL
+     */
+    it("VibrateTest027", 0, async function (done) {
+        let isSupport = false;
+
+        function vibratePromise() {
+            return new Promise((resolve, reject) => {
+                if (isSupport) {
+                    vibrator.startVibration({
+                        type: "preset",
+                        effectId: EFFECT_ID,
+                        count: 1,
+                    }, {
+                        usage: "unknown"
+                    }, (error)=>{
+                        if (error) {
+                            expect(false).assertTrue();
+                            reject(error);
+                        } else {
+                            expect(true).assertTrue();
+                            resolve();
+                        }
+                    });
+                } else {
+                    resolve();
+                }
+            })
+        }
+
+        function stopPromise() {
+            return new Promise((resolve, reject) => {
+                if (isSupport) {
+                    vibrator.stopVibration((error) => {
+                        if (error) {
+                            expect(false).assertTrue();
+                            reject(error);
+                        } else {
+                            expect(true).assertTrue();
+                            resolve();
+                        }
+                    });
+                } else {
+                    resolve();
+                }
+            })
+        }
+
+        let isSupportPromise = new Promise((resolve, reject) => {
+            vibrator.isSupportEffect(EFFECT_ID, (error, state) => {
+                if (error) {
+                    expect(false).assertTrue();
+                    reject(error);
+                } else {
+                    expect(true).assertTrue();
+                    isSupport = state;
+                    resolve();
+                }
+            });
+        })
+
+        await isSupportPromise.then(() =>{
+            return vibratePromise();
+        }).then(() =>{
+            return stopPromise();
+        }).catch((error)=>{
+            expect(false).assertTrue();
+        })
+        done();
+    })
+
+    /*
+     * @tc.name:VibrateTest028
+     * @tc.desc:verify the isSupportEffect and stopVibration interface
+     * @tc.type: FUNC
+     * @tc.require: I6HLLL
+     */
+    it("VibrateTest028", 0, async function (done) {
+        try {
+            vibrator.isSupportEffect(123, (error, state) => {
+                console.info("VibrateTest028 should not in this method");
+                expect(false).assertTrue();
+                done();
+            });
+        } catch (error) {
+            expect(error.code).assertEqual(PARAMETER_ERROR_CODE);
+            expect(error.message).assertEqual(PARAMETER_ERROR_MSG);
+            done();
+        }
+    })
+
+    /*
+     * @tc.name:VibrateTest029
+     * @tc.desc:verify the isSupportEffect and stopVibration interface
+     * @tc.type: FUNC
+     * @tc.require: I6HLLL
+     */
+    it("VibrateTest029", 0, async function (done) {
+        try {
+            vibrator.isSupportEffect();
+        } catch (error) {
+            console.info("VibrateTest029 exception in");
+            expect(error.code).assertEqual(PARAMETER_ERROR_CODE);
+            expect(error.message).assertEqual(PARAMETER_ERROR_MSG);
+            done();
+        }
+    })
+
+    /*
+     * @tc.name:VibrateTest030
+     * @tc.desc:verify the isSupportEffect and stopVibration interface
+     * @tc.type: FUNC
+     * @tc.require: I6HLLL
+     */
+    it("VibrateTest030", 0, async function (done) {
+        await vibrator.isSupportEffect(INVALID_EFFECT_ID).then((state) => {
+            expect(!state).assertTrue();
+        }, (error) => {
+            expect(false).assertTrue();
+        });
+        done();
+    })
+
+    /*
+     * @tc.name:VibrateTest031
+     * @tc.desc:verify the isSupportEffect and stopVibration interface
+     * @tc.type: FUNC
+     * @tc.require: I6HLLL
+     */
+    it("VibrateTest031", 0, async function (done) {
+        let isSupport = false;
+
+        function vibratePromise() {
+            return new Promise((resolve, reject) => {
+                if (isSupport) {
+                    vibrator.startVibration({
+                        type: "preset",
+                        effectId: EFFECT_ID,
+                        count: 1,
+                    }, {
+                        usage: "unknown"
+                    }, (error)=>{
+                        if (error) {
+                            expect(false).assertTrue();
+                            reject(error);
+                        } else {
+                            expect(true).assertTrue();
+                            resolve();
+                        }
+                    });
+                } else {
+                    resolve();
+                }
+            })
+        }
+
+        function stopPromise() {
+            return new Promise((resolve, reject) => {
+                if (isSupport) {
+                    vibrator.stopVibration((error) => {
+                        if (error) {
+                            expect(false).assertTrue();
+                            reject(error);
+                        } else {
+                            expect(true).assertTrue();
+                            resolve();
+                        }
+                    });
+                } else {
+                    resolve();
+                }
+            })
+        }
+
+        let isSupportPromise = new Promise((resolve, reject) => {
+            vibrator.isSupportEffect(EFFECT_ID).then((state) => {
+                expect(true).assertTrue();
+                isSupport = state;
+                resolve();
+            }, (error) => {
+                expect(false).assertTrue();
+                reject(error);
+            });
+        })
+
+        await isSupportPromise.then(() =>{
+            return vibratePromise();
+        }).then(() =>{
+            return stopPromise();
+        }).catch((error)=>{
+            expect(false).assertTrue();
+        })
+        done();
+    })
+
+    /*
+     * @tc.name:VibrateTest032
+     * @tc.desc:verify the isSupportEffect and stopVibration interface
+     * @tc.type: FUNC
+     * @tc.require: I6HLLL
+     */
+    it("VibrateTest032", 0, async function (done) {
+        try {
+            vibrator.isSupportEffect(123).then((state) => {
+                expect(false).assertTrue();
+                done();
+            }, (error) => {
+                expect(false).assertTrue();
+                done();
+            });
+        } catch (error) {
+            expect(error.code).assertEqual(PARAMETER_ERROR_CODE);
+            expect(error.message).assertEqual(PARAMETER_ERROR_MSG);
+            done();
+        }
+    })
+
+    /*
+     * @tc.name:VibrateTest033
+     * @tc.desc:verify the isSupportEffect and stopVibration interface
+     * @tc.type: FUNC
+     * @tc.require: I6HLLL
+     */
+    it("VibrateTest033", 0, async function (done) {
+        try {
+            vibrator.isSupportEffect().then((state) => {
+                expect(false).assertTrue();
+                done();
+            }, (error) => {
+                expect(false).assertTrue();
+                done();
+            });
+        } catch (error) {
+            expect(error.code).assertEqual(PARAMETER_ERROR_CODE);
+            expect(error.message).assertEqual(PARAMETER_ERROR_MSG);
+            done();
+        }
+    })
+
+    /*
+     * @tc.name:VibrateTest034
+     * @tc.desc:verify the isSupportEffect and stopVibration interface
+     * @tc.type: FUNC
+     * @tc.require: I6HLLL
+     */
+    it("VibrateTest034", 0, async function (done) {
+        function stopPromise() {
+            return new Promise((resolve, reject) => {
+                vibrator.stopVibration((error) => {
+                    if (error) {
+                        expect(false).assertTrue();
+                        reject(error);
+                    } else {
+                        expect(true).assertTrue();
+                        resolve();
+                    }
+                });
+            })
+        }
+
+        let promise = new Promise((resolve, reject) => {
+            vibrator.startVibration(2000, (error) => {
+                if (error) {
+                    expect(false).assertTrue();
+                    reject(error);
+                } else {
+                    expect(true).assertTrue();
+                    resolve();
+                }
+            });
+        })
+
+        await promise.then(() =>{
+            return stopPromise();
+        }).catch((error)=>{
+            expect(false).assertTrue();
+        })
+        done();
+    })
+
+    /*
+     * @tc.name:VibrateTest035
+     * @tc.desc:verify the isSupportEffect and stopVibration interface
+     * @tc.type: FUNC
+     * @tc.require: I6HLLL
+     */
+    it("VibrateTest035", 0, async function (done) {
+        function stopPromise() {
+            return new Promise((resolve, reject) => {
+                vibrator.stopVibration().then(() => {
+                    expect(true).assertTrue();
+                    resolve();
+                }, (error) => {
+                    expect(false).assertTrue();
+                    reject(error);
+                });
+            })
+        }
+
+        let promise = new Promise((resolve, reject) => {
+            vibrator.startVibration(2000, (error) => {
+                if (error) {
+                    expect(false).assertTrue();
+                    reject(error);
+                } else {
+                    expect(true).assertTrue();
+                    resolve();
+                }
+            });
+        })
+
+        await promise.then(() =>{
+            return stopPromise();
+        }).catch((error)=>{
+            expect(false).assertTrue();
+        })
+        done();
+    })
 })
+
