@@ -35,9 +35,7 @@ public:
     virtual int32_t Vibrate(int32_t vibratorId, int32_t timeOut, int32_t usage) = 0;
     virtual int32_t PlayVibratorEffect(int32_t vibratorId, const std::string &effect,
                                        int32_t loopCount, int32_t usage) = 0;
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
     virtual int32_t PlayVibratorCustom(int32_t vibratorId, const RawFileDescriptor &rawFd, int32_t usage) = 0;
-#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
     virtual int32_t StopVibrator(int32_t vibratorId) = 0;
     virtual int32_t StopVibrator(int32_t vibratorId, const std::string &mode) = 0;
     virtual int32_t IsSupportEffect(const std::string &effect, bool &state) = 0;
@@ -48,9 +46,7 @@ public:
     enum {
         VIBRATE,
         PLAY_VIBRATOR_EFFECT,
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
         PLAY_VIBRATOR_CUSTOM,
-#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
         STOP_VIBRATOR_ALL,
         STOP_VIBRATOR_BY_MODE,
         IS_SUPPORT_EFFECT,

@@ -45,7 +45,6 @@ enum VibrateUsage {
     USAGE_MAX = 9,
 };
 
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 enum VibrateTag {
     EVENT_TAG_CONTINUOUS = 0,
     EVENT_TAG_TRANSIENT = 1,
@@ -63,7 +62,6 @@ struct VibrateEvent {
     int32_t intensity = 0;
     int32_t frequency = 0;
 };
-#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 }  // namespace Sensors
 }  // namespace OHOS
 #endif  // VIBRATOR_INFOS_H

@@ -46,9 +46,7 @@ private:
     int32_t PlayVibratorEffectStub(MessageParcel &data, MessageParcel &reply);
     int32_t SetVibratorParameterStub(MessageParcel &data, MessageParcel &reply);
     int32_t GetVibratorParameterStub(MessageParcel &data, MessageParcel &reply);
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
     int32_t PlayVibratorCustomStub(MessageParcel &data, MessageParcel &reply);
-#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
     int32_t StopVibratorAllStub(MessageParcel &data, MessageParcel &reply);
     int32_t StopVibratorByModeStub(MessageParcel &data, MessageParcel &reply);
     int32_t IsSupportEffectStub(MessageParcel &data, MessageParcel &reply);

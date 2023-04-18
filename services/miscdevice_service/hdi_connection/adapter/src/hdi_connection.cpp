@@ -79,7 +79,6 @@ int32_t HdiConnection::Start(const std::string &effectType)
     return ERR_OK;
 }
 
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 int32_t HdiConnection::EnableCompositeEffect(const HdfCompositeEffect &hdfCompositeEffect)
 {
     if (hdfCompositeEffect.compositeEffects.empty()) {
@@ -104,7 +103,6 @@ bool HdiConnection::IsVibratorRunning()
     vibratorInterface_->IsVibratorRunning(state);
     return state;
 }
-#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 
 std::optional<HdfEffectInfo> HdiConnection::GetEffectInfo(const std::string &effect)
 {

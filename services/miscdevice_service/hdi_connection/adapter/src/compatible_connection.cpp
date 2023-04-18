@@ -71,7 +71,6 @@ int32_t CompatibleConnection::Start(const std::string &effectType)
     return ERR_OK;
 }
 
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 int32_t CompatibleConnection::EnableCompositeEffect(const HdfCompositeEffect &hdfCompositeEffect)
 {
     CALL_LOG_ENTER;
@@ -102,7 +101,6 @@ bool CompatibleConnection::IsVibratorRunning()
     CALL_LOG_ENTER;
     return (!isStop_);
 }
-#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 
 std::optional<HdfEffectInfo> CompatibleConnection::GetEffectInfo(const std::string &effect)
 {
