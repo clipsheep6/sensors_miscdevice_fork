@@ -18,7 +18,7 @@ SUBSYSTEM_DIR = "//base/sensors"
 ohos_shared_library("libmiscdevice_service") {
   sources = [
     "custom_vibrate_decode/src/custom_vibration_default_matcher.cpp",
-    "custom_vibrate_decode/src/custom_vibration_phone_matcher.cpp",
+    "custom_vibrate_decode/src/custom_vibration_specific_matcher.cpp",
     "custom_vibrate_decode/src/default_vibrator_decoder.cpp",
     "custom_vibrate_decode/src/default_vibrator_decoder_factory.cpp",
     "hdi_connection/adapter/src/compatible_connection.cpp",

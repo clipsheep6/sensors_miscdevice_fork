@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "custom_vibration_phone_matcher.h"
+#include "custom_vibration_specific_matcher.h"
 
 #include <cmath>
 #include <map>
