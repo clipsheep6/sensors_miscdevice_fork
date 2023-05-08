@@ -41,7 +41,8 @@ constexpr int32_t MIN_VIBRATOR_TIME = 0;
 constexpr int32_t MAX_VIBRATOR_TIME = 1800000;
 
 #ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
-constexpr int32_t MAX_JSON_FILE_SIZE = 64000;
+constexpr int32_t MAX_JSON_FILE_SIZE = 512000;
+constexpr int32_t PART_SIZE = 128;
 const std::string PHONE_TYPE = "phone";
 #endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 }  // namespace
