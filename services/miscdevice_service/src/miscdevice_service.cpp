@@ -309,9 +309,12 @@ int32_t MiscdeviceService::StartCustomVibration(const RawFileDescriptor &rawFd, 
     }
     MISC_HILOGD("vibrateSet size:%{public}zu", vibrateSet.size());
     HdfCompositeEffect hdfCompositeEffect;
-    hdfCompositeEffect.type = HDF_EFFECT_TYPE_PRIMITIVE;
-    CustomVibrationMatcher matcher;
-    int32_t ret = matcher.TransformEffect(vibrateSet, hdfCompositeEffect.compositeEffects);
+#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
+    CustomVibrationSpecificMatcher matcher;
+#else
+    CustomVibrationDefaultMatcher matcher;
+#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
+    int32_t ret = matcher.TransformEffect(vibrateSet, hdfCompositeEffect);
     if (ret != SUCCESS) {
         MISC_HILOGE("transform custom effect error");
         return ERROR;
