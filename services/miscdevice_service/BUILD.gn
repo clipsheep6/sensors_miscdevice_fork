@@ -16,6 +16,10 @@ import("./../../miscdevice.gni")
 
 ohos_shared_library("libmiscdevice_service") {
   sources = [
+    "custom_vibrate_decode/src/custom_vibration_default_matcher.cpp",
+    "custom_vibrate_decode/src/custom_vibration_specific_matcher.cpp",
+    "custom_vibrate_decode/src/default_vibrator_decoder.cpp",
+    "custom_vibrate_decode/src/default_vibrator_decoder_factory.cpp",
     "hdi_connection/adapter/src/compatible_connection.cpp",
     "hdi_connection/adapter/src/compatible_light_connection.cpp",
     "hdi_connection/adapter/src/hdi_connection.cpp",
@@ -37,6 +41,7 @@ ohos_shared_library("libmiscdevice_service") {
     "$SUBSYSTEM_DIR/services/miscdevice_service/hdi_connection/interface/include",
     "$SUBSYSTEM_DIR/utils/include",
     "//third_party/cJSON",
+    "custom_vibrate_decode/include",
   ]
 
   cflags = [ "-Wno-error=inconsistent-missing-override" ]
@@ -50,19 +55,13 @@ ohos_shared_library("libmiscdevice_service") {
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
   ]
 
   if (miscdevice_feature_vibrator_custom) {
-    sources += [
-      "custom_vibrate_decode/src/custom_vibration_matcher.cpp",
-      "custom_vibrate_decode/src/default_vibrator_decoder.cpp",
-      "custom_vibrate_decode/src/default_vibrator_decoder_factory.cpp",
-    ]
-    include_dirs += [ "custom_vibrate_decode/include" ]
     defines = [ "OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM" ]
-    external_deps += [ "init:libbegetutil" ]
   }
   shlib_type = "sa"
   part_name = "miscdevice"

@@ -21,16 +21,19 @@
 
 #include <string_ex.h>
 
-#include "sensors_errors.h"
+#include "parameters.h"
 #include "system_ability_definition.h"
-#include "vibration_priority_manager.h"
 #include "v1_0/light_interface_proxy.h"
 
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
-#include "custom_vibration_matcher.h"
 #include "default_vibrator_decoder.h"
 #include "default_vibrator_decoder_factory.h"
-#include "parameters.h"
+#include "sensors_errors.h"
+#include "vibration_priority_manager.h"
+
+#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
+#include "custom_vibration_specific_matcher.h"
+#else
+#include "custom_vibration_default_matcher.h"
 #endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 
 namespace OHOS {
@@ -42,10 +45,9 @@ constexpr HiLogLabel LABEL = { LOG_CORE, MISC_LOG_DOMAIN, "MiscdeviceService" };
 constexpr int32_t MIN_VIBRATOR_TIME = 0;
 constexpr int32_t MAX_VIBRATOR_TIME = 1800000;
 
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 constexpr int32_t MAX_JSON_FILE_SIZE = 64 * 1024;
 const std::string PHONE_TYPE = "phone";
-#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
+const std::string DEFAULT_TYPE = "default";
 }  // namespace
 
 REGISTER_SYSTEM_ABILITY_BY_ID(MiscdeviceService, MISCDEVICE_SERVICE_ABILITY_ID, true);
@@ -197,7 +199,6 @@ int32_t MiscdeviceService::Vibrate(int32_t vibratorId, int32_t timeOut, int32_t 
 int32_t MiscdeviceService::StopVibrator(int32_t vibratorId)
 {
     std::lock_guard<std::mutex> lock(vibratorThreadMutex_);
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
     if ((vibratorThread_ == nullptr) || (!vibratorThread_->IsRunning() &&
         !vibratorHdiConnection_.IsVibratorRunning())) {
         MISC_HILOGE("No vibration, no need to stop");
@@ -206,12 +207,6 @@ int32_t MiscdeviceService::StopVibrator(int32_t vibratorId)
     while (vibratorHdiConnection_.IsVibratorRunning()) {
         vibratorHdiConnection_.Stop(HDF_VIBRATOR_MODE_PRESET);
     }
-#else
-    if ((vibratorThread_ == nullptr) || (!vibratorThread_->IsRunning())) {
-        MISC_HILOGE("No vibration, no need to stop");
-        return ERROR;
-    }
-#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
     while (vibratorThread_->IsRunning()) {
         MISC_HILOGD("Notify the vibratorThread, vibratorId:%{public}d", vibratorId);
         vibratorThread_->NotifyExit();
@@ -264,11 +259,9 @@ void MiscdeviceService::StartVibrateThread(VibrateInfo info)
         vibratorThread_->NotifyExit();
         vibratorThread_->NotifyExitSync();
     }
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
     while (vibratorHdiConnection_.IsVibratorRunning()) {
         vibratorHdiConnection_.Stop(HDF_VIBRATOR_MODE_PRESET);
     }
-#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
     vibratorThread_->UpdateVibratorEffect(info);
     vibratorThread_->Start("VibratorThread");
     DumpHelper->SaveVibrateRecord(info);
@@ -305,7 +298,6 @@ int32_t MiscdeviceService::IsSupportEffect(const std::string &effect, bool &stat
     return NO_ERROR;
 }
 
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 int32_t MiscdeviceService::StartCustomVibration(const RawFileDescriptor &rawFd, const VibrateInfo &info)
 {
     std::unique_ptr<VibratorDecoderFactory> decoderFactory = std::make_unique<DefaultVibratorDecoderFactory>();
@@ -317,19 +309,15 @@ int32_t MiscdeviceService::StartCustomVibration(const RawFileDescriptor &rawFd, 
     }
     MISC_HILOGD("vibrateSet size:%{public}zu", vibrateSet.size());
     HdfCompositeEffect hdfCompositeEffect;
-    hdfCompositeEffect.type = HDF_EFFECT_TYPE_PRIMITIVE;
-    CustomVibrationMatcher matcher;
-    int32_t ret = matcher.TransformEffect(vibrateSet, hdfCompositeEffect.compositeEffects);
+#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
+    CustomVibrationSpecificMatcher matcher;
+#else
+    CustomVibrationDefaultMatcher matcher;
+#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
+    int32_t ret = matcher.TransformEffect(vibrateSet, hdfCompositeEffect);
     if (ret != SUCCESS) {
         MISC_HILOGE("transform custom effect error");
         return ERROR;
-    }
-    size_t size = hdfCompositeEffect.compositeEffects.size();
-    MISC_HILOGD("the count of match result:%{public}zu", size);
-    for (size_t i = 0; i < size; ++i) {
-        MISC_HILOGD("match result at %{public}zu th, delay:%{public}d, effectId:%{public}d",
-            i, hdfCompositeEffect.compositeEffects[i].primitiveEffect.delay,
-            hdfCompositeEffect.compositeEffects[i].primitiveEffect.effectId);
     }
     StartVibrateThread(info);
     return vibratorHdiConnection_.EnableCompositeEffect(hdfCompositeEffect);
@@ -337,7 +325,8 @@ int32_t MiscdeviceService::StartCustomVibration(const RawFileDescriptor &rawFd, 
 
 int32_t MiscdeviceService::PlayVibratorCustom(int32_t vibratorId, const RawFileDescriptor &rawFd, int32_t usage)
 {
-    if (OHOS::system::GetDeviceType() != PHONE_TYPE) {
+    const std::string &deviceType = OHOS::system::GetDeviceType();
+    if ((deviceType != DEFAULT_TYPE) && (deviceType != PHONE_TYPE)) {
         MISC_HILOGE("the device does not support this operation");
         return IS_NOT_SUPPORTED;
     }
@@ -364,7 +353,6 @@ int32_t MiscdeviceService::PlayVibratorCustom(int32_t vibratorId, const RawFileD
     }
     return StartCustomVibration(rawFd, info);
 }
-#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 
 std::string MiscdeviceService::GetPackageName(AccessTokenID tokenId)
 {

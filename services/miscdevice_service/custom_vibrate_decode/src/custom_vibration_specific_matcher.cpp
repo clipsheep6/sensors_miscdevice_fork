@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "custom_vibration_matcher.h"
+#include "custom_vibration_specific_matcher.h"
 
 #include <cmath>
 #include <map>
@@ -45,10 +45,11 @@ constexpr int32_t DURATION_MAX = 1600;
 constexpr OHOS::HiviewDFX::HiLogLabel LABEL = { LOG_CORE, MISC_LOG_DOMAIN, "CustomVibrationMatcher" };
 }  // namespace
 
-int32_t CustomVibrationMatcher::TransformEffect(const std::set<VibrateEvent> &vibrateSet,
-    std::vector<CompositeEffect> &compositeEffects)
+int32_t CustomVibrationSpecificMatcher::TransformEffect(const std::set<VibrateEvent> &vibrateSet,
+    HdfCompositeEffect &hdfCompositeEffect)
 {
     CALL_LOG_ENTER;
+    hdfCompositeEffect.type = HDF_EFFECT_TYPE_PRIMITIVE;
     int32_t preStartTime = 0;
     int32_t preDuration = 0;
     for (const auto &event : vibrateSet) {
@@ -57,9 +58,9 @@ int32_t CustomVibrationMatcher::TransformEffect(const std::set<VibrateEvent> &vi
             return ERROR;
         }
         if (event.tag == EVENT_TAG_CONTINUOUS) {
-            ProcessContinuousEvent(event, preStartTime, preDuration, compositeEffects);
+            ProcessContinuousEvent(event, preStartTime, preDuration, hdfCompositeEffect.compositeEffects);
         } else if (event.tag == EVENT_TAG_TRANSIENT) {
-            ProcessTransientEvent(event, preStartTime, preDuration, compositeEffects);
+            ProcessTransientEvent(event, preStartTime, preDuration, hdfCompositeEffect.compositeEffects);
         } else {
             MISC_HILOGE("Unknown event tag, tag:%{public}d", event.tag);
             return ERROR;
@@ -70,11 +71,11 @@ int32_t CustomVibrationMatcher::TransformEffect(const std::set<VibrateEvent> &vi
     primitiveEffect.effectId = STOP_WAVEFORM;
     CompositeEffect compositeEffect;
     compositeEffect.primitiveEffect = primitiveEffect;
-    compositeEffects.push_back(compositeEffect);
+    hdfCompositeEffect.compositeEffects.push_back(compositeEffect);
     return SUCCESS;
 }
 
-void CustomVibrationMatcher::ProcessContinuousEvent(const VibrateEvent &event, int32_t &preStartTime,
+void CustomVibrationSpecificMatcher::ProcessContinuousEvent(const VibrateEvent &event, int32_t &preStartTime,
     int32_t &preDuration, std::vector<CompositeEffect> &compositeEffects)
 {
     int32_t grade = -1;
@@ -104,7 +105,7 @@ void CustomVibrationMatcher::ProcessContinuousEvent(const VibrateEvent &event, i
     preDuration = event.duration;
 }
 
-void CustomVibrationMatcher::ProcessTransientEvent(const VibrateEvent &event, int32_t &preStartTime,
+void CustomVibrationSpecificMatcher::ProcessTransientEvent(const VibrateEvent &event, int32_t &preStartTime,
     int32_t &preDuration, std::vector<CompositeEffect> &compositeEffects)
 {
     int32_t matchId = 0;

@@ -60,9 +60,7 @@ public:
     virtual int32_t Vibrate(int32_t vibratorId, int32_t timeOut, int32_t usage) override;
     virtual int32_t PlayVibratorEffect(int32_t vibratorId, const std::string &effect,
                                        int32_t loopCount, int32_t usage) override;
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
     virtual int32_t PlayVibratorCustom(int32_t vibratorId, const RawFileDescriptor &rawFd, int32_t usage) override;
-#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
     virtual int32_t StopVibrator(int32_t vibratorId) override;
     virtual int32_t StopVibrator(int32_t vibratorId, const std::string &mode) override;
     virtual int32_t IsSupportEffect(const std::string &effect, bool &state) override;
@@ -78,10 +76,8 @@ private:
     void StartVibrateThread(VibrateInfo info);
     bool ShouldIgnoreVibrate(const VibrateInfo &info);
     bool InitLightList();
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
     int32_t DecodeCustomEffect(const RawFileDescriptor &rawFd, std::set<VibrateEvent> &vibrateSequence);
     int32_t StartCustomVibration(const RawFileDescriptor &rawFd, const VibrateInfo &info);
-#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
     VibratorHdiConnection &vibratorHdiConnection_ = VibratorHdiConnection::GetInstance();
     LightHdiConnection &lightHdiConnection_ = LightHdiConnection::GetInstance();
     bool lightExist_;

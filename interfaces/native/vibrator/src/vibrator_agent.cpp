@@ -30,6 +30,7 @@ static const int32_t DEFAULT_VIBRATOR_ID = 123;
 static int32_t g_loopCount = 1;
 static int32_t g_usage = USAGE_UNKNOWN;
 const std::string PHONE_TYPE = "phone";
+const std::string DEFAULT_TYPE = "default";
 
 static int32_t NormalizeErrCode(int32_t code)
 {
@@ -92,12 +93,12 @@ int32_t StartVibratorOnce(int32_t duration)
 
 bool IsSupportVibratorCustom()
 {
-    return (OHOS::system::GetDeviceType() == PHONE_TYPE);
+    const std::string &deviceType = OHOS::system::GetDeviceType();
+    return ((deviceType == DEFAULT_TYPE) || (deviceType == PHONE_TYPE));
 }
 
 int32_t PlayVibratorCustom(int32_t fd, int64_t offset, int64_t length)
 {
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
     if (fd < 0 || offset < 0 || length <= 0) {
         MISC_HILOGE("input parameter invalid, fd:%{public}d, offset:%{public}lld, length:%{public}lld",
             fd, static_cast<long long>(offset), static_cast<long long>(length));
@@ -116,10 +117,6 @@ int32_t PlayVibratorCustom(int32_t fd, int64_t offset, int64_t length)
     }
     g_usage = USAGE_UNKNOWN;
     return SUCCESS;
-#else
-    MISC_HILOGE("the device does not support this operation");
-    return IS_NOT_SUPPORTED;
-#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 }
 
 int32_t StopVibrator(const char *mode)

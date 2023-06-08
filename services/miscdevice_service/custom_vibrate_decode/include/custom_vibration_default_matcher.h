@@ -13,23 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef CUSTOM_VIBRATION_MATCHER_H
-#define CUSTOM_VIBRATION_MATCHER_H
+#ifndef CUSTOM_VIBRATION_DEFAULT_MATCHER_H
+#define CUSTOM_VIBRATION_DEFAULT_MATCHER_H
 
-#include <set>
-#include <string>
-#include <vector>
-
-#include "i_vibrator_hdi_connection.h"
-#include "vibrator_infos.h"
+#include "i_custom_vibration_matcher.h"
 
 namespace OHOS {
 namespace Sensors {
-class CustomVibrationMatcher {
+class CustomVibrationDefaultMatcher : public ICustomVibrationMatcher {
 public:
-    CustomVibrationMatcher() = default;
-    ~CustomVibrationMatcher() = default;
-    int32_t TransformEffect(const std::set<VibrateEvent> &vibrateSet, std::vector<CompositeEffect> &compositeEffects);
+    CustomVibrationDefaultMatcher() = default;
+    ~CustomVibrationDefaultMatcher() = default;
+    int32_t TransformEffect(const std::set<VibrateEvent> &vibrateSet,
+        HdfCompositeEffect &hdfCompositeEffect) override;
 
 private:
     void ProcessContinuousEvent(const VibrateEvent &event, int32_t &preStartTime, int32_t &preDuration,
@@ -39,4 +35,4 @@ private:
 };
 }  // namespace Sensors
 }  // namespace OHOS
-#endif // CUSTOM_VIBRATION_MATCHER_H
+#endif // CUSTOM_VIBRATION_DEFAULT_MATCHER_H

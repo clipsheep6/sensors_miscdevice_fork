@@ -182,7 +182,6 @@ int32_t MiscdeviceServiceProxy::IsSupportEffect(const std::string &effect, bool 
     return ret;
 }
 
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 int32_t MiscdeviceServiceProxy::PlayVibratorCustom(int32_t vibratorId, const RawFileDescriptor &rawFd, int32_t usage)
 {
     MessageParcel data;
@@ -222,7 +221,6 @@ int32_t MiscdeviceServiceProxy::PlayVibratorCustom(int32_t vibratorId, const Raw
     }
     return ret;
 }
-#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 
 std::vector<LightInfo> MiscdeviceServiceProxy::GetLightList()
 {

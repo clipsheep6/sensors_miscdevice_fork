@@ -39,9 +39,7 @@ MiscdeviceServiceStub::MiscdeviceServiceStub()
 {
     baseFuncs_[VIBRATE] = &MiscdeviceServiceStub::VibrateStub;
     baseFuncs_[PLAY_VIBRATOR_EFFECT] = &MiscdeviceServiceStub::PlayVibratorEffectStub;
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
     baseFuncs_[PLAY_VIBRATOR_CUSTOM] = &MiscdeviceServiceStub::PlayVibratorCustomStub;
-#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
     baseFuncs_[STOP_VIBRATOR_ALL] = &MiscdeviceServiceStub::StopVibratorAllStub;
     baseFuncs_[STOP_VIBRATOR_BY_MODE] = &MiscdeviceServiceStub::StopVibratorByModeStub;
     baseFuncs_[IS_SUPPORT_EFFECT] = &MiscdeviceServiceStub::IsSupportEffectStub;
@@ -153,7 +151,6 @@ int32_t MiscdeviceServiceStub::IsSupportEffectStub(MessageParcel &data, MessageP
     return ret;
 }
 
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 int32_t MiscdeviceServiceStub::PlayVibratorCustomStub(MessageParcel &data, MessageParcel &reply)
 {
     PermissionUtil &permissionUtil = PermissionUtil::GetInstance();
@@ -196,7 +193,6 @@ int32_t MiscdeviceServiceStub::PlayVibratorCustomStub(MessageParcel &data, Messa
     }
     return ret;
 }
-#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 
 int32_t MiscdeviceServiceStub::GetLightListStub(MessageParcel &data, MessageParcel &reply)
 {
