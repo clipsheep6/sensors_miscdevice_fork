@@ -32,6 +32,7 @@ bool VibratorThread::Run()
         if (ret != SUCCESS) {
             MISC_HILOGE("StartOnce fail, duration:%{public}d, package:%{public}s",
                 info.duration, info.packageName.c_str());
+            SetReadyStatus(false);
             return false;
         }
         cv_.wait_for(vibrateLck, std::chrono::milliseconds(info.duration));
@@ -50,6 +51,7 @@ bool VibratorThread::Run()
             if (ret != SUCCESS) {
                 MISC_HILOGE("Vibrate effect %{public}s failed, package:%{public}s",
                     effect.c_str(), info.packageName.c_str());
+                SetReadyStatus(false);
                 return false;
             }
             cv_.wait_for(vibrateLck, std::chrono::milliseconds(info.duration));
@@ -63,6 +65,7 @@ bool VibratorThread::Run()
             }
         }
     }
+    SetReadyStatus(false);
     return false;
 }
 
@@ -85,9 +88,16 @@ void VibratorThread::SetReadyStatus(bool status)
 
 void VibratorThread::NotifyExit()
 {
-    std::unique_lock<std::mutex> readyLck(readyMutex_);
-    SetReadyStatus(true);
-    cv_.notify_one();
+    {
+        std::unique_lock<std::mutex> readyLck(readyMutex_);
+        if (IsRunning()) {
+            SetReadyStatus(true);
+        }
+    }
+    while (IsRunning()) {
+        MISC_HILOGD("Notify the vibratorThread exit");
+        cv_.notify_one();
+    }
 }
 }  // namespace Sensors
 }  // namespace OHOS

@@ -32,8 +32,8 @@ int32_t VibratorHdiConnection::ConnectHdi()
 {
     iVibratorHdiConnection_ = std::make_unique<HdiConnection>();
     int32_t ret = iVibratorHdiConnection_->ConnectHdi();
-    if (ret != 0) {
-        MISC_HILOGE("hdi direct failed");
+    if (ret != ERR_OK) {
+        MISC_HILOGE("Hdi direct failed");
         iVibratorHdiConnection_ = std::make_unique<CompatibleConnection>();
         ret = iVibratorHdiConnection_->ConnectHdi();
     }
