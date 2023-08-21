@@ -23,9 +23,9 @@ ohos_fuzztest("VibratorOnRemoteRequestFuzzTest") {
 
   include_dirs = [
     "//third_party/cJSON",
-    "$SUBSYSTEM_DIR/interfaces/native/vibrator/include",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/vibrator",
     "$SUBSYSTEM_DIR/frameworks/native/miscdevice/include",
-    "$SUBSYSTEM_DIR/frameworks/native/light/include",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/light",
     "$SUBSYSTEM_DIR/services/miscdevice_service/include",
     "$SUBSYSTEM_DIR/services/miscdevice_service/hdi_connection/adapter/include",
     "$SUBSYSTEM_DIR/services/miscdevice_service/hdi_connection/interface/include",
@@ -43,8 +43,8 @@ ohos_fuzztest("VibratorOnRemoteRequestFuzzTest") {
   sources = [ "vibratoronremoterequest_fuzzer.cpp" ]
 
   deps = [
-    "$SUBSYSTEM_DIR/interfaces/native/light:light_interface_native",
-    "$SUBSYSTEM_DIR/interfaces/native/vibrator:vibrator_interface_native",
+    "$SUBSYSTEM_DIR/frameworks/native/light:light_interface_native",
+    "$SUBSYSTEM_DIR/frameworks/native/vibrator:vibrator_interface_native",
     "$SUBSYSTEM_DIR/services/miscdevice_service:libmiscdevice_service_static",
     "$SUBSYSTEM_DIR/utils:libmiscdevice_utils",
   ]
