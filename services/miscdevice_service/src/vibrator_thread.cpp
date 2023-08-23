@@ -28,39 +28,33 @@ bool VibratorThread::Run()
     VibrateInfo info = GetCurrentVibrateInfo();
     std::unique_lock<std::mutex> vibrateLck(vibrateMutex_);
     if (info.mode == "time") {
+        if (exitFlag_) {
+            MISC_HILOGI("Stop duration:%{public}d, package:%{public}s", info.duration, info.packageName.c_str());
+            return false;
+        }
         int32_t ret = VibratorDevice.StartOnce(static_cast<uint32_t>(info.duration));
         if (ret != SUCCESS) {
             MISC_HILOGE("StartOnce fail, duration:%{public}d, package:%{public}s",
                 info.duration, info.packageName.c_str());
             return false;
         }
-        cv_.wait_for(vibrateLck, std::chrono::milliseconds(info.duration));
+        cv_.wait_for(vibrateLck, std::chrono::milliseconds(info.duration), [this] { return exitFlag_; });
         VibratorDevice.Stop(HDF_VIBRATOR_MODE_ONCE);
-        std::unique_lock<std::mutex> readyLck(readyMutex_);
-        if (ready_) {
-            MISC_HILOGI("Stop duration:%{public}d, package:%{public}s",
-                info.duration, info.packageName.c_str());
-            SetReadyStatus(false);
-            return false;
-        }
     } else if (info.mode == "preset") {
         for (int32_t i = 0; i < info.count; ++i) {
             std::string effect = info.effect;
+            if (exitFlag_) {
+                MISC_HILOGI("Stop effect:%{public}s, package:%{public}s", effect.c_str(), info.packageName.c_str());
+                return false;
+            }
             int32_t ret = VibratorDevice.Start(effect);
             if (ret != SUCCESS) {
                 MISC_HILOGE("Vibrate effect %{public}s failed, package:%{public}s",
                     effect.c_str(), info.packageName.c_str());
                 return false;
             }
-            cv_.wait_for(vibrateLck, std::chrono::milliseconds(info.duration));
+            cv_.wait_for(vibrateLck, std::chrono::milliseconds(info.duration), [this] { return exitFlag_; });
             VibratorDevice.Stop(HDF_VIBRATOR_MODE_PRESET);
-            std::unique_lock<std::mutex> readyLck(readyMutex_);
-            if (ready_) {
-                MISC_HILOGI("Stop effect %{public}s, package:%{public}s",
-                    effect.c_str(), info.packageName.c_str());
-                SetReadyStatus(false);
-                return false;
-            }
         }
     }
     return false;
@@ -78,16 +72,13 @@ VibrateInfo VibratorThread::GetCurrentVibrateInfo()
     return currentVibration_;
 }
 
-void VibratorThread::SetReadyStatus(bool status)
-{
-    ready_ = status;
-}
-
 void VibratorThread::NotifyExit()
 {
-    std::unique_lock<std::mutex> readyLck(readyMutex_);
-    SetReadyStatus(true);
+    exitFlag_ = true;
     cv_.notify_one();
+    ThreadStatus status = NotifyExitSync();
+    MISC_HILOGI("lxp--status: %{public}d", status);
+    exitFlag_ = false;
 }
 }  // namespace Sensors
 }  // namespace OHOS

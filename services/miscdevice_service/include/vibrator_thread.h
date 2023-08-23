@@ -36,13 +36,11 @@ protected:
     virtual bool Run();
 
 private:
-    void SetReadyStatus(bool status);
     VibrateInfo currentVibration_;
-    std::condition_variable cv_;
     std::mutex currentVibrationMutex_;
-    std::mutex readyMutex_;
     std::mutex vibrateMutex_;
-    bool ready_ = false;
+    std::condition_variable cv_;
+    bool exitFlag_ = false;
 };
 #define VibratorDevice VibratorHdiConnection::GetInstance()
 }  // namespace Sensors
