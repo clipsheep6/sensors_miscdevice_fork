@@ -22,14 +22,14 @@ ohos_shared_library("liblight_native") {
 
   include_dirs = [
     "$SUBSYSTEM_DIR/frameworks/native/miscdevice/include",
-    "$SUBSYSTEM_DIR/interfaces/native/light/include",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/light",
     "$SUBSYSTEM_DIR/utils/include",
   ]
 
   cflags = [ "-fstack-protector-all" ]
 
   deps = [
-    "$SUBSYSTEM_DIR/interfaces/native/light:light_ndk_header",
+    "$SUBSYSTEM_DIR/frameworks/native/light:light_ndk_header",
     "$SUBSYSTEM_DIR/utils:libmiscdevice_utils",
   ]
 
@@ -56,7 +56,7 @@ ohos_shared_library("libvibrator_native") {
 
   include_dirs = [
     "$SUBSYSTEM_DIR/frameworks/native/miscdevice/include",
-    "$SUBSYSTEM_DIR/interfaces/native/light/include",
+    "$SUBSYSTEM_DIR/interfaces/inner_api/light",
     "$SUBSYSTEM_DIR/utils/include",
   ]
 
