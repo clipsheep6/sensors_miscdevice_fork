@@ -31,6 +31,11 @@ std::unordered_map<std::string, int32_t> g_vibratorEffect = {
     {"haptic.default.effect", 804},
     {"haptic.fail", 60},
     {"haptic.charging", 100},
+    {"haptic.long_press.light", 80},
+    {"haptic.slide.light", 80},
+    {"TimePicker", 100},
+    {"haptic.threshold", 60},
+    {"haptic.long_press.medium", 80},
     {"haptic.long_press.heavy", 80}
 };
 HdfVibratorMode g_vibrateMode;
@@ -65,6 +70,7 @@ int32_t CompatibleConnection::Start(const std::string &effectType)
         return VIBRATOR_ON_ERR;
     }
     duration_ = g_vibratorEffect[effectType];
+    // why？？？joinable()：一会查一下
     if (!vibrateThread_.joinable()) {
         std::thread senocdDataThread(CompatibleConnection::VibrateProcess);
         vibrateThread_ = std::move(senocdDataThread);

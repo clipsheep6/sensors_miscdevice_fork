@@ -790,5 +790,143 @@ HWTEST_F(VibratorAgentTest, IsSupportEffect_006, TestSize.Level1)
         MISC_HILOGI("Do not support %{public}s", VIBRATOR_TYPE_LONG_PRESS_HEAVY);
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+HWTEST_F(VibratorAgentTest, IsSupportEffect_007, TestSize.Level1)
+{
+    CALL_LOG_ENTER;
+    bool state { false };
+    int32_t ret = IsSupportEffect(VIBRATOR_TYPE_LONG_PRESS_THE_SEARCH_BOX, &state);
+    ASSERT_EQ(ret, 0);
+    if (state) {
+        ret = StartVibrator(VIBRATOR_TYPE_LONG_PRESS_THE_SEARCH_BOX);
+        ASSERT_EQ(ret, 0);
+        Cancel();
+    } else {
+        MISC_HILOGI("Do not support %{public}s", VIBRATOR_TYPE_LONG_PRESS_THE_SEARCH_BOX);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, IsSupportEffect_008, TestSize.Level1)
+{
+    CALL_LOG_ENTER;
+    bool state { false };
+    int32_t ret = IsSupportEffect(VIBRATOR_TYPE_LONG_PRESS_THE_TEXT_BOX, &state);
+    ASSERT_EQ(ret, 0);
+    if (state) {
+        ret = StartVibrator(VIBRATOR_TYPE_LONG_PRESS_THE_TEXT_BOX);
+        ASSERT_EQ(ret, 0);
+        Cancel();
+    } else {
+        MISC_HILOGI("Do not support %{public}s", VIBRATOR_TYPE_LONG_PRESS_THE_TEXT_BOX);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, IsSupportEffect_009, TestSize.Level1)
+{
+    CALL_LOG_ENTER;
+    bool state { false };
+    int32_t ret = IsSupportEffect(VIBRATOR_TYPE_TEXT_SELECTION_CURSOR_MOVEMENT, &state);
+    ASSERT_EQ(ret, 0);
+    if (state) {
+        ret = StartVibrator(VIBRATOR_TYPE_TEXT_SELECTION_CURSOR_MOVEMENT);
+        ASSERT_EQ(ret, 0);
+        Cancel();
+    } else {
+        MISC_HILOGI("Do not support %{public}s", VIBRATOR_TYPE_TEXT_SELECTION_CURSOR_MOVEMENT);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, IsSupportEffect_010, TestSize.Level1)
+{
+    CALL_LOG_ENTER;
+    bool state { false };
+    int32_t ret = IsSupportEffect(VIBRATOR_TYPE_TIME_ADJUSTMENT, &state);
+    ASSERT_EQ(ret, 0);
+    if (state) {
+        ret = StartVibrator(VIBRATOR_TYPE_TIME_ADJUSTMENT);
+        ASSERT_EQ(ret, 0);
+        Cancel();
+    } else {
+        MISC_HILOGI("Do not support %{public}s", VIBRATOR_TYPE_TIME_ADJUSTMENT);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, IsSupportEffect_011, TestSize.Level1)
+{
+    CALL_LOG_ENTER;
+    bool state { false };
+    int32_t ret = IsSupportEffect(VIBRATOR_TYPE_DESCRIPTION_FILE_LETTER_INDEX, &state);
+    ASSERT_EQ(ret, 0);
+    if (state) {
+        ret = StartVibrator(VIBRATOR_TYPE_DESCRIPTION_FILE_LETTER_INDEX);
+        ASSERT_EQ(ret, 0);
+        Cancel();
+    } else {
+        MISC_HILOGI("Do not support %{public}s", VIBRATOR_TYPE_DESCRIPTION_FILE_LETTER_INDEX);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, IsSupportEffect_012, TestSize.Level1)
+{
+    CALL_LOG_ENTER;
+    bool state { false };
+    int32_t ret = IsSupportEffect(VIBRATOR_TYPE_PULL_TO_REFRESH, &state);
+    ASSERT_EQ(ret, 0);
+    if (state) {
+        ret = StartVibrator(VIBRATOR_TYPE_PULL_TO_REFRESH);
+        ASSERT_EQ(ret, 0);
+        Cancel();
+    } else {
+        MISC_HILOGI("Do not support %{public}s", VIBRATOR_TYPE_PULL_TO_REFRESH);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, IsSupportEffect_013, TestSize.Level1)
+{
+    CALL_LOG_ENTER;
+    bool state { false };
+    int32_t ret = IsSupportEffect(VIBRATOR_TYPE_SCROLL_BAR, &state);
+    ASSERT_EQ(ret, 0);
+    if (state) {
+        ret = StartVibrator(VIBRATOR_TYPE_SCROLL_BAR);
+        ASSERT_EQ(ret, 0);
+        Cancel();
+    } else {
+        MISC_HILOGI("Do not support %{public}s", VIBRATOR_TYPE_SCROLL_BAR);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, IsSupportEffect_014, TestSize.Level1)
+{
+    CALL_LOG_ENTER;
+    bool state { false };
+    int32_t ret = IsSupportEffect(VIBRATOR_TYPE_LEFT_SLIDE_DELETE, &state);
+    ASSERT_EQ(ret, 0);
+    if (state) {
+        ret = StartVibrator(VIBRATOR_TYPE_LEFT_SLIDE_DELETE);
+        ASSERT_EQ(ret, 0);
+        Cancel();
+    } else {
+        MISC_HILOGI("Do not support %{public}s", VIBRATOR_TYPE_LEFT_SLIDE_DELETE);
+    }
+}
+
+HWTEST_F(VibratorAgentTest, IsSupportEffect_015, TestSize.Level1)
+{
+    CALL_LOG_ENTER;
+    bool state { false };
+    int32_t ret = IsSupportEffect(VIBRATOR_TYPE_DRAG, &state);
+    ASSERT_EQ(ret, 0);
+    if (state) {
+        ret = StartVibrator(VIBRATOR_TYPE_DRAG);
+        ASSERT_EQ(ret, 0);
+        Cancel();
+    } else {
+        MISC_HILOGI("Do not support %{public}s", VIBRATOR_TYPE_DRAG);
+    }
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 }  // namespace Sensors
 }  // namespace OHOS

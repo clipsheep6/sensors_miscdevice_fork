@@ -48,6 +48,72 @@ const char *VIBRATOR_TYPE_CHARGING = "haptic.charging";
  */
 const char *VIBRATOR_TYPE_LONG_PRESS_HEAVY = "haptic.long_press.heavy";
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @brief Describes the vibration effect of the vibrator when long pressed the search box.
+ *
+ * @since 11
+ */
+const char *VIBRATOR_TYPE_LONG_PRESS_THE_SEARCH_BOX = "haptic.long_press.light";
+
+/**
+ * @brief Describes the vibration effect of the vibrator when long pressed the text box.
+ *
+ * @since 11
+ */
+const char *VIBRATOR_TYPE_LONG_PRESS_THE_TEXT_BOX = "haptic.long_press.light";
+
+/**
+ * @brief Describes the vibration effect of the vibrator when text selection cursor movement.
+ *
+ * @since 11
+ */
+const char *VIBRATOR_TYPE_TEXT_SELECTION_CURSOR_MOVEMENT = "haptic.slide.light";
+
+/**
+ * @brief Describes the vibration effect of the vibrator when time adjustment.
+ *
+ * @since 11
+ */
+const char *VIBRATOR_TYPE_TIME_ADJUSTMENT = "TimePicker";
+
+/**
+ * @brief Describes the vibration effect of the vibrator when description file letter index.
+ *
+ * @since 11
+ */
+const char *VIBRATOR_TYPE_DESCRIPTION_FILE_LETTER_INDEX = "haptic.slide.light";
+
+/**
+ * @brief Describes the vibration effect of the vibrator when pull-to-refresh.
+ *
+ * @since 11
+ */
+const char *VIBRATOR_TYPE_PULL_TO_REFRESH = "haptic.threshold";
+
+/**
+ * @brief Describes the vibration effect of the vibrator when scroll bar.
+ *
+ * @since 11
+ */
+const char *VIBRATOR_TYPE_SCROLL_BAR = "haptic.long_press.light";
+
+/**
+ * @brief Describes the vibration effect of the vibrator when left slide delete.
+ *
+ * @since 11
+ */
+const char *VIBRATOR_TYPE_LEFT_SLIDE_DELETE = "haptic.threshold";
+
+/**
+ * @brief Describes the vibration effect of the vibrator when drag.
+ *
+ * @since 11
+ */
+const char *VIBRATOR_TYPE_DRAG = "haptic.long_press.medium";
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * @brief Enumerates vibration usages.
  *
