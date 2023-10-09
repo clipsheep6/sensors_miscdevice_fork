@@ -791,7 +791,6 @@ HWTEST_F(VibratorAgentTest, IsSupportEffect_006, TestSize.Level1)
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
 HWTEST_F(VibratorAgentTest, IsSupportEffect_007, TestSize.Level1)
 {
     CALL_LOG_ENTER;
@@ -926,7 +925,6 @@ HWTEST_F(VibratorAgentTest, IsSupportEffect_015, TestSize.Level1)
         MISC_HILOGI("Do not support %{public}s", VIBRATOR_TYPE_DRAG);
     }
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }  // namespace Sensors
 }  // namespace OHOS

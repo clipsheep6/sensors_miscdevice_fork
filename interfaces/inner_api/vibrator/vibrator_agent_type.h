@@ -48,8 +48,6 @@ const char *VIBRATOR_TYPE_CHARGING = "haptic.charging";
  */
 const char *VIBRATOR_TYPE_LONG_PRESS_HEAVY = "haptic.long_press.heavy";
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 /**
  * @brief Describes the vibration effect of the vibrator when long pressed the search box.
  *
@@ -112,7 +110,6 @@ const char *VIBRATOR_TYPE_LEFT_SLIDE_DELETE = "haptic.threshold";
  * @since 11
  */
 const char *VIBRATOR_TYPE_DRAG = "haptic.long_press.medium";
-////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * @brief Enumerates vibration usages.
