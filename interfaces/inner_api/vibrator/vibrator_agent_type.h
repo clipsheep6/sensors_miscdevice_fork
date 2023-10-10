@@ -70,7 +70,7 @@ const char *VIBRATOR_TYPE_LONG_PRESS_HEAVY = "haptic.long_press.heavy";
 const char *VIBRATOR_TYPE_SLIDE_LIGHT = "haptic.slide.light";
 
 /**
- * @brief Describes the vibration effect of the vibrator when threshold.
+ * @brief Describes the vibration effect of the vibrator when the threshold is reached.
  *
  * @since 11
  */
