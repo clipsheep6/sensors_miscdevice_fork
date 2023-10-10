@@ -74,7 +74,7 @@ const char *VIBRATOR_TYPE_SLIDE_LIGHT = "haptic.slide.light";
  *
  * @since 11
  */
-const char *VIBRATOR_TYPE_threshold = "haptic.threshold";
+const char *VIBRATOR_TYPE_THRESHOID = "haptic.threshold";
 
 /**
  * @brief Enumerates vibration usages.
