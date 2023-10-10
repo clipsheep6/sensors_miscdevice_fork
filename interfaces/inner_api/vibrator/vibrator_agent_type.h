@@ -46,24 +46,24 @@ const char *VIBRATOR_TYPE_CHARGING = "haptic.charging";
  *
  * @since 11
  */
-const char *VIBRATOR_TYPE_LONG_PRESS_HEAVY = "haptic.long_press.heavy";
-
-/**
- * @brief Describes the vibration effect of the vibrator when long pressed the light.
- *
- * @since 11
- */
 const char *VIBRATOR_TYPE_LONG_PRESS_LIGHT = "haptic.long_press.light";
 
 /**
- * @brief Describes the vibration effect of the vibrator when long pressed the medium.
+ * @brief Describes the vibration effect of the vibrator when long pressed.
  *
  * @since 11
  */
 const char *VIBRATOR_TYPE_LONG_PRESS_MEDIUM = "haptic.long_press.medium";
 
 /**
- * @brief Describes the vibration effect of the vibrator when slide light.
+ * @brief Describes the vibration effect of the vibrator when long pressed.
+ *
+ * @since 11
+ */
+const char *VIBRATOR_TYPE_LONG_PRESS_HEAVY = "haptic.long_press.heavy";
+
+/**
+ * @brief Describes the vibration effect of the vibrator when slide.
  *
  * @since 11
  */
