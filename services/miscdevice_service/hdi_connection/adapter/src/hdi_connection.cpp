@@ -76,6 +76,7 @@ int32_t HdiConnection::Start(const std::string &effectType)
         MISC_HILOGE("Start failed");
         return ret;
     }
+    MISC_HILOGD("************************the end time of Start***************************");
     return ERR_OK;
 }
 
@@ -94,6 +95,7 @@ int32_t HdiConnection::EnableCompositeEffect(const HdfCompositeEffect &hdfCompos
         MISC_HILOGE("EnableCompositeEffect failed");
         return ret;
     }
+    MISC_HILOGD("************************the end time of EnableCompositeEffect***************************");
     return ERR_OK;
 }
 
