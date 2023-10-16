@@ -17,6 +17,7 @@
 #define COMPATIBLE_LIGHT_CONNECTION_H
 
 #include <atomic>
+#include <mutex>
 #include <thread>
 #include <vector>
 
@@ -28,12 +29,13 @@ public:
     CompatibleLightConnection() = default;
     virtual ~CompatibleLightConnection() = default;
     int32_t ConnectHdi() override;
-    int32_t GetLightList(std::vector<LightInfo>& lightList) const override;
+    int32_t GetLightList(std::vector<LightInfo> &lightList) const override;
     int32_t TurnOn(int32_t lightId, const LightColor &color, const LightAnimation &animation) override;
     int32_t TurnOff(int32_t lightId) override;
     int32_t DestroyHdiConnection() override;
 
 private:
+    std::mutex turnOnLightsMutex_;
     std::vector<int32_t> turnOnLights_;
     static std::atomic_bool isStop_;
     DISALLOW_COPY_AND_MOVE(CompatibleLightConnection);
