@@ -85,9 +85,16 @@ void VibratorThread::SetReadyStatus(bool status)
 
 void VibratorThread::NotifyExit()
 {
-    std::unique_lock<std::mutex> readyLck(readyMutex_);
-    SetReadyStatus(true);
-    cv_.notify_one();
+    {
+        std::unique_lock<std::mutex> readyLck(readyMutex_);
+        if (IsRunning()) {
+            SetReadyStatus(true);
+        }
+    }
+    while (IsRunning()) {
+        MISC_HILOGD("Notify the vibratorThread exit");
+        cv_.notify_one();
+    }
 }
 }  // namespace Sensors
 }  // namespace OHOS
