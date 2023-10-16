@@ -77,7 +77,6 @@ void VibratorThread::NotifyExit()
     exitFlag_ = true;
     cv_.notify_one();
     ThreadStatus status = NotifyExitSync();
-    MISC_HILOGI("lxp--status: %{public}d", status);
     exitFlag_ = false;
 }
 }  // namespace Sensors
