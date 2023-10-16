@@ -232,7 +232,7 @@ int32_t MiscdeviceService::StopVibrator(int32_t vibratorId)
         MISC_HILOGE("No vibration, no need to stop");
         return ERROR;
     }
-    while (vibratorHdiConnection_.IsVibratorRunning()) {
+    if (vibratorHdiConnection_.IsVibratorRunning()) {
         vibratorHdiConnection_.Stop(HDF_VIBRATOR_MODE_PRESET);
     }
 #else
@@ -292,7 +292,7 @@ void MiscdeviceService::StartVibrateThread(VibrateInfo info)
         vibratorThread_->NotifyExit();
     }
 #ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
-    while (vibratorHdiConnection_.IsVibratorRunning()) {
+    if (vibratorHdiConnection_.IsVibratorRunning()) {
         vibratorHdiConnection_.Stop(HDF_VIBRATOR_MODE_PRESET);
     }
 #endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
