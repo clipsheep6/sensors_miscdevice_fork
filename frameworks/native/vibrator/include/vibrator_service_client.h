@@ -25,6 +25,27 @@
 
 namespace OHOS {
 namespace Sensors {
+
+struct VibratorDecodeHandle {
+    void *handle;
+    IVibratorDecoder *decoder;
+    IVibratorDecoder *(*create)();
+    void (*destroy)(IVibratorDecoder *);
+
+    VibratorDecodeHandle(): handle(nullptr), decoder(nullptr),
+        create(nullptr), destroy(nullptr) {}
+    Free()
+    {
+        if (handle != nullptr) {
+            dlclose(handle);
+            handle = nullptr;
+        }
+        decoder = nullptr;
+        create = nullptr;
+        destroy = nullptr;
+    }
+};
+
 class VibratorServiceClient : public Singleton<VibratorServiceClient> {
 public:
     ~VibratorServiceClient() override;
@@ -37,12 +58,18 @@ public:
     int32_t StopVibrator(int32_t vibratorId);
     int32_t IsSupportEffect(const std::string &effect, bool &state);
     void ProcessDeathObserver(const wptr<IRemoteObject> &object);
+    int32_t DecodeVibratorFile(const VibratorFileDescription &fileDescription,
+        VibratorPackage &package);
+    int32_t GetDelayTime(int32_t &delayTime);
 
 private:
     int32_t InitServiceClient();
+    std::optional<VibratorDecodeHandle> LoadDecoderLibrary(const std::string& path);
     sptr<IRemoteObject::DeathRecipient> serviceDeathObserver_ = nullptr;
     sptr<IMiscdeviceService> miscdeviceProxy_ = nullptr;
     std::mutex clientMutex_;
+    VibratorDecodeHandle decodeHandle_;
+    std::mutex decodeMutex_;
 };
 }  // namespace Sensors
 }  // namespace OHOS

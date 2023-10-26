@@ -325,5 +325,31 @@ int32_t MiscdeviceServiceProxy::TurnOff(int32_t lightId)
     }
     return ret;
 }
+
+
+int32_t MiscdeviceServiceProxy::GetDelayTime(int32_t &delayTime)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(MiscdeviceServiceProxy::GetDescriptor())) {
+        MISC_HILOGE("Write descriptor failed");
+        return WRITE_MSG_ERR;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    CHKPR(remote, ERROR);
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = remote->SendRequest(static_cast<uint32_t>(MiscdeviceInterfaceCode::GET_DELAY_TIME),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HiSysEventWrite(HiSysEvent::Domain::MISCDEVICE, "MISC_SERVICE_IPC_EXCEPTION",
+            HiSysEvent::EventType::FAULT, "PKG_NAME", "GetDelayTime", "ERROR_CODE", ret);
+        MISC_HILOGE("SendRequest failed, ret:%{public}d", ret);
+    }
+    if (!reply.ReadInt32(delayTime)) {
+        MISC_HILOGE("Parcel read failed");
+        return ERROR;
+    }
+    return ret;
+}
 }  // namespace Sensors
 }  // namespace OHOS

@@ -94,6 +94,66 @@ typedef enum VibratorUsage {
     USAGE_MAX = 9
 } VibratorUsage;
 
+/**
+ * @brief 振动事件类型，分为连续振动和瞬态
+ *
+ * @since 11
+ */
+typedef enum VibratorEventType {
+    EVENT_TYPE_UNKNOWN = -1, /**< 未知振动类型 */
+    EVENT_TYPE_CONTINUOUS = 0, /**< 连续振动类型 */
+    EVENT_TYPE_TRANSIENT = 1, /**< 瞬态振动类型 */
+} VibratorEventType;
+
+/**
+ * @brief 振动效果描述文件
+ *
+ * @since 11
+ */
+typedef struct VibratorFileDescription {
+    int32_t fd = -1;
+    int64_t offset = -1;
+    int64_t length = -1;
+} VibratorFileDescription;
+
+/**
+ * @brief 描述振动波形结构。振动媒体文件可以解析为该类型。
+ *
+ * @since 11
+ */
+typedef struct VibratorPackage {
+    int32_t patternNum = 0; // pattern
+    VibratorPattern *patterns = nullptr; // 振动媒体文件包含一个或者多个VibratorPattern
+} VibratorPackage;
+
+/**
+ * @brief 描述振动波形
+ *
+ * @since 11
+ */
+typedef struct VibratorPattern {
+    int32_t time = -1;
+    int32_t eventNum = 0;
+    VibratorEvent *events = nullptr; // 最多包含16个event
+} VibratorPattern;
+
+typedef struct VibratorEvent {
+    VibratorEventType type = EVENT_TYPE_UNKNOWN;
+    int32_t time = -1;
+    int32_t duration = -1;
+    int32_t intensity = -1;
+    int32_t frequency = -1;
+    int32_t index = 0; // 0:both 1:left 2:right
+    int32_t pointNum = 0;
+    VibratorCurvePoint *points = nullptr;
+} VibratorPattern;
+
+typedef struct VibratorCurvePoint {
+    int64_t time = -1;
+    int32_t intensity = -1;
+    int32_t frequency = -1;
+} VibratorCurvePoint;
+
 /** @} */
 #ifdef __cplusplus
 };

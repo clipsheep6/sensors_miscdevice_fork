@@ -144,6 +144,32 @@ bool SetUsage(int32_t usage);
  * @since 10
  */
 int32_t IsSupportEffect(const char *effectId, bool *state);
+
+/**
+ * @brief 获取振动时延，从下发振动到启动振动的时间间隔，可用于音振协调场景。
+ * @param delayTime：出参，返回振动时间延迟，从下发振动到启动振动的时间间隔，单位：毫秒.
+ * @return 返回0表示成功，否则表示失败。
+ * @since 11
+ */
+int32_t GetDelayTime(int32_t &delayTime);
+
+/**
+ * @brief 解码振动媒体文件，生成振动波形。
+ * @param fileDescription: 振动效果描述文件，支持he、json文件格式，如{@link VibrationFileDescription}。
+ * @param package: 出参，生成的振动序列包，如 {@link VibrationPackage}。
+ * @return 返回0表示成功，否则表示失败。
+ * @since 11
+ */
+int32_t DecodeVibratorFile(const VibratorFileDescription &fileDescription, VibratorPackage &package);
+
+/**
+ * @brief 播放振动序列。
+ * @param channelId: 播放振动的通道ID。
+ * @param pattern: 振动序列，如{@link VibratorPattern}。
+ * @return 返回0表示成功，否则表示失败。
+ * @since 11
+ */
+int32_t PlayPattern(int32_t channelId, const VibratorPattern &pattern);
 } // namespace Sensors
 } // namespace OHOS
 #ifdef __cplusplus

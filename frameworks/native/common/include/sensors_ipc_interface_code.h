@@ -31,6 +31,7 @@ enum class MiscdeviceInterfaceCode {
     GET_LIGHT_LIST,
     TURN_ON,
     TURN_OFF,
+    GET_DELAY_TIME,
 };
 }  // namespace Sensors
 }  // namespace OHOS
