@@ -220,8 +220,8 @@ int32_t VibratorServiceClient::LoadDecoderLibrary(const std::string& path)
         MISC_HILOGD("The library has already been loaded");
         return 0;
     }
-    char libRealPath[PATH_MAX_LENGTH] = {}
-    if (realPath(path.c_str(), libRealPath) == nullptr) {
+    char libRealPath[PATH_MAX_LENGTH] = {};
+    if (realpath(path.c_str(), libRealPath) == nullptr) {
         MISC_HILOGD("Get file real path fail");
         return -1;
     }
@@ -230,13 +230,15 @@ int32_t VibratorServiceClient::LoadDecoderLibrary(const std::string& path)
         MISC_HILOGE("dlopen failed, reason:%{public}s", dlerror());
         return -1;
     }
-    decodeHandle_.create = static_cast<AudioEffectLibrary *>(dlsym(decodeHandle_.handle, "Create"));
+    decodeHandle_.create = static_cast<IVibratorDecoder *(*)()>(
+        dlsym(decodeHandle_.handle, "Create"));
     if (decodeHandle_.create == nullptr) {
         MISC_HILOGE("dlsym create failed: error: %{public}s", dlerror());
         decodeHandle_.Free();
         return -1;
     }
-    decodeHandle_.destroy = static_cast<AudioEffectLibrary *>(dlsym(decodeHandle_.handle, "Destroy"));
+    decodeHandle_.destroy = static_cast<void (*)(IVibratorDecoder *)>(
+        dlsym(decodeHandle_.handle,"Destroy"));
     if (decodeHandle_.destroy == nullptr) {
         MISC_HILOGE("dlsym destroy failed: error: %{public}s", dlerror());
         decodeHandle_.Free();
@@ -246,18 +248,18 @@ int32_t VibratorServiceClient::LoadDecoderLibrary(const std::string& path)
     return 0;
 }
 
-int32_t VibratorServiceClient::DecodeVibratorFile(const VibratorFileDescription &fileDescription, VibratorPackage &package)
+int32_t VibratorServiceClient::PreProcess(
+    const VibratorFileDescription &fd, VibratorPackage &package)
 {
     if (LoadDecoderLibrary(DECODER_LIBRARY_PATH) != 0 || decodeHandle_.decoder == nullptr) {
         MISC_HILOGD("LoadDecoderLibrary fail");
         return -1;
     }
-    return decoder->Parse(fileDescription, package);
+    return decodeHandle_.decoder->Parse(fd, package);
 }
 
 int32_t VibratorServiceClient::GetDelayTime(int32_t &delayTime)
 {
-    MISC_HILOGD("GetDelayTime begin, vibratorId:%{public}d", vibratorId);
     int32_t ret = InitServiceClient();
     if (ret != ERR_OK) {
         MISC_HILOGE("InitServiceClient failed, ret:%{public}d", ret);

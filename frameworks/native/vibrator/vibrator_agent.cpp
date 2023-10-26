@@ -175,10 +175,10 @@ int32_t IsSupportEffect(const char *effectId, bool *state)
     return SUCCESS;
 }
 
-int32_t DecodeVibratorFile(const VibratorFileDescription &fileDescription, VibratorPackage &package)
+int32_t PreProcess(const VibratorFileDescription &fd, VibratorPackage &package)
 {
     auto &client = VibratorServiceClient::GetInstance();
-    int32_t ret = client.DecodeVibratorFile(fileDescription, package);
+    int32_t ret = client.PreProcess(fd, package);
     if (ret != ERR_OK) {
         MISC_HILOGE("DecodeVibratorFile failed, ret:%{public}d", ret);
         return NormalizeErrCode(ret);

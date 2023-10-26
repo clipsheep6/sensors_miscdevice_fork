@@ -74,6 +74,7 @@ ohos_shared_library("libvibrator_native") {
   ]
 
   include_dirs = [
+    "$SUBSYSTEM_DIR/interfaces/inner_api/vibrator",
     "include",
     "$SUBSYSTEM_DIR/frameworks/native/common/include",
     "$SUBSYSTEM_DIR/interfaces/inner_api/light",

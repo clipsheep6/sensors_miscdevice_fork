@@ -16,12 +16,14 @@
 #ifndef VIBRATOR_SERVICE_CLIENT_H
 #define VIBRATOR_SERVICE_CLIENT_H
 
+#include <dlfcn.h>
 #include <mutex>
 
 #include "iremote_object.h"
 #include "singleton.h"
 
 #include "miscdevice_service_proxy.h"
+#include "vibrator_agent_type.h"
 
 namespace OHOS {
 namespace Sensors {
@@ -34,7 +36,8 @@ struct VibratorDecodeHandle {
 
     VibratorDecodeHandle(): handle(nullptr), decoder(nullptr),
         create(nullptr), destroy(nullptr) {}
-    Free()
+
+    void Free()
     {
         if (handle != nullptr) {
             dlclose(handle);
@@ -58,13 +61,12 @@ public:
     int32_t StopVibrator(int32_t vibratorId);
     int32_t IsSupportEffect(const std::string &effect, bool &state);
     void ProcessDeathObserver(const wptr<IRemoteObject> &object);
-    int32_t DecodeVibratorFile(const VibratorFileDescription &fileDescription,
-        VibratorPackage &package);
+    int32_t PreProcess(const VibratorFileDescription &fd, VibratorPackage &package);
     int32_t GetDelayTime(int32_t &delayTime);
 
 private:
     int32_t InitServiceClient();
-    std::optional<VibratorDecodeHandle> LoadDecoderLibrary(const std::string& path);
+    int32_t LoadDecoderLibrary(const std::string& path);
     sptr<IRemoteObject::DeathRecipient> serviceDeathObserver_ = nullptr;
     sptr<IMiscdeviceService> miscdeviceProxy_ = nullptr;
     std::mutex clientMutex_;

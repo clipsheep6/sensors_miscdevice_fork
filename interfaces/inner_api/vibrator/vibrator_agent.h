@@ -160,7 +160,7 @@ int32_t GetDelayTime(int32_t &delayTime);
  * @return 返回0表示成功，否则表示失败。
  * @since 11
  */
-int32_t DecodeVibratorFile(const VibratorFileDescription &fileDescription, VibratorPackage &package);
+int32_t PreProcess(const VibratorFileDescription &fd, VibratorPackage &package);
 
 /**
  * @brief 播放振动序列。
