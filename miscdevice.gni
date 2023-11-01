@@ -38,7 +38,7 @@ if (!defined(global_parts_info) ||
   hdf_drivers_interface_light = false
 }
 
-if(build_variant == "eng) {
+if(build_variant == "eng") {
   miscdevice_default_defines += [ "BUILD_VARIANT_ENG" ]
   miscdevice_build_eng = true;  
 }
