@@ -36,11 +36,11 @@ ohos_shared_library("libmiscdevice_service") {
     "//third_party/cJSON",
   ]
 
-  if(miscdevice_build_eng) {
-      sources += [
-        "hdi_connection/adapter/src/compatible_connection.cpp",
-        "hdi_connection/adapter/src/compatible_light_connection.cpp",
-      ]
+  if (miscdevice_build_eng) {
+    sources += [
+      "hdi_connection/adapter/src/compatible_connection.cpp",
+      "hdi_connection/adapter/src/compatible_light_connection.cpp",
+    ]
   }
 
   cflags = [ "-Wno-error=inconsistent-missing-override" ]
@@ -103,11 +103,11 @@ ohos_shared_library("libmiscdevice_service_static") {
     "//third_party/cJSON",
   ]
 
-  if(miscdevice_build_eng) {
-      sources += [
-        "hdi_connection/adapter/src/compatible_connection.cpp",
-        "hdi_connection/adapter/src/compatible_light_connection.cpp",
-      ]
+  if (miscdevice_build_eng) {
+    sources += [
+      "hdi_connection/adapter/src/compatible_connection.cpp",
+      "hdi_connection/adapter/src/compatible_light_connection.cpp",
+    ]
   }
 
   cflags = [ "-Wno-error=inconsistent-missing-override" ]
