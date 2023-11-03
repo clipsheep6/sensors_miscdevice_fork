@@ -163,13 +163,21 @@ int32_t GetDelayTime(int32_t &delayTime);
 int32_t PreProcess(const VibratorFileDescription &fd, VibratorPackage &package);
 
 /**
+ * @brief 释放振动序列包内存。
+ * @param package: 生成的振动序列包，如 {@link VibrationPackage}。
+ * @return 返回0表示成功，否则表示失败。
+ * @since 11
+ */
+int32_t FreeVibratorPackage(VibratorPackage &package);
+
+/**
  * @brief 播放振动序列。
  * @param channelId: 播放振动的通道ID。
  * @param pattern: 振动序列，如{@link VibratorPattern}。
  * @return 返回0表示成功，否则表示失败。
  * @since 11
  */
-int32_t PlayPattern(int32_t channelId, const VibratorPattern &pattern);
+int32_t PlayPattern(const VibratorPattern &pattern);
 } // namespace Sensors
 } // namespace OHOS
 #ifdef __cplusplus
