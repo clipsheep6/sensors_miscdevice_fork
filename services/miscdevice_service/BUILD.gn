@@ -34,12 +34,13 @@ ohos_shared_library("libmiscdevice_service") {
     "$SUBSYSTEM_DIR/interfaces/inner_api/light",
     "$SUBSYSTEM_DIR/services/miscdevice_service/hdi_connection/adapter/include",
     "$SUBSYSTEM_DIR/services/miscdevice_service/hdi_connection/interface/include",
-    "$SUBSYSTEM_DIR/utils/include",
+    "$SUBSYSTEM_DIR/utils/common/include",
+    "$SUBSYSTEM_DIR/utils/haptic_decoder/include",
     "//third_party/cJSON",
   ]
 
   cflags = [ "-Wno-error=inconsistent-missing-override" ]
-  deps = [ "$SUBSYSTEM_DIR/utils:libmiscdevice_utils" ]
+  deps = [ "$SUBSYSTEM_DIR/utils:miscdevice_utils_target" ]
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
@@ -56,11 +57,9 @@ ohos_shared_library("libmiscdevice_service") {
 
   if (miscdevice_feature_vibrator_custom) {
     sources += [
-      "custom_vibrate_decode/src/custom_vibration_matcher.cpp",
-      "custom_vibrate_decode/src/default_vibrator_decoder.cpp",
-      "custom_vibrate_decode/src/default_vibrator_decoder_factory.cpp",
+      "haptic_matcher/src/custom_vibration_matcher.cpp",
     ]
-    include_dirs += [ "custom_vibrate_decode/include" ]
+    include_dirs += [ "haptic_matcher/include" ]
     external_deps += [ "init:libbegetutil" ]
   }
 
@@ -96,12 +95,13 @@ ohos_shared_library("libmiscdevice_service_static") {
     "$SUBSYSTEM_DIR/interfaces/inner_api/light",
     "$SUBSYSTEM_DIR/services/miscdevice_service/hdi_connection/adapter/include",
     "$SUBSYSTEM_DIR/services/miscdevice_service/hdi_connection/interface/include",
-    "$SUBSYSTEM_DIR/utils/include",
+    "$SUBSYSTEM_DIR/utils/common/include",
+    "$SUBSYSTEM_DIR/utils/haptic_decoder/include",
     "//third_party/cJSON",
   ]
 
   cflags = [ "-Wno-error=inconsistent-missing-override" ]
-  deps = [ "$SUBSYSTEM_DIR/utils:libmiscdevice_utils" ]
+  deps = [ "$SUBSYSTEM_DIR/utils:miscdevice_utils_target" ]
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
@@ -118,11 +118,9 @@ ohos_shared_library("libmiscdevice_service_static") {
 
   if (miscdevice_feature_vibrator_custom) {
     sources += [
-      "custom_vibrate_decode/src/custom_vibration_matcher.cpp",
-      "custom_vibrate_decode/src/default_vibrator_decoder.cpp",
-      "custom_vibrate_decode/src/default_vibrator_decoder_factory.cpp",
+      "haptic_matcher/src/custom_vibration_matcher.cpp",
     ]
-    include_dirs += [ "custom_vibrate_decode/include" ]
+    include_dirs += [ "haptic_matcher/include" ]
     external_deps += [ "init:libbegetutil" ]
   }
 

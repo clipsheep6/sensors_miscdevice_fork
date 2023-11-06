@@ -29,10 +29,18 @@ class CustomVibrationMatcher {
 public:
     CustomVibrationMatcher() = default;
     ~CustomVibrationMatcher() = default;
-    int32_t TransformEffect(const std::set<VibrateEvent> &vibrateSet, std::vector<CompositeEffect> &compositeEffects);
+    int32_t TransformEffect(const VibratePattern &pattern, std::vector<CompositeEffect> &compositeEffects);
+    int32_t TransformTime(const VibratePattern &pattern, std::vector<int32_t> &timeSequence);
 
 private:
-    void ProcessContinuousEvent(const VibrateEvent &event, int32_t &preStartTime, int32_t &preDuration,
+    int32_t Interpolation(int32_t x1, int32_t x2, int32_t y1, int32_t y2, int32_t x);
+    void PreProcessEvent(VibrateEvent &event);
+    std::vector<VibrateCurvePoint> MergeCurve(const std::vector<VibrateCurvePoint> &curveLeft,
+        const std::vector<VibrateCurvePoint> &curveRight);
+    VibratePattern MixedWaveProcess(const VibratePattern &inputPattern);
+    void ProcessContinuousEvent(const VibrateEvent &event, int32_t &preStartTime,
+        int32_t &preDuration, std::vector<CompositeEffect> &compositeEffects)
+    void ProcessContinuousEventSlice(const VibrateSlice &slice, int32_t &preStartTime, int32_t &preDuration,
         std::vector<CompositeEffect> &compositeEffects);
     void ProcessTransientEvent(const VibrateEvent &event, int32_t &preStartTime, int32_t &preDuration,
         std::vector<CompositeEffect> &compositeEffects);
