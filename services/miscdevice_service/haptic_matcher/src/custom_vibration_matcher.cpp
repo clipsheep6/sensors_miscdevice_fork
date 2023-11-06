@@ -52,6 +52,9 @@ constexpr OHOS::HiviewDFX::HiLogLabel LABEL = { LOG_CORE, MISC_LOG_DOMAIN, "Cust
 
 int32_t CustomVibrationMatcher::Interpolation(int32_t x1, int32_t x2, int32_t y1, int32_t y2, int32_t x)
 {
+    if (x1 == x2) {
+        return y1;
+    }
     float delta_y = y2 - y1;
     float delta_x = x2 - x1;
     return y1 + delta_y / delta_x * (x - x1);
@@ -90,8 +93,8 @@ std::vector<VibrateCurvePoint> CustomVibrationMatcher::MergeCurve(const std::vec
     int32_t overlapLeft = std::max(curveLeft.front().time, curveRight.front().time);
     int32_t overlapRight = std::min(curveLeft.back().time, curveRight.back().time);
     std::vector<VibrateCurvePoint> newCurve;
-    int32_t i = 0;
-    int32_t j = 0;
+    size_t i = 0;
+    size_t j = 0;
     while (i < curveLeft.size() || j < curveRight.size()) {
         if (i < curveLeft.size() && curveLeft[i].time < overlapLeft) {
             newCurve.push_back(curveLeft[i]);
@@ -163,15 +166,20 @@ VibratePattern CustomVibrationMatcher::MixedWaveProcess(const VibratePattern &in
     return outputPattern;
 }
 
-int32_t CustomVibrationMatcher::TransformTime(const VibratePattern &pattern, std::vector<int32_t> &timeSequence)
+int32_t CustomVibrationMatcher::TransformTime(const VibratePattern &pattern,
+    std::vector<CompositeEffect> &compositeEffects)
 {
     CALL_LOG_ENTER;
 
     VibratePattern flatPattern = MixedWaveProcess(pattern);
     int32_t frontTime = pattern.startTime;
     for (const VibrateEvent &event : flatPattern.events) {
-        timeSequence.push_back(event.time - frontTime);
-        timeSequence.push_back(event.duration);
+        TimeEffect timeEffect;
+        timeEffect.delay = event.time - frontTime;
+        timeEffect.time = event.duration;
+        CompositeEffect compositeEffect;
+        compositeEffect.timeEffect = timeEffect;
+        compositeEffects.push_back(compositeEffect);
         frontTime = event.time;
     }
     return SUCCESS;
@@ -214,11 +222,10 @@ void CustomVibrationMatcher::ProcessContinuousEvent(const VibrateEvent &event, i
             .intensity = event.intensity,
             .frequency = event.frequency,
         };
-        ProcessContinuousEventSlice(event, preStartTime, preDuration, compositeEffects);
+        ProcessContinuousEventSlice(slice, preStartTime, preDuration, compositeEffects);
         return;
     }
     const std::vector<VibrateCurvePoint> &curve = event.points;
-    int32_t curveSize = curve.size();
     int32_t endTime = curve.back().time;
     int32_t curTime = curve.front().time;
     int32_t curIntensity = curve.front().intensity;

@@ -28,7 +28,6 @@
 #include "v1_0/light_interface_proxy.h"
 #endif // HDF_DRIVERS_INTERFACE_LIGHT
 #ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
-#include "custom_vibration_matcher.h"
 #include "default_vibrator_decoder.h"
 #include "default_vibrator_decoder_factory.h"
 #include "parameters.h"
@@ -339,36 +338,28 @@ int32_t MiscdeviceService::IsSupportEffect(const std::string &effect, bool &stat
 }
 
 #ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
-int32_t MiscdeviceService::StartCustomVibration(const RawFileDescriptor &rawFd, const VibrateInfo &info)
-{
-    std::unique_ptr<IVibratorDecoderFactory> decoderFactory = std::make_unique<DefaultVibratorDecoderFactory>();
-    std::unique_ptr<IVibratorDecoder> decoder(decoderFactory->CreateDecoder());
-    VibratePackage package;
-    int32_t ret = decoder->DecodeEffect(rawFd, package);
-    if (ret != SUCCESS || package.patterns.empty()) {
-        MISC_HILOGE("Decode effect error");
-        return ERROR;
-    }
-    HdfCompositeEffect hdfCompositeEffect;
-    hdfCompositeEffect.type = HDF_EFFECT_TYPE_PRIMITIVE;
-    for (const auto &pattern : package.patterns) {
-        CustomVibrationMatcher matcher;
-        ret = matcher.TransformEffect(pattern, hdfCompositeEffect.compositeEffects);
-        if (ret != SUCCESS) {
-            MISC_HILOGE("Transform custom effect error");
-            return ERROR;
-        }
-    }
-    size_t size = hdfCompositeEffect.compositeEffects.size();
-    MISC_HILOGD("The count of match result:%{public}zu", size);
-    for (size_t i = 0; i < size; ++i) {
-        MISC_HILOGD("Match result at %{public}zu th, delay:%{public}d, effectId:%{public}d",
-            i, hdfCompositeEffect.compositeEffects[i].primitiveEffect.delay,
-            hdfCompositeEffect.compositeEffects[i].primitiveEffect.effectId);
-    }
-    StartVibrateThread(info);
-    return vibratorHdiConnection_.EnableCompositeEffect(hdfCompositeEffect);
-}
+// int32_t MiscdeviceService::StartCustomVibration(const RawFileDescriptor &rawFd, const VibrateInfo &info)
+// {
+//     HdfCompositeEffect hdfCompositeEffect;
+//     hdfCompositeEffect.type = HDF_EFFECT_TYPE_PRIMITIVE;
+//     for (const auto &pattern : package.patterns) {
+//         CustomVibrationMatcher matcher;
+//         ret = matcher.TransformEffect(pattern, hdfCompositeEffect.compositeEffects);
+//         if (ret != SUCCESS) {
+//             MISC_HILOGE("Transform custom effect error");
+//             return ERROR;
+//         }
+//     }
+//     size_t size = hdfCompositeEffect.compositeEffects.size();
+//     MISC_HILOGD("The count of match result:%{public}zu", size);
+//     for (size_t i = 0; i < size; ++i) {
+//         MISC_HILOGD("Match result at %{public}zu th, delay:%{public}d, effectId:%{public}d",
+//             i, hdfCompositeEffect.compositeEffects[i].primitiveEffect.delay,
+//             hdfCompositeEffect.compositeEffects[i].primitiveEffect.effectId);
+//     }
+    
+//     return vibratorHdiConnection_.EnableCompositeEffect(hdfCompositeEffect);
+// }
 
 int32_t MiscdeviceService::PlayVibratorCustom(int32_t vibratorId, const RawFileDescriptor &rawFd, int32_t usage)
 {
@@ -385,19 +376,29 @@ int32_t MiscdeviceService::PlayVibratorCustom(int32_t vibratorId, const RawFileD
             rawFd.fd, rawFd.offset, rawFd.length);
         return PARAMETER_ERROR;
     }
+    std::unique_ptr<IVibratorDecoderFactory> decoderFactory = std::make_unique<DefaultVibratorDecoderFactory>();
+    std::unique_ptr<IVibratorDecoder> decoder(decoderFactory->CreateDecoder());
+    VibratePackage package;
+    int32_t ret = decoder->DecodeEffect(rawFd, package);
+    if (ret != SUCCESS || package.patterns.empty()) {
+        MISC_HILOGE("Decode effect error");
+        return ERROR;
+    }
     VibrateInfo info = {
-        .mode = "custom",
+        .mode = "custom.predefined",
         .packageName = GetPackageName(GetCallingTokenID()),
         .pid = GetCallingPid(),
         .uid = GetCallingUid(),
         .usage = usage,
+        .package = package,
     };
     std::lock_guard<std::mutex> lock(vibratorThreadMutex_);
     if (ShouldIgnoreVibrate(info)) {
         MISC_HILOGE("Vibration is ignored and high priority is vibrating");
         return ERROR;
     }
-    return StartCustomVibration(rawFd, info);
+    StartVibrateThread(info);
+    return NO_ERROR;
 }
 #endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 

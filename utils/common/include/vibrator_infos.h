@@ -22,17 +22,6 @@
 
 namespace OHOS {
 namespace Sensors {
-struct VibrateInfo {
-    std::string mode;
-    std::string packageName;
-    int32_t pid = -1;
-    int32_t uid = -1;
-    int32_t usage = 0;
-    int32_t duration = 0;
-    std::string effect;
-    int32_t count = 0;
-};
-
 enum VibrateUsage {
     USAGE_UNKNOWN = 0,
     USAGE_ALARM = 1,
@@ -95,6 +84,18 @@ struct VibrateSlice {
     int32_t duration = 0;
     int32_t intensity = 0;
     int32_t frequency = 0;
+};
+
+struct VibrateInfo {
+    std::string mode;
+    std::string packageName;
+    int32_t pid = -1;
+    int32_t uid = -1;
+    int32_t usage = 0;
+    int32_t duration = 0;
+    std::string effect;
+    int32_t count = 0;
+    VibratePackage package;
 };
 }  // namespace Sensors
 }  // namespace OHOS
