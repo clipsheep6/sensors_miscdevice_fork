@@ -41,7 +41,6 @@ int32_t VibratorHdiConnection::ConnectHdi()
         iVibratorHdiConnection_ = std::make_unique<CompatibleConnection>();
         ret = iVibratorHdiConnection_->ConnectHdi();
 #endif
-        MISC_HILOGE("Compatible connection have been blocked");
     }
     if (ret != ERR_OK) {
         MISC_HILOGE("Hdi connection failed");

@@ -47,7 +47,6 @@ int32_t LightHdiConnection::ConnectHdi()
 #ifdef BUILD_VARIANT_ENG
     iLightHdiConnection_ = std::make_unique<CompatibleLightConnection>();
 #endif
-    MISC_HILOGE("Compatible connection have been blocked");
     return ConnectHdiService();
 }
 
