@@ -16,6 +16,7 @@ import("./../../miscdevice.gni")
 
 ohos_shared_library("libmiscdevice_service") {
   sources = [
+    "haptic_matcher/src/custom_vibration_matcher.cpp",
     "hdi_connection/adapter/src/compatible_connection.cpp",
     "hdi_connection/adapter/src/compatible_light_connection.cpp",
     "hdi_connection/adapter/src/hdi_connection.cpp",
@@ -29,6 +30,7 @@ ohos_shared_library("libmiscdevice_service") {
   ]
 
   include_dirs = [
+    "haptic_matcher/include",
     "include",
     "$SUBSYSTEM_DIR/frameworks/native/common/include",
     "$SUBSYSTEM_DIR/interfaces/inner_api/light",
@@ -38,6 +40,12 @@ ohos_shared_library("libmiscdevice_service") {
     "$SUBSYSTEM_DIR/utils/haptic_decoder/include",
     "//third_party/cJSON",
   ]
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
 
   cflags = [ "-Wno-error=inconsistent-missing-override" ]
   deps = [ "$SUBSYSTEM_DIR/utils:miscdevice_utils_target" ]
@@ -56,10 +64,6 @@ ohos_shared_library("libmiscdevice_service") {
   defines = miscdevice_default_defines
 
   if (miscdevice_feature_vibrator_custom) {
-    sources += [
-      "haptic_matcher/src/custom_vibration_matcher.cpp",
-    ]
-    include_dirs += [ "haptic_matcher/include" ]
     external_deps += [ "init:libbegetutil" ]
   }
 
@@ -77,6 +81,7 @@ ohos_shared_library("libmiscdevice_service") {
 #############################################################################
 ohos_shared_library("libmiscdevice_service_static") {
   sources = [
+    "haptic_matcher/src/custom_vibration_matcher.cpp",
     "hdi_connection/adapter/src/compatible_connection.cpp",
     "hdi_connection/adapter/src/compatible_light_connection.cpp",
     "hdi_connection/adapter/src/hdi_connection.cpp",
@@ -90,6 +95,7 @@ ohos_shared_library("libmiscdevice_service_static") {
   ]
 
   include_dirs = [
+    "haptic_matcher/include",
     "include",
     "$SUBSYSTEM_DIR/frameworks/native/common/include",
     "$SUBSYSTEM_DIR/interfaces/inner_api/light",
@@ -99,6 +105,12 @@ ohos_shared_library("libmiscdevice_service_static") {
     "$SUBSYSTEM_DIR/utils/haptic_decoder/include",
     "//third_party/cJSON",
   ]
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
 
   cflags = [ "-Wno-error=inconsistent-missing-override" ]
   deps = [ "$SUBSYSTEM_DIR/utils:miscdevice_utils_target" ]
@@ -117,10 +129,6 @@ ohos_shared_library("libmiscdevice_service_static") {
   defines = miscdevice_default_defines
 
   if (miscdevice_feature_vibrator_custom) {
-    sources += [
-      "haptic_matcher/src/custom_vibration_matcher.cpp",
-    ]
-    include_dirs += [ "haptic_matcher/include" ]
     external_deps += [ "init:libbegetutil" ]
   }
 
