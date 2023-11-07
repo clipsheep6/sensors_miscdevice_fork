@@ -43,7 +43,7 @@ ohos_shared_library("libmiscdevice_service") {
     ]
   }
 
-    sanitize = {
+  sanitize = {
     cfi = true
     cfi_cross_dso = true
     debug = false
@@ -116,12 +116,12 @@ ohos_shared_library("libmiscdevice_service_static") {
     ]
   }
 
-    sanitize = {
+  sanitize = {
     cfi = true
     cfi_cross_dso = true
     debug = false
   }
-  
+
   cflags = [ "-Wno-error=inconsistent-missing-override" ]
   deps = [ "$SUBSYSTEM_DIR/utils:libmiscdevice_utils" ]
 
