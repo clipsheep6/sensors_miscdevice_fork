@@ -14,11 +14,10 @@
  */
 #include "light_hdi_connection.h"
 
-#ifdef BUILD_VARIANT_ENG
 #include <list>
-#endif
-
+#ifdef BUILD_VARIANT_ENG
 #include "compatible_light_connection.h"
+#endif
 #ifdef HDF_DRIVERS_INTERFACE_LIGHT
 #include "hdi_light_connection.h"
 #endif // HDF_DRIVERS_INTERFACE_LIGHT
