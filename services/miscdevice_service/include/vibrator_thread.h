@@ -30,24 +30,22 @@ class VibratorThread : public Thread {
 public:
     void UpdateVibratorEffect(VibrateInfo vibrateInfo);
     VibrateInfo GetCurrentVibrateInfo();
-    void NotifyExit();
+    void SetExitStatus(bool status);
 
 protected:
     virtual bool Run();
 
 private:
-    void SetReadyStatus(bool status);
     int32_t PlayOnce(const VibrateInfo &info);
     int32_t PlayEffect(const VibrateInfo &info);
     int32_t PlayCustomByHdHptic(const VibrateInfo &info);
     int32_t PlayCustomByCompositeEffect(const VibrateInfo &info);
     int32_t PlayCompositeEffect(const HdfCompositeEffect &hdfCompositeEffect);
     VibrateInfo currentVibration_;
-    std::condition_variable cv_;
     std::mutex currentVibrationMutex_;
-    std::mutex readyMutex_;
+    std::condition_variable cv_;
     std::mutex vibrateMutex_;
-    bool ready_ = false;
+    bool exitFlag_ = false;
 };
 #define VibratorDevice VibratorHdiConnection::GetInstance()
 }  // namespace Sensors

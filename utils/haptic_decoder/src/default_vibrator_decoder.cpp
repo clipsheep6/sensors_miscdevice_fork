@@ -267,14 +267,11 @@ void DefaultVibratorDecoder::PatternSplit(VibratePattern &originPattern, Vibrate
     for (size_t i = 0; i < size; ++i) {
         originPattern.events[i].time -= slicePattern.startTime;
         slicePattern.events.emplace_back(originPattern.events[i]);
-        if (slicePattern.events.size() >= PATTERN_CAPACITY) {
+        if ((slicePattern.events.size() >= PATTERN_CAPACITY) || (i == (size - 1))) {
             patternPackage.patterns.emplace_back(slicePattern);
             slicePattern.events.clear();
             slicePattern.startTime = originPattern.events[i + 1].time;
         }
-    }
-    if (!slicePattern.events.empty()) {
-        patternPackage.patterns.emplace_back(slicePattern);
     }
 }
 }  // namespace Sensors

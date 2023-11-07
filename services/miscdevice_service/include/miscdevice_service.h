@@ -78,6 +78,7 @@ private:
     bool InitLightInterface();
     std::string GetPackageName(AccessTokenID tokenId);
     void StartVibrateThread(VibrateInfo info);
+    void StopVibrateThread();
     bool ShouldIgnoreVibrate(const VibrateInfo &info);
     bool InitLightList();
 #ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM

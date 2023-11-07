@@ -171,6 +171,10 @@ int32_t CustomVibrationMatcher::TransformTime(const VibratePattern &pattern,
 {
     CALL_LOG_ENTER;
 
+    if (pattern.events.empty()) {
+        MISC_HILOGE("The events of pattern is empty");
+        return ERROR;
+    }
     VibratePattern flatPattern = MixedWaveProcess(pattern);
     int32_t frontTime = pattern.startTime;
     for (const VibrateEvent &event : flatPattern.events) {
@@ -182,6 +186,12 @@ int32_t CustomVibrationMatcher::TransformTime(const VibratePattern &pattern,
         compositeEffects.push_back(compositeEffect);
         frontTime = event.time;
     }
+    TimeEffect timeEffect;
+    timeEffect.delay = flatPattern.events.back().duration;
+    timeEffect.time = 0;
+    CompositeEffect compositeEffect;
+    compositeEffect.timeEffect = timeEffect;
+    compositeEffects.push_back(compositeEffect);
     return SUCCESS;
 }
 
@@ -190,6 +200,10 @@ int32_t CustomVibrationMatcher::TransformEffect(const VibratePattern &pattern,
 {
     CALL_LOG_ENTER;
 
+    if (pattern.events.empty()) {
+        MISC_HILOGE("The events of pattern is empty");
+        return ERROR;
+    }
     VibratePattern flatPattern = MixedWaveProcess(pattern);
     int32_t preStartTime = flatPattern.startTime;
     int32_t preDuration = 0;
