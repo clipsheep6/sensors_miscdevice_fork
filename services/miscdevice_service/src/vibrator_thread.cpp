@@ -15,16 +15,21 @@
 
 #include "vibrator_thread.h"
 
+#include <sys/prctl.h>
+
 #include "sensors_errors.h"
 
 namespace OHOS {
 namespace Sensors {
 namespace {
 constexpr OHOS::HiviewDFX::HiLogLabel LABEL = { LOG_CORE, MISC_LOG_DOMAIN, "VibratorThread" };
+const std::string VIBRATE_CONTROL_THREAD_NAME = "OS_VibControl";
 }  // namespace
 
 bool VibratorThread::Run()
 {
+    CALL_LOG_ENTER;
+    prctl(PR_SET_NAME, VIBRATE_CONTROL_THREAD_NAME.c_str());
     VibrateInfo info = GetCurrentVibrateInfo();
     std::unique_lock<std::mutex> vibrateLck(vibrateMutex_);
     if (info.mode == "time") {
