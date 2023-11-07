@@ -16,8 +16,6 @@ import("./../../miscdevice.gni")
 
 ohos_shared_library("libmiscdevice_service") {
   sources = [
-    "hdi_connection/adapter/src/compatible_connection.cpp",
-    "hdi_connection/adapter/src/compatible_light_connection.cpp",
     "hdi_connection/adapter/src/hdi_connection.cpp",
     "hdi_connection/interface/src/light_hdi_connection.cpp",
     "hdi_connection/interface/src/vibrator_hdi_connection.cpp",
@@ -37,6 +35,13 @@ ohos_shared_library("libmiscdevice_service") {
     "$SUBSYSTEM_DIR/utils/include",
     "//third_party/cJSON",
   ]
+
+  if (miscdevice_build_eng) {
+    sources += [
+      "hdi_connection/adapter/src/compatible_connection.cpp",
+      "hdi_connection/adapter/src/compatible_light_connection.cpp",
+    ]
+  }
 
   cflags = [ "-Wno-error=inconsistent-missing-override" ]
   deps = [ "$SUBSYSTEM_DIR/utils:libmiscdevice_utils" ]
@@ -78,8 +83,6 @@ ohos_shared_library("libmiscdevice_service") {
 #############################################################################
 ohos_shared_library("libmiscdevice_service_static") {
   sources = [
-    "hdi_connection/adapter/src/compatible_connection.cpp",
-    "hdi_connection/adapter/src/compatible_light_connection.cpp",
     "hdi_connection/adapter/src/hdi_connection.cpp",
     "hdi_connection/interface/src/light_hdi_connection.cpp",
     "hdi_connection/interface/src/vibrator_hdi_connection.cpp",
@@ -99,7 +102,13 @@ ohos_shared_library("libmiscdevice_service_static") {
     "$SUBSYSTEM_DIR/utils/include",
     "//third_party/cJSON",
   ]
-
+  
+  if (miscdevice_build_eng) {
+    sources += [
+      "hdi_connection/adapter/src/compatible_connection.cpp",
+      "hdi_connection/adapter/src/compatible_light_connection.cpp",
+    ]
+  }
   cflags = [ "-Wno-error=inconsistent-missing-override" ]
   deps = [ "$SUBSYSTEM_DIR/utils:libmiscdevice_utils" ]
 
