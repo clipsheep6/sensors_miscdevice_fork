@@ -43,6 +43,12 @@ ohos_shared_library("libmiscdevice_service") {
     ]
   }
 
+    sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   cflags = [ "-Wno-error=inconsistent-missing-override" ]
   deps = [ "$SUBSYSTEM_DIR/utils:libmiscdevice_utils" ]
 
@@ -102,13 +108,20 @@ ohos_shared_library("libmiscdevice_service_static") {
     "$SUBSYSTEM_DIR/utils/include",
     "//third_party/cJSON",
   ]
-  
+
   if (miscdevice_build_eng) {
     sources += [
       "hdi_connection/adapter/src/compatible_connection.cpp",
       "hdi_connection/adapter/src/compatible_light_connection.cpp",
     ]
   }
+
+    sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  
   cflags = [ "-Wno-error=inconsistent-missing-override" ]
   deps = [ "$SUBSYSTEM_DIR/utils:libmiscdevice_utils" ]
 
