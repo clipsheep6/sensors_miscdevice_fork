@@ -299,6 +299,7 @@ void MiscdeviceService::StopVibrateThread()
 {
     if (vibratorThread_->IsRunning()) {
         vibratorThread_->SetExitStatus(true);
+        vibratorThread_->WakeUp();
         vibratorThread_->NotifyExitSync();
         vibratorThread_->SetExitStatus(false);
     }

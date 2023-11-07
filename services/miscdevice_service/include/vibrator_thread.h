@@ -31,6 +31,7 @@ public:
     void UpdateVibratorEffect(VibrateInfo vibrateInfo);
     VibrateInfo GetCurrentVibrateInfo();
     void SetExitStatus(bool status);
+    void WakeUp();
 
 protected:
     virtual bool Run();

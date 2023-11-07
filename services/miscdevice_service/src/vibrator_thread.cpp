@@ -216,5 +216,11 @@ void VibratorThread::SetExitStatus(bool status)
 {
     exitFlag_ = status;
 }
+
+void VibratorThread::WakeUp()
+{
+    MISC_HILOGD("Notify the vibratorThread");
+    cv_.notify_one();
+}
 }  // namespace Sensors
 }  // namespace OHOS
