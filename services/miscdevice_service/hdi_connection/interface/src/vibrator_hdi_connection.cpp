@@ -34,17 +34,17 @@ int32_t VibratorHdiConnection::ConnectHdi()
 {
     iVibratorHdiConnection_ = std::make_unique<HdiConnection>();
     int32_t ret = iVibratorHdiConnection_->ConnectHdi();
+#ifdef BUILD_VARIANT_ENG
     if (ret != ERR_OK) {
         MISC_HILOGE("Hdi direct failed");
-#ifdef BUILD_VARIANT_ENG
         iVibratorHdiConnection_ = std::make_unique<CompatibleConnection>();
         ret = iVibratorHdiConnection_->ConnectHdi();
-#endif
     }
     if (ret != ERR_OK) {
         MISC_HILOGE("Hdi connection failed");
         return VIBRATOR_HDF_CONNECT_ERR;
     }
+#endif
     return ERR_OK;
 }
 
