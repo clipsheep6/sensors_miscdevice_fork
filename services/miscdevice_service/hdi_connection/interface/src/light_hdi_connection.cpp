@@ -15,8 +15,9 @@
 #include "light_hdi_connection.h"
 
 #include <list>
-
+#ifdef BUILD_VARIANT_ENG
 #include "compatible_light_connection.h"
+#endif
 #ifdef HDF_DRIVERS_INTERFACE_LIGHT
 #include "hdi_light_connection.h"
 #endif // HDF_DRIVERS_INTERFACE_LIGHT
@@ -41,7 +42,9 @@ int32_t LightHdiConnection::ConnectHdi()
         return ERR_OK;
     }
 #endif // HDF_DRIVERS_INTERFACE_LIGHT
+#ifdef BUILD_VARIANT_ENG
     iLightHdiConnection_ = std::make_unique<CompatibleLightConnection>();
+#endif
     return ConnectHdiService();
 }
 
@@ -56,13 +59,13 @@ int32_t LightHdiConnection::ConnectHdiService()
     return iLightHdiConnection_->GetLightList(lightInfoList_);
 }
 
-int32_t LightHdiConnection::GetLightList(std::vector<LightInfo> &lightList) const
+int32_t LightHdiConnection::GetLightList(std::vector<LightInfoIPC> &lightList) const
 {
     lightList.assign(lightInfoList_.begin(), lightInfoList_.end());
     return ERR_OK;
 }
 
-int32_t LightHdiConnection::TurnOn(int32_t lightId, const LightColor &color, const LightAnimation &animation)
+int32_t LightHdiConnection::TurnOn(int32_t lightId, const LightColor &color, const LightAnimationIPC &animation)
 {
     CHKPR(iLightHdiConnection_, ERROR);
     int32_t ret = iLightHdiConnection_->TurnOn(lightId, color, animation);
