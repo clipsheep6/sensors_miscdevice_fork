@@ -16,7 +16,10 @@
 
 #include "hitrace_meter.h"
 
+#ifdef BUILD_VARIANT_ENG
 #include "compatible_connection.h"
+#endif
+
 #include "hdi_connection.h"
 #include "sensors_errors.h"
 
@@ -34,8 +37,10 @@ int32_t VibratorHdiConnection::ConnectHdi()
     int32_t ret = iVibratorHdiConnection_->ConnectHdi();
     if (ret != ERR_OK) {
         MISC_HILOGE("Hdi direct failed");
+#ifdef BUILD_VARIANT_ENG
         iVibratorHdiConnection_ = std::make_unique<CompatibleConnection>();
         ret = iVibratorHdiConnection_->ConnectHdi();
+#endif
     }
     if (ret != ERR_OK) {
         MISC_HILOGE("Hdi connection failed");
