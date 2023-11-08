@@ -44,8 +44,8 @@ int32_t LightHdiConnection::ConnectHdi()
 #endif // HDF_DRIVERS_INTERFACE_LIGHT
 #ifdef BUILD_VARIANT_ENG
     iLightHdiConnection_ = std::make_unique<CompatibleLightConnection>();
-#endif
     return ConnectHdiService();
+#endif
 }
 
 int32_t LightHdiConnection::ConnectHdiService()
