@@ -17,6 +17,6 @@ import("./../miscdevice.gni")
 group("miscdevice_utils_target") {
   deps = [
     "common:libmiscdevice_utils",
-    "haptic_decoder:libvibrator_decoder",
+    "haptic_decoder/oh_json:libvibrator_decoder",
   ]
 }

@@ -37,7 +37,8 @@ ohos_shared_library("libmiscdevice_service") {
     "$SUBSYSTEM_DIR/services/miscdevice_service/hdi_connection/adapter/include",
     "$SUBSYSTEM_DIR/services/miscdevice_service/hdi_connection/interface/include",
     "$SUBSYSTEM_DIR/utils/common/include",
-    "$SUBSYSTEM_DIR/utils/haptic_decoder/include",
+    "$SUBSYSTEM_DIR/utils/haptic_decoder/interface",
+    "$SUBSYSTEM_DIR/utils/haptic_decoder/oh_json/include",
     "//third_party/cJSON",
   ]
 
@@ -102,7 +103,8 @@ ohos_shared_library("libmiscdevice_service_static") {
     "$SUBSYSTEM_DIR/services/miscdevice_service/hdi_connection/adapter/include",
     "$SUBSYSTEM_DIR/services/miscdevice_service/hdi_connection/interface/include",
     "$SUBSYSTEM_DIR/utils/common/include",
-    "$SUBSYSTEM_DIR/utils/haptic_decoder/include",
+    "$SUBSYSTEM_DIR/utils/haptic_decoder/interface",
+    "$SUBSYSTEM_DIR/utils/haptic_decoder/oh_json/include",
     "//third_party/cJSON",
   ]
 

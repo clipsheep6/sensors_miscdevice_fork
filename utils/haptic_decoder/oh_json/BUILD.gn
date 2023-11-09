@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("./../../miscdevice.gni")
+import("./../../../miscdevice.gni")
 
 ohos_shared_library("libvibrator_decoder") {
   sources = [
@@ -23,6 +23,7 @@ ohos_shared_library("libvibrator_decoder") {
   include_dirs = [
     "include",
     "$SUBSYSTEM_DIR/utils/common/include",
+    "$SUBSYSTEM_DIR/utils/haptic_decoder/interface",
     "//third_party/cJSON",
   ]
 
