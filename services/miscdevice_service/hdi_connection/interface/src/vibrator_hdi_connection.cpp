@@ -45,7 +45,7 @@ int32_t VibratorHdiConnection::ConnectHdi()
         return VIBRATOR_HDF_CONNECT_ERR;
     }
 #endif
-    return ERR_OK;
+    return ret;
 }
 
 int32_t VibratorHdiConnection::StartOnce(uint32_t duration)
