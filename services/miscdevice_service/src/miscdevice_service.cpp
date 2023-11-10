@@ -61,9 +61,7 @@ MiscdeviceService::MiscdeviceService()
 
 MiscdeviceService::~MiscdeviceService()
 {
-    if (vibratorThread_ != nullptr) {
-        StopVibrateThread();
-    }
+    StopVibrateThread();
 }
 
 void MiscdeviceService::OnDump()
@@ -206,7 +204,7 @@ int32_t MiscdeviceService::Vibrate(int32_t vibratorId, int32_t timeOut, int32_t 
         return PARAMETER_ERROR;
     }
     VibrateInfo info = {
-        .mode = "time",
+        .mode = VIBRATE_TIME,
         .packageName = GetPackageName(GetCallingTokenID()),
         .pid = GetCallingPid(),
         .uid = GetCallingUid(),
@@ -261,7 +259,7 @@ int32_t MiscdeviceService::PlayVibratorEffect(int32_t vibratorId, const std::str
         return PARAMETER_ERROR;
     }
     VibrateInfo info = {
-        .mode = "preset",
+        .mode = VIBRATE_PRESET,
         .packageName = GetPackageName(GetCallingTokenID()),
         .pid = GetCallingPid(),
         .uid = GetCallingUid(),
@@ -297,7 +295,7 @@ void MiscdeviceService::StartVibrateThread(VibrateInfo info)
 
 void MiscdeviceService::StopVibrateThread()
 {
-    if (vibratorThread_->IsRunning()) {
+    if ((vibratorThread_ != nullptr) && (vibratorThread_->IsRunning())) {
         vibratorThread_->SetExitStatus(true);
         vibratorThread_->WakeUp();
         vibratorThread_->NotifyExitSync();
@@ -357,7 +355,7 @@ int32_t MiscdeviceService::PlayVibratorCustom(int32_t vibratorId, const RawFileD
         return ERROR;
     }
     VibrateInfo info = {
-        .mode = "custom.predefined",
+        .mode = VIBRATE_CUSTOM_COMPOSITE_EFFECT,
         .packageName = GetPackageName(GetCallingTokenID()),
         .pid = GetCallingPid(),
         .uid = GetCallingUid(),

@@ -25,8 +25,8 @@ using namespace OHOS::HiviewDFX;
 namespace {
 constexpr int32_t STARTTMIE_MIN = 0;
 constexpr int32_t STARTTMIE_MAX = 1800000;
-constexpr int32_t CONTINUOUS_VIBRATION_DURATION_MIN = 10;
-constexpr int32_t CONTINUOUS_VIBRATION_DURATION_MAX = 1600;
+constexpr int32_t CONTINUOUS_VIBRATION_DURATION_MIN = 0;
+constexpr int32_t CONTINUOUS_VIBRATION_DURATION_MAX = 5000;
 constexpr int32_t TRANSIENT_VIBRATION_DURATION = 30;
 constexpr int32_t INTENSITY_MIN = 0;
 constexpr int32_t INTENSITY_MAX = 100;
@@ -34,7 +34,7 @@ constexpr int32_t FREQUENCY_MIN = 0;
 constexpr int32_t FREQUENCY_MAX = 100;
 constexpr int32_t EVENT_NUM_MAX = 128;
 constexpr double SUPPORT_JSON_VERSION = 1.0;
-constexpr int32_t SUPPORT_CHANNEL_NUMBER = 1;
+constexpr int32_t SUPPORT_CHANNEL_NUMBER = 3;
 constexpr uint32_t PATTERN_CAPACITY = 16;
 constexpr uint32_t CURVE_POINT_MIN = 4;
 constexpr uint32_t CURVE_POINT_MAX = 16;
@@ -110,6 +110,7 @@ int32_t DefaultVibratorDecoder::ParseChannel(const JsonParser &parser, VibratePa
         ret = ParsePattern(parser, patternItem, originPattern);
         CHKCR((ret == SUCCESS), ERROR, "parse pattern fail");
     }
+    std::sort(originPattern.events.begin(), originPattern.events.end());
     return SUCCESS;
 }
 
@@ -118,7 +119,7 @@ int32_t DefaultVibratorDecoder::ParseChannelParameters(const JsonParser &parser,
     cJSON *indexItem = parser.GetObjectItem(channelParametersItem, "Index");
     CHKPR(indexItem, ERROR);
     int32_t indexVal = indexItem->valueint;
-    CHKCR((indexVal == SUPPORT_CHANNEL_NUMBER), ERROR, "invalid channel index");
+    CHKCR((indexVal >= 0) && (indexVal < SUPPORT_CHANNEL_NUMBER), ERROR, "invalid channel index");
     return SUCCESS;
 }
 
@@ -144,7 +145,6 @@ int32_t DefaultVibratorDecoder::ParsePattern(const JsonParser &parser, cJSON *pa
         CHKCR((ret == SUCCESS), ERROR, "parse event fail");
         originPattern.events.emplace_back(event);
     }
-    std::sort(originPattern.events.begin(), originPattern.events.end());
     return SUCCESS;
 }
 
@@ -197,8 +197,8 @@ bool DefaultVibratorDecoder::CheckEventParameters(const VibrateEvent &event)
         MISC_HILOGE("The event startTime is out of range, startTime:%{public}d", event.time);
         return false;
     }
-    if (event.duration <= CONTINUOUS_VIBRATION_DURATION_MIN ||
-        event.duration >= CONTINUOUS_VIBRATION_DURATION_MAX) {
+    if (event.duration < CONTINUOUS_VIBRATION_DURATION_MIN ||
+        event.duration > CONTINUOUS_VIBRATION_DURATION_MAX) {
         MISC_HILOGE("The event duration is out of range, duration:%{public}d", event.duration);
         return false;
     }

@@ -21,14 +21,15 @@
 #include <thread>
 
 #include "thread_ex.h"
-#include "vibrator_infos.h"
+
 #include "vibrator_hdi_connection.h"
+#include "vibrator_infos.h"
 
 namespace OHOS {
 namespace Sensors {
 class VibratorThread : public Thread {
 public:
-    void UpdateVibratorEffect(VibrateInfo vibrateInfo);
+    void UpdateVibratorEffect(const VibrateInfo &vibrateInfo);
     VibrateInfo GetCurrentVibrateInfo();
     void SetExitStatus(bool status);
     void WakeUp();
@@ -41,12 +42,12 @@ private:
     int32_t PlayEffect(const VibrateInfo &info);
     int32_t PlayCustomByHdHptic(const VibrateInfo &info);
     int32_t PlayCustomByCompositeEffect(const VibrateInfo &info);
-    int32_t PlayCompositeEffect(const HdfCompositeEffect &hdfCompositeEffect);
-    VibrateInfo currentVibration_;
+    int32_t PlayCompositeEffect(const VibrateInfo &info, const HdfCompositeEffect &hdfCompositeEffect);
     std::mutex currentVibrationMutex_;
-    std::condition_variable cv_;
+    VibrateInfo currentVibration_;
     std::mutex vibrateMutex_;
-    bool exitFlag_ = false;
+    std::condition_variable cv_;
+    std::atomic<bool> exitFlag_ = false;
 };
 #define VibratorDevice VibratorHdiConnection::GetInstance()
 }  // namespace Sensors

@@ -47,17 +47,98 @@ constexpr int32_t EFFECT_ID_BOUNDARY = 1000;
 constexpr int32_t DURATION_MAX = 1600;
 constexpr float CURVE_INTENSITY_SCALE = 100.00;
 constexpr int32_t SLICE_STEP = 50;
+constexpr int32_t CONTINUOUS_VIBRATION_DURATION_MIN = 15;
 constexpr OHOS::HiviewDFX::HiLogLabel LABEL = { LOG_CORE, MISC_LOG_DOMAIN, "CustomVibrationMatcher" };
 }  // namespace
 
-int32_t CustomVibrationMatcher::Interpolation(int32_t x1, int32_t x2, int32_t y1, int32_t y2, int32_t x)
+int32_t CustomVibrationMatcher::TransformTime(const VibratePackage &package,
+    std::vector<CompositeEffect> &compositeEffects)
 {
-    if (x1 == x2) {
-        return y1;
+    CALL_LOG_ENTER;
+    VibratePattern flatPattern = MixedWaveProcess(package);
+    if (flatPattern.events.empty()) {
+        MISC_HILOGE("The events of pattern is empty");
+        return ERROR;
     }
-    float delta_y = y2 - y1;
-    float delta_x = x2 - x1;
-    return y1 + delta_y / delta_x * (x - x1);
+    int32_t frontTime = 0;
+    for (const VibrateEvent &event : flatPattern.events) {
+        TimeEffect timeEffect;
+        timeEffect.delay = event.time - frontTime;
+        timeEffect.time = event.duration;
+        CompositeEffect compositeEffect;
+        compositeEffect.timeEffect = timeEffect;
+        compositeEffects.push_back(compositeEffect);
+        frontTime = event.time;
+    }
+    TimeEffect timeEffect;
+    timeEffect.delay = flatPattern.events.back().duration;
+    timeEffect.time = 0;
+    CompositeEffect compositeEffect;
+    compositeEffect.timeEffect = timeEffect;
+    compositeEffects.push_back(compositeEffect);
+    return SUCCESS;
+}
+
+int32_t CustomVibrationMatcher::TransformEffect(const VibratePackage &package,
+    std::vector<CompositeEffect> &compositeEffects)
+{
+    CALL_LOG_ENTER;
+    VibratePattern flatPattern = MixedWaveProcess(package);
+    if (flatPattern.events.empty()) {
+        MISC_HILOGE("The events of pattern is empty");
+        return ERROR;
+    }
+    int32_t preStartTime = flatPattern.startTime;
+    int32_t preDuration = 0;
+    for (const VibrateEvent &event : flatPattern.events) {
+        if (event.tag == EVENT_TAG_CONTINUOUS) {
+            ProcessContinuousEvent(event, preStartTime, preDuration, compositeEffects);
+        } else if (event.tag == EVENT_TAG_TRANSIENT) {
+            ProcessTransientEvent(event, preStartTime, preDuration, compositeEffects);
+        } else {
+            MISC_HILOGE("Unknown event tag, tag:%{public}d", event.tag);
+            return ERROR;
+        }
+    }
+    PrimitiveEffect primitiveEffect;
+    primitiveEffect.delay = preDuration;
+    primitiveEffect.effectId = STOP_WAVEFORM;
+    CompositeEffect compositeEffect;
+    compositeEffect.primitiveEffect = primitiveEffect;
+    compositeEffects.push_back(compositeEffect);
+    return SUCCESS;
+}
+
+VibratePattern CustomVibrationMatcher::MixedWaveProcess(const VibratePackage &package)
+{
+    VibratePattern outputPattern;
+    std::vector<VibrateEvent> &outputEvents = outputPattern.events;
+    for (const VibratePattern &pattern : package.patterns) {
+        for (VibrateEvent event : pattern.events) {
+            event.time += pattern.startTime;
+            PreProcessEvent(event);
+            if ((outputEvents.empty()) ||
+                (event.time >= (outputEvents.back().time + outputEvents.back().duration)) ||
+                (outputEvents.back().tag == EVENT_TAG_TRANSIENT)) {
+                outputEvents.emplace_back(event);
+            } else {
+                VibrateEvent &lastEvent = outputEvents.back();
+                VibrateEvent newEvent = {
+                    .tag = EVENT_TAG_CONTINUOUS,
+                    .time = lastEvent.time,
+                    .duration = std::max(lastEvent.time + lastEvent.duration, event.time + event.duration)
+                        - lastEvent.time,
+                    .intensity = lastEvent.intensity,
+                    .frequency = lastEvent.frequency,
+                    .index = lastEvent.index,
+                    .points = MergeCurve(lastEvent.points, event.points),
+                };
+                outputEvents.pop_back();
+                outputEvents.push_back(newEvent);
+            }
+        }
+    }
+    return outputPattern;
 }
 
 void CustomVibrationMatcher::PreProcessEvent(VibrateEvent &event)
@@ -65,17 +146,18 @@ void CustomVibrationMatcher::PreProcessEvent(VibrateEvent &event)
     if (event.points.empty()) {
         VibrateCurvePoint startPoint = {
             .time = 0,
-            .intensity = 1,
+            .intensity = INTENSITY_MAX,
             .frequency = 0,
         };
         event.points.push_back(startPoint);
         VibrateCurvePoint endPoint = {
             .time = event.duration,
-            .intensity = 1,
+            .intensity = INTENSITY_MAX,
             .frequency = 0,
         };
         event.points.push_back(endPoint);
     }
+    event.duration = std::max(event.duration, CONTINUOUS_VIBRATION_DURATION_MIN);
     for (VibrateCurvePoint &curvePoint : event.points) {
         curvePoint.time += event.time;
         curvePoint.intensity *= (event.intensity / CURVE_INTENSITY_SCALE);
@@ -96,12 +178,12 @@ std::vector<VibrateCurvePoint> CustomVibrationMatcher::MergeCurve(const std::vec
     size_t i = 0;
     size_t j = 0;
     while (i < curveLeft.size() || j < curveRight.size()) {
-        if (i < curveLeft.size() && curveLeft[i].time < overlapLeft) {
+        if (i < curveLeft.size() && ((curveLeft[i].time < overlapLeft) || (curveLeft[i].time > overlapRight))) {
             newCurve.push_back(curveLeft[i]);
             ++i;
             continue;
         }
-        if (j < curveRight.size() && curveRight[j].time > overlapRight) {
+        if (j < curveRight.size() && ((curveRight[j].time < overlapLeft) || (curveRight[j].time > overlapRight))) {
             newCurve.push_back(curveRight[j]);
             ++j;
             continue;
@@ -135,95 +217,6 @@ std::vector<VibrateCurvePoint> CustomVibrationMatcher::MergeCurve(const std::vec
         newCurve.push_back(newCurvePoint);
     }
     return newCurve;
-}
-
-VibratePattern CustomVibrationMatcher::MixedWaveProcess(const VibratePattern &inputPattern)
-{
-    VibratePattern outputPattern;
-    outputPattern.startTime = inputPattern.startTime;
-    std::vector<VibrateEvent> &outputEvents = outputPattern.events;
-    for (VibrateEvent event : inputPattern.events) {
-        PreProcessEvent(event);
-        if ((outputEvents.empty()) ||
-            (event.time >= (outputEvents.back().time + outputEvents.back().duration)) ||
-            (outputEvents.back().tag == EVENT_TAG_TRANSIENT)) {
-            outputEvents.emplace_back(event);
-        } else {
-            VibrateEvent &lastEvent = outputEvents.back();
-            VibrateEvent newEvent = {
-                .tag = EVENT_TAG_CONTINUOUS,
-                .time = lastEvent.time,
-                .duration = std::max(lastEvent.time + lastEvent.duration, event.time + event.duration) - lastEvent.time,
-                .intensity = lastEvent.intensity,
-                .frequency = lastEvent.frequency,
-                .index = lastEvent.index,
-                .points = MergeCurve(lastEvent.points, event.points),
-            };
-            outputEvents.pop_back();
-            outputEvents.push_back(newEvent);
-        }
-    }
-    return outputPattern;
-}
-
-int32_t CustomVibrationMatcher::TransformTime(const VibratePattern &pattern,
-    std::vector<CompositeEffect> &compositeEffects)
-{
-    CALL_LOG_ENTER;
-
-    if (pattern.events.empty()) {
-        MISC_HILOGE("The events of pattern is empty");
-        return ERROR;
-    }
-    VibratePattern flatPattern = MixedWaveProcess(pattern);
-    int32_t frontTime = pattern.startTime;
-    for (const VibrateEvent &event : flatPattern.events) {
-        TimeEffect timeEffect;
-        timeEffect.delay = event.time - frontTime;
-        timeEffect.time = event.duration;
-        CompositeEffect compositeEffect;
-        compositeEffect.timeEffect = timeEffect;
-        compositeEffects.push_back(compositeEffect);
-        frontTime = event.time;
-    }
-    TimeEffect timeEffect;
-    timeEffect.delay = flatPattern.events.back().duration;
-    timeEffect.time = 0;
-    CompositeEffect compositeEffect;
-    compositeEffect.timeEffect = timeEffect;
-    compositeEffects.push_back(compositeEffect);
-    return SUCCESS;
-}
-
-int32_t CustomVibrationMatcher::TransformEffect(const VibratePattern &pattern,
-    std::vector<CompositeEffect> &compositeEffects)
-{
-    CALL_LOG_ENTER;
-
-    if (pattern.events.empty()) {
-        MISC_HILOGE("The events of pattern is empty");
-        return ERROR;
-    }
-    VibratePattern flatPattern = MixedWaveProcess(pattern);
-    int32_t preStartTime = flatPattern.startTime;
-    int32_t preDuration = 0;
-    for (const VibrateEvent &event : pattern.events) {
-        if (event.tag == EVENT_TAG_CONTINUOUS) {
-            ProcessContinuousEvent(event, preStartTime, preDuration, compositeEffects);
-        } else if (event.tag == EVENT_TAG_TRANSIENT) {
-            ProcessTransientEvent(event, preStartTime, preDuration, compositeEffects);
-        } else {
-            MISC_HILOGE("Unknown event tag, tag:%{public}d", event.tag);
-            return ERROR;
-        }
-    }
-    PrimitiveEffect primitiveEffect;
-    primitiveEffect.delay = preDuration;
-    primitiveEffect.effectId = STOP_WAVEFORM;
-    CompositeEffect compositeEffect;
-    compositeEffect.primitiveEffect = primitiveEffect;
-    compositeEffects.push_back(compositeEffect);
-    return SUCCESS;
 }
 
 void CustomVibrationMatcher::ProcessContinuousEvent(const VibrateEvent &event, int32_t &preStartTime,
@@ -330,6 +323,16 @@ void CustomVibrationMatcher::ProcessTransientEvent(const VibrateEvent &event, in
     compositeEffects.push_back(compositeEffect);
     preStartTime = event.time;
     preDuration = event.duration;
+}
+
+int32_t CustomVibrationMatcher::Interpolation(int32_t x1, int32_t x2, int32_t y1, int32_t y2, int32_t x)
+{
+    if (x1 == x2) {
+        return y1;
+    }
+    float delta_y = y2 - y1;
+    float delta_x = x2 - x1;
+    return y1 + delta_y / delta_x * (x - x1);
 }
 }  // namespace Sensors
 }  // namespace OHOS

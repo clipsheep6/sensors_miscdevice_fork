@@ -22,6 +22,13 @@
 
 namespace OHOS {
 namespace Sensors {
+const std::string VIBRATE_BUTT = "butt";
+const std::string VIBRATE_TIME = "time";
+const std::string VIBRATE_PRESET = "preset";
+const std::string VIBRATE_CUSTOM_HD = "custom.hd";
+const std::string VIBRATE_CUSTOM_COMPOSITE_EFFECT = "custom.composite.effect";
+const std::string VIBRATE_CUSTOM_COMPOSITE_TIME = "custom.composite.time";
+
 enum VibrateUsage {
     USAGE_UNKNOWN = 0,
     USAGE_ALARM = 1,

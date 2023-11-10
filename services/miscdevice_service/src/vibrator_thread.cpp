@@ -28,25 +28,25 @@ constexpr size_t COMPOSITE_EFFECT_PART = 128;
 bool VibratorThread::Run()
 {
     VibrateInfo info = GetCurrentVibrateInfo();
-    if (info.mode == "time") {
+    if (info.mode == VIBRATE_TIME) {
         int32_t ret = PlayOnce(info);
         if (ret != SUCCESS) {
             MISC_HILOGE("Play once vibration fail, package:%{public}s", info.packageName.c_str());
             return false;
         }
-    } else if (info.mode == "preset") {
+    } else if (info.mode == VIBRATE_PRESET) {
         int32_t ret = PlayEffect(info);
         if (ret != SUCCESS) {
             MISC_HILOGE("Play effect vibration fail, package:%{public}s", info.packageName.c_str());
             return false;
         }
-    } else if (info.mode == "custom.hd") {
+    } else if (info.mode == VIBRATE_CUSTOM_HD) {
         int32_t ret = PlayCustomByHdHptic(info);
         if (ret != SUCCESS) {
             MISC_HILOGE("Play custom vibration by hd haptic fail, package:%{public}s", info.packageName.c_str());
             return false;
         }
-    } else if (info.mode == "custom.predefined" || info.mode == "custom.time") {
+    } else if (info.mode == VIBRATE_CUSTOM_COMPOSITE_EFFECT || info.mode == VIBRATE_CUSTOM_COMPOSITE_TIME) {
         int32_t ret = PlayCustomByCompositeEffect(info);
         if (ret != SUCCESS) {
             MISC_HILOGE("Play custom vibration by composite effect fail, package:%{public}s", info.packageName.c_str());
@@ -64,7 +64,7 @@ int32_t VibratorThread::PlayOnce(const VibrateInfo &info)
         MISC_HILOGE("StartOnce fail, duration:%{public}d", info.duration);
         return ERROR;
     }
-    cv_.wait_for(vibrateLck, std::chrono::milliseconds(info.duration), [this] { return exitFlag_; });
+    cv_.wait_for(vibrateLck, std::chrono::milliseconds(info.duration), [this] { return exitFlag_.load(); });
     VibratorDevice.Stop(HDF_VIBRATOR_MODE_ONCE);
     if (exitFlag_) {
         MISC_HILOGI("Stop duration:%{public}d, package:%{public}s", info.duration, info.packageName.c_str());
@@ -83,7 +83,7 @@ int32_t VibratorThread::PlayEffect(const VibrateInfo &info)
             MISC_HILOGE("Vibrate effect %{public}s failed, ", effect.c_str());
             return ERROR;
         }
-        cv_.wait_for(vibrateLck, std::chrono::milliseconds(info.duration), [this] { return exitFlag_; });
+        cv_.wait_for(vibrateLck, std::chrono::milliseconds(info.duration), [this] { return exitFlag_.load(); });
         VibratorDevice.Stop(HDF_VIBRATOR_MODE_PRESET);
         if (exitFlag_) {
             MISC_HILOGI("Stop effect:%{public}s, package:%{public}s", effect.c_str(), info.packageName.c_str());
@@ -99,19 +99,18 @@ int32_t VibratorThread::PlayCustomByHdHptic(const VibrateInfo &info)
     const std::vector<VibratePattern> &patterns = info.package.patterns;
     size_t patternSize = patterns.size();
     for (size_t i = 0; i < patternSize; ++i) {
+        int32_t delayTime;
+        if (i == 0) {
+            delayTime = patterns[i].startTime;
+        } else {
+            delayTime = patterns[i].startTime - patterns[i - 1].startTime;
+        }
+        cv_.wait_for(vibrateLck, std::chrono::milliseconds(delayTime), [this] { return exitFlag_.load(); });
         // int32_t ret = VibratorDevice.playPattern(patterns[i]);
         // if (ret != SUCCESS) {
         //     MISC_HILOGE("Vibrate custom vibration by hd haptic failed");
         //     return ERROR;
         // }
-        int32_t delayTime;
-        if (i < patternSize - 1) {
-            delayTime = patterns[i + 1].startTime - patterns[i].startTime;
-        } else {
-            const VibrateEvent &lastEvent = patterns[i].events.back();
-            delayTime = lastEvent.time + lastEvent.duration;
-        }
-        cv_.wait_for(vibrateLck, std::chrono::milliseconds(info.duration), [this] { return exitFlag_; });
         if (exitFlag_) {
             MISC_HILOGI("Stop hd haptic, package:%{public}s", info.packageName.c_str());
             return SUCCESS;
@@ -122,85 +121,63 @@ int32_t VibratorThread::PlayCustomByHdHptic(const VibrateInfo &info)
 
 int32_t VibratorThread::PlayCustomByCompositeEffect(const VibrateInfo &info)
 {
-    const std::vector<VibratePattern> &patterns = info.package.patterns;
-    size_t patternSize = patterns.size();
-    for (size_t i = 0; i < patternSize; ++i) {
-        CustomVibrationMatcher matcher;
-        HdfCompositeEffect hdfCompositeEffect;
-        if (info.mode == "custom.predefined") {
-            hdfCompositeEffect.type = HDF_EFFECT_TYPE_PRIMITIVE;
-            int32_t ret = matcher.TransformEffect(patterns[i], hdfCompositeEffect.compositeEffects);
-            if (ret != SUCCESS) {
-                MISC_HILOGE("Transform pattern to predefined wave fail");
-                return ERROR;
-            }
-        } else if (info.mode == "custom.time") {
-            hdfCompositeEffect.type = HDF_EFFECT_TYPE_TIME;
-            int32_t ret = matcher.TransformTime(patterns[i], hdfCompositeEffect.compositeEffects);
-            if (ret != SUCCESS) {
-                MISC_HILOGE("Transform pattern to time series fail");
-                return ERROR;
-            }
-        }
-        int32_t ret = PlayCompositeEffect(hdfCompositeEffect);
+    CustomVibrationMatcher matcher;
+    HdfCompositeEffect hdfCompositeEffect;
+    if (info.mode == "custom.predefined") {
+        hdfCompositeEffect.type = HDF_EFFECT_TYPE_PRIMITIVE;
+        int32_t ret = matcher.TransformEffect(info.package, hdfCompositeEffect.compositeEffects);
         if (ret != SUCCESS) {
-            MISC_HILOGE("Vibrate pattern by composite effect failed");
+            MISC_HILOGE("Transform pattern to predefined wave fail");
             return ERROR;
         }
-        int32_t delayTime;
-        const VibrateEvent &lastEvent = patterns[i].events.back();
-        if (i < patternSize - 1) {
-            delayTime = patterns[i + 1].startTime - (patterns[i].startTime + lastEvent.time + lastEvent.duration);
-        } else {
-            delayTime = lastEvent.time + lastEvent.duration;
-        }
-        std::unique_lock<std::mutex> vibrateLck(vibrateMutex_);
-        cv_.wait_for(vibrateLck, std::chrono::milliseconds(info.duration), [this] { return exitFlag_; });
-        if (exitFlag_) {
-            MISC_HILOGI("Stop composite effect, package:%{public}s", info.packageName.c_str());
-            return SUCCESS;
+    } else if (info.mode == "custom.time") {
+        hdfCompositeEffect.type = HDF_EFFECT_TYPE_TIME;
+        int32_t ret = matcher.TransformTime(info.package, hdfCompositeEffect.compositeEffects);
+        if (ret != SUCCESS) {
+            MISC_HILOGE("Transform pattern to time series fail");
+            return ERROR;
         }
     }
-    return SUCCESS;
+    return PlayCompositeEffect(info, hdfCompositeEffect);
 }
 
-int32_t VibratorThread::PlayCompositeEffect(const HdfCompositeEffect &hdfCompositeEffect)
+int32_t VibratorThread::PlayCompositeEffect(const VibrateInfo &info, const HdfCompositeEffect &hdfCompositeEffect)
 {
     std::unique_lock<std::mutex> vibrateLck(vibrateMutex_);
     HdfCompositeEffect effectsPart;
     effectsPart.type = hdfCompositeEffect.type;
     size_t effectSize = hdfCompositeEffect.compositeEffects.size();
     int32_t delayTime = 0;
-    for (size_t i = 0; i <= effectSize; ++i) {
-        if ((effectsPart.compositeEffects.size() >= COMPOSITE_EFFECT_PART) || (i == effectSize)) {
+    for (size_t i = 0; i < effectSize; ++i) {
+        effectsPart.compositeEffects.push_back(hdfCompositeEffect.compositeEffects[i]);
+        if (effectsPart.type == HDF_EFFECT_TYPE_TIME) {
+            delayTime += hdfCompositeEffect.compositeEffects[i].timeEffect.delay;
+        } else if (effectsPart.type == HDF_EFFECT_TYPE_PRIMITIVE) {
+            delayTime += hdfCompositeEffect.compositeEffects[i].primitiveEffect.delay;
+        } else {
+            MISC_HILOGE("Effect type is valid");
+            return ERROR;
+        }
+        if ((effectsPart.compositeEffects.size() >= COMPOSITE_EFFECT_PART) || (i == (effectSize - 1))) {
             int32_t ret = VibratorDevice.EnableCompositeEffect(effectsPart);
             if (ret != SUCCESS) {
                 MISC_HILOGE("EnableCompositeEffect failed");
                 return ERROR;
             }
-            cv_.wait_for(vibrateLck, std::chrono::milliseconds(delayTime), [this] { return exitFlag_; });
+            cv_.wait_for(vibrateLck, std::chrono::milliseconds(delayTime), [this] { return exitFlag_.load(); });
             delayTime = 0;
             effectsPart.compositeEffects.clear();
-            if (exitFlag_) {
-                MISC_HILOGI("Stop composite effect part");
-                return SUCCESS;
-            }
-        } else {
-            effectsPart.compositeEffects.push_back(hdfCompositeEffect.compositeEffects[i]);
-            if (effectsPart.type == HDF_EFFECT_TYPE_TIME) {
-                delayTime += hdfCompositeEffect.compositeEffects[i].timeEffect.delay;
-            } else if (effectsPart.type == HDF_EFFECT_TYPE_PRIMITIVE) {
-                delayTime += hdfCompositeEffect.compositeEffects[i].primitiveEffect.delay;
-            } else {
-                MISC_HILOGE("Effect type is valid");
-                return ERROR;
-            }
+        }
+        if (exitFlag_) {
+            VibratorDevice.Stop(HDF_VIBRATOR_MODE_PRESET);
+            MISC_HILOGI("Stop composite effect part, package:%{public}s", info.packageName.c_str());
+            return SUCCESS;
         }
     }
     return SUCCESS;
 }
 
-void VibratorThread::UpdateVibratorEffect(VibrateInfo info)
+void VibratorThread::UpdateVibratorEffect(const VibrateInfo &info)
 {
     std::unique_lock<std::mutex> lck(currentVibrationMutex_);
     currentVibration_ = info;
@@ -214,7 +191,7 @@ VibrateInfo VibratorThread::GetCurrentVibrateInfo()
 
 void VibratorThread::SetExitStatus(bool status)
 {
-    exitFlag_ = status;
+    exitFlag_.store(status);
 }
 
 void VibratorThread::WakeUp()
