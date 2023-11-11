@@ -33,6 +33,12 @@ namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, MISC_LOG_DOMAIN, "VibratorServiceClient" };
 constexpr int32_t GET_SERVICE_MAX_COUNT = 30;
 constexpr uint32_t WAIT_MS = 200;
+constexpr int32_t PATH_MAX_LENGTH = 64;
+#ifdef __aarch64__
+    static const std::string DECODER_LIBRARY_PATH = "/system/lib64/libxxx.z.so";
+#else
+    static const std::string DECODER_LIBRARY_PATH = "/system/lib/libxxx.z.so";
+#endif
 }  // namespace
 
 VibratorServiceClient::~VibratorServiceClient()
@@ -43,6 +49,8 @@ VibratorServiceClient::~VibratorServiceClient()
             remoteObject->RemoveDeathRecipient(serviceDeathObserver_);
         }
     }
+    std::lock_guard<std::mutex> decodeLock(decodeMutex_);
+    decodeHandle_.Free();
 }
 
 int32_t VibratorServiceClient::InitServiceClient()
@@ -203,6 +211,68 @@ void VibratorServiceClient::ProcessDeathObserver(const wptr<IRemoteObject> &obje
         MISC_HILOGE("InitServiceClient failed, ret:%{public}d", ret);
         return;
     }
+}
+
+int32_t VibratorServiceClient::LoadDecoderLibrary(const std::string& path)
+{
+    std::lock_guard<std::mutex> decodeLock(decodeMutex_);
+    if (decodeHandle_.handle != nullptr) {
+        MISC_HILOGD("The library has already been loaded");
+        return 0;
+    }
+    char libRealPath[PATH_MAX_LENGTH] = {};
+    if (realpath(path.c_str(), libRealPath) == nullptr) {
+        MISC_HILOGD("Get file real path fail");
+        return -1;
+    }
+    decodeHandle_.handle = dlopen(libRealPath, RTLD_LAZY);
+    if (decodeHandle_.handle == nullptr) {
+        MISC_HILOGE("dlopen failed, reason:%{public}s", dlerror());
+        return -1;
+    }
+    decodeHandle_.create = static_cast<IVibratorDecoder *(*)()>(
+        dlsym(decodeHandle_.handle, "Create"));
+    if (decodeHandle_.create == nullptr) {
+        MISC_HILOGE("dlsym create failed: error: %{public}s", dlerror());
+        decodeHandle_.Free();
+        return -1;
+    }
+    decodeHandle_.destroy = static_cast<void (*)(IVibratorDecoder *)>(
+        dlsym(decodeHandle_.handle,"Destroy"));
+    if (decodeHandle_.destroy == nullptr) {
+        MISC_HILOGE("dlsym destroy failed: error: %{public}s", dlerror());
+        decodeHandle_.Free();
+        return -1;
+    }
+    decodeHandle_.decoder =  decodeHandle_.create();
+    return 0;
+}
+
+int32_t VibratorServiceClient::PreProcess(
+    const VibratorFileDescription &fd, VibratorPackage &package)
+{
+    if (LoadDecoderLibrary(DECODER_LIBRARY_PATH) != 0 || decodeHandle_.decoder == nullptr) {
+        MISC_HILOGD("LoadDecoderLibrary fail");
+        return -1;
+    }
+    return decodeHandle_.decoder->Parse(fd, package);
+}
+
+int32_t VibratorServiceClient::GetDelayTime(int32_t &delayTime)
+{
+    int32_t ret = InitServiceClient();
+    if (ret != ERR_OK) {
+        MISC_HILOGE("InitServiceClient failed, ret:%{public}d", ret);
+        return MISC_NATIVE_GET_SERVICE_ERR;
+    }
+    CHKPR(miscdeviceProxy_, ERROR);
+    StartTrace(HITRACE_TAG_SENSORS, "GetDelayTime");
+    ret = miscdeviceProxy_->GetDelayTime(delayTime);
+    FinishTrace(HITRACE_TAG_SENSORS);
+    if (ret != ERR_OK) {
+        MISC_HILOGE("GetDelayTime failed, ret:%{public}d", ret);
+    }
+    return ret;
 }
 }  // namespace Sensors
 }  // namespace OHOS
