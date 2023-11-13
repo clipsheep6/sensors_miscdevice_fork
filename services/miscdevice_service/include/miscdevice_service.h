@@ -71,6 +71,8 @@ public:
     virtual std::vector<LightInfoIPC> GetLightList() override;
     virtual int32_t TurnOn(int32_t lightId, const LightColor &color, const LightAnimationIPC &animation) override;
     virtual int32_t TurnOff(int32_t lightId) override;
+    virtual int32_t PlayPattern(const VibratePattern &pattern, int32_t usage) override;
+    virtual int32_t GetDelayTime(int32_t &delayTime) override;
 
 private:
     DISALLOW_COPY_AND_MOVE(MiscdeviceService);
@@ -78,12 +80,9 @@ private:
     bool InitLightInterface();
     std::string GetPackageName(AccessTokenID tokenId);
     void StartVibrateThread(VibrateInfo info);
+    void StopVibrateThread();
     bool ShouldIgnoreVibrate(const VibrateInfo &info);
     bool InitLightList();
-#ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
-    int32_t DecodeCustomEffect(const RawFileDescriptor &rawFd, std::set<VibrateEvent> &vibrateSequence);
-    int32_t StartCustomVibration(const RawFileDescriptor &rawFd, const VibrateInfo &info);
-#endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
     VibratorHdiConnection &vibratorHdiConnection_ = VibratorHdiConnection::GetInstance();
     LightHdiConnection &lightHdiConnection_ = LightHdiConnection::GetInstance();
     bool lightExist_;
@@ -93,6 +92,7 @@ private:
     MiscdeviceServiceState state_;
     std::shared_ptr<VibratorThread> vibratorThread_ = nullptr;
     std::mutex vibratorThreadMutex_;
+    VibratorCapacity capacity_;
 };
 }  // namespace Sensors
 }  // namespace OHOS
