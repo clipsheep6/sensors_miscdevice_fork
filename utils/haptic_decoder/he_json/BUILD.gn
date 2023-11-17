@@ -12,12 +12,32 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("./../miscdevice.gni")
+import("./../../../miscdevice.gni")
 
-group("miscdevice_utils_target") {
-  deps = [
-    "common:libmiscdevice_utils",
-    "haptic_decoder/oh_json:libvibrator_decoder",
-    "haptic_decoder/he_json:libhe_vibrator_decoder",
+ohos_shared_library("libhe_vibrator_decoder") {
+  sources = [
+    "src/he_vibrator_decoder.cpp",
+    "src/he_vibrator_decoder_factory.cpp",
   ]
+
+  include_dirs = [
+    "include",
+    "$SUBSYSTEM_DIR/utils/common/include",
+    "$SUBSYSTEM_DIR/utils/haptic_decoder/interface",
+    "//third_party/cJSON",
+  ]
+
+  deps = [
+    "//third_party/cJSON:cjson",
+    "$SUBSYSTEM_DIR/utils/common:libmiscdevice_utils"
+  ]
+
+  external_deps = [
+    "access_token:libaccesstoken_sdk",
+    "c_utils:utils",
+    "hilog:libhilog",
+  ]
+
+  part_name = "miscdevice"
+  subsystem_name = "sensors"
 }
