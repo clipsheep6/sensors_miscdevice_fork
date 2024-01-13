@@ -25,7 +25,6 @@
 #include "iremote_object.h"
 #include "singleton.h"
 
-#include "miscdevice_observer.h"
 #include "vibrator_infos.h"
 #include "vibrator_thread.h"
 
@@ -67,22 +66,19 @@ private:
     bool IsCurrentVibrate(std::shared_ptr<VibratorThread> vibratorThread) const;
     bool IsLoopVibrate(const VibrateInfo &vibrateInfo) const;
     VibrateStatus ShouldIgnoreVibrate(const VibrateInfo &vibrateInfo, VibrateInfo currentVibrateInfo) const;
-    static void ExecRegisterCb(const sptr<MiscDeviceObserver> &observer);
-    int32_t RegisterObserver(const sptr<MiscDeviceObserver> &observer);
-    int32_t UnregisterObserver(const sptr<MiscDeviceObserver> &observer);
     int32_t GetIntValue(const std::string &key, int32_t &value);
     int32_t GetLongValue(const std::string &key, int64_t &value);
     int32_t GetStringValue(const std::string &key, std::string &value);
     Uri AssembleUri(const std::string &key);
     std::shared_ptr<DataShare::DataShareHelper> CreateDataShareHelper();
     bool ReleaseDataShareHelper(std::shared_ptr<DataShare::DataShareHelper> &helper);
-    sptr<MiscDeviceObserver> CreateObserver(const MiscDeviceObserver::UpdateFunc &func);
     void Initialize();
     void UpdateStatus();
     sptr<IRemoteObject> remoteObj_ { nullptr };
-    sptr<MiscDeviceObserver> observer_ { nullptr };
     std::atomic_int32_t miscFeedback_ = FEEDBACK_MODE_INVALID;
     std::atomic_int32_t miscAudioRingerMode_ = RINGER_MODE_INVALID;
+    std::shared_ptr<DataShare::DataShareHelper> helper_ = nullptr;
+    std::string callingIdentity_;
 };
 #define PriorityManager DelayedSingleton<VibrationPriorityManager>::GetInstance()
 }  // namespace Sensors

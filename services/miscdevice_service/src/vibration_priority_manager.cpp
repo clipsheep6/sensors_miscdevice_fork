@@ -38,37 +38,12 @@ constexpr int32_t DECEM_BASE = 10;
 VibrationPriorityManager::VibrationPriorityManager()
 {
     Initialize();
-    MiscDeviceObserver::UpdateFunc updateFunc = [&]() {
-        int32_t feedback = miscFeedback_;
-        if (GetIntValue(SETTING_FEEDBACK_KEY, feedback) != ERR_OK) {
-            MISC_HILOGE("Get feedback failed");
-        }
-        miscFeedback_ = feedback;
-        MISC_HILOGI("feedback:%{public}d", feedback);
-        int32_t ringerMode = miscAudioRingerMode_;
-        if (GetIntValue(SETTING_RINGER_MODE_KEY, ringerMode) != ERR_OK) {
-            MISC_HILOGE("Get ringerMode failed");
-        }
-        miscAudioRingerMode_ = ringerMode;
-        MISC_HILOGI("ringerMode:%{public}d", ringerMode);
-    };
-    auto observer = CreateObserver(updateFunc);
-    if (observer == nullptr) {
-        MISC_HILOGE("observer is null");
-        return;
-    }
-    observer_ = observer;
-    if (RegisterObserver(observer_) != ERR_OK) {
-        MISC_HILOGE("RegisterObserver failed");
-    }
 }
 
 VibrationPriorityManager::~VibrationPriorityManager()
 {
     remoteObj_ = nullptr;
-    if (UnregisterObserver(observer_) != ERR_OK) {
-        MISC_HILOGE("UnregisterObserver failed");
-    }
+    ReleaseDataShareHelper(helper_);
 }
 
 int32_t VibrationPriorityManager::GetIntValue(const std::string &key, int32_t &value)
@@ -95,28 +70,25 @@ int32_t VibrationPriorityManager::GetLongValue(const std::string &key, int64_t &
 
 int32_t VibrationPriorityManager::GetStringValue(const std::string &key, std::string &value)
 {
-    std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
-    auto helper = CreateDataShareHelper();
-    if (helper == nullptr) {
-        IPCSkeleton::SetCallingIdentity(callingIdentity);
-        return MISC_NO_INIT_ERR;
-    }
     std::vector<std::string> columns = {SETTING_COLUMN_VALUE};
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(SETTING_COLUMN_KEYWORD, key);
     Uri uri(AssembleUri(key));
-    auto resultSet = helper->Query(uri, predicates, columns);
-    ReleaseDataShareHelper(helper);
+    if (helper_ == nullptr) {
+        IPCSkeleton::SetCallingIdentity(callingIdentity_);
+        return MISC_NO_INIT_ERR;
+    }
+    auto resultSet = helper_->Query(uri, predicates, columns);
     if (resultSet == nullptr) {
         MISC_HILOGE("resultSet is nullptr");
-        IPCSkeleton::SetCallingIdentity(callingIdentity);
+        IPCSkeleton::SetCallingIdentity(callingIdentity_);
         return MISC_INVALID_OPERATION_ERR;
     }
     int32_t count;
     resultSet->GetRowCount(count);
     if (count == 0) {
         MISC_HILOGW("Not found value, key:%{public}s, count:%{public}d", key.c_str(), count);
-        IPCSkeleton::SetCallingIdentity(callingIdentity);
+        IPCSkeleton::SetCallingIdentity(callingIdentity_);
         return MISC_NAME_NOT_FOUND_ERR;
     }
     const int32_t index = 0;
@@ -124,32 +96,28 @@ int32_t VibrationPriorityManager::GetStringValue(const std::string &key, std::st
     int32_t ret = resultSet->GetString(index, value);
     if (ret != ERR_OK) {
         MISC_HILOGW("GetString failed, ret:%{public}d", ret);
-        IPCSkeleton::SetCallingIdentity(callingIdentity);
+        IPCSkeleton::SetCallingIdentity(callingIdentity_);
         return ERROR;
     }
     resultSet->Close();
-    IPCSkeleton::SetCallingIdentity(callingIdentity);
+    IPCSkeleton::SetCallingIdentity(callingIdentity_);
     return ERR_OK;
 }
 
 void VibrationPriorityManager::UpdateStatus()
 {
-    if (miscFeedback_ == FEEDBACK_MODE_INVALID) {
-        int32_t feedback = FEEDBACK_MODE_INVALID;
-        if (GetIntValue(SETTING_FEEDBACK_KEY, feedback) != ERR_OK) {
-            feedback = FEEDBACK_MODE_ON;
-            MISC_HILOGE("Get feedback failed");
-        }
-        miscFeedback_ = feedback;
+    int32_t feedback = FEEDBACK_MODE_INVALID;
+    if (GetIntValue(SETTING_FEEDBACK_KEY, feedback) != ERR_OK) {
+        feedback = FEEDBACK_MODE_ON;
+        MISC_HILOGE("Get feedback failed");
     }
-    if (miscAudioRingerMode_ == RINGER_MODE_INVALID) {
-        int32_t ringerMode = RINGER_MODE_INVALID;
-        if (GetIntValue(SETTING_RINGER_MODE_KEY, ringerMode) != ERR_OK) {
-            ringerMode = RINGER_MODE_NORMAL;
-            MISC_HILOGE("Get ringerMode failed");
-        }
-        miscAudioRingerMode_ = ringerMode;
+    miscFeedback_ = feedback;
+    int32_t ringerMode = RINGER_MODE_INVALID;
+    if (GetIntValue(SETTING_RINGER_MODE_KEY, ringerMode) != ERR_OK) {
+        ringerMode = RINGER_MODE_NORMAL;
+        MISC_HILOGE("Get ringerMode failed");
     }
+    miscAudioRingerMode_ = ringerMode;
 }
 
 VibrateStatus VibrationPriorityManager::ShouldIgnoreVibrate(const VibrateInfo &vibrateInfo,
@@ -218,17 +186,6 @@ VibrateStatus VibrationPriorityManager::ShouldIgnoreVibrate(const VibrateInfo &v
     return VIBRATION;
 }
 
-sptr<MiscDeviceObserver> VibrationPriorityManager::CreateObserver(const MiscDeviceObserver::UpdateFunc &func)
-{
-    sptr<MiscDeviceObserver> observer = new MiscDeviceObserver();
-    if (observer == nullptr) {
-        MISC_HILOGE("observer is null");
-        return observer;
-    }
-    observer->SetUpdateFunc(func);
-    return observer;
-}
-
 void VibrationPriorityManager::Initialize()
 {
     auto sm = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -242,6 +199,12 @@ void VibrationPriorityManager::Initialize()
         return;
     }
     remoteObj_ = remoteObj;
+    callingIdentity_ = IPCSkeleton::ResetCallingIdentity();
+    helper_ = CreateDataShareHelper();
+    if (helper_ == nullptr) {
+        IPCSkeleton::SetCallingIdentity(callingIdentity_);
+        MISC_HILOGE("CreateDataShareHelper failed");
+    }
 }
 
 Uri VibrationPriorityManager::AssembleUri(const std::string &key)
@@ -271,63 +234,6 @@ bool VibrationPriorityManager::ReleaseDataShareHelper(std::shared_ptr<DataShare:
         return false;
     }
     return true;
-}
-
-void VibrationPriorityManager::ExecRegisterCb(const sptr<MiscDeviceObserver> &observer)
-{
-    if (observer == nullptr) {
-        MISC_HILOGE("observer is nullptr");
-        return;
-    }
-    observer->OnChange();
-}
-
-int32_t VibrationPriorityManager::RegisterObserver(const sptr<MiscDeviceObserver> &observer)
-{
-    if (observer == nullptr) {
-        MISC_HILOGE("observer is nullptr");
-        return MISC_NO_INIT_ERR;
-    }
-    std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
-    auto helper = CreateDataShareHelper();
-    if (helper == nullptr) {
-        IPCSkeleton::SetCallingIdentity(callingIdentity);
-        return MISC_NO_INIT_ERR;
-    }
-    auto uriFeedback = AssembleUri(SETTING_FEEDBACK_KEY);
-    helper->RegisterObserver(uriFeedback, observer);
-    helper->NotifyChange(uriFeedback);
-    auto uriRingerMode = AssembleUri(SETTING_RINGER_MODE_KEY);
-    helper->RegisterObserver(uriRingerMode, observer);
-    helper->NotifyChange(uriRingerMode);
-    std::thread execCb(VibrationPriorityManager::ExecRegisterCb, observer);
-    execCb.detach();
-    ReleaseDataShareHelper(helper);
-    IPCSkeleton::SetCallingIdentity(callingIdentity);
-    MISC_HILOGD("succeed to register observer of uri");
-    return ERR_OK;
-}
-
-int32_t VibrationPriorityManager::UnregisterObserver(const sptr<MiscDeviceObserver> &observer)
-{
-    if (observer == nullptr) {
-        MISC_HILOGE("observer is nullptr");
-        return MISC_NO_INIT_ERR;
-    }
-    std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
-    auto helper = CreateDataShareHelper();
-    if (helper == nullptr) {
-        IPCSkeleton::SetCallingIdentity(callingIdentity);
-        return MISC_NO_INIT_ERR;
-    }
-    auto uriFeedback = AssembleUri(SETTING_FEEDBACK_KEY);
-    helper->UnregisterObserver(uriFeedback, observer);
-    auto uriRingerMode = AssembleUri(SETTING_RINGER_MODE_KEY);
-    helper->UnregisterObserver(uriRingerMode, observer);
-    ReleaseDataShareHelper(helper);
-    IPCSkeleton::SetCallingIdentity(callingIdentity);
-    MISC_HILOGD("succeed to unregister observer");
-    return ERR_OK;
 }
 }  // namespace Sensors
 }  // namespace OHOS
