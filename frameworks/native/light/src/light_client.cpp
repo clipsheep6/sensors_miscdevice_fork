@@ -29,7 +29,6 @@
 
 namespace OHOS {
 namespace Sensors {
-
 namespace {
 constexpr int32_t GET_SERVICE_MAX_COUNT = 30;
 constexpr uint32_t MAX_LIGHT_LIST_SIZE = 0X00ff;
@@ -62,7 +61,7 @@ int32_t LightClient::InitLightClient()
         miscdeviceProxy_ = iface_cast<IMiscdeviceService>(systemManager->GetSystemAbility(
             MISCDEVICE_SERVICE_ABILITY_ID));
         if (miscdeviceProxy_ != nullptr) {
-            MISC_HILOGD("miscdeviceProxy_ get service success, retry:%{public}d", retry);
+            MISC_HILOGD("miscdeviceProxy_ get service success, retry: %{public}d", retry);
             serviceDeathObserver_ = new (std::nothrow) DeathRecipientTemplate(*const_cast<LightClient *>(this));
             CHKPR(serviceDeathObserver_, MISC_NATIVE_GET_SERVICE_ERR);
             auto remoteObject = miscdeviceProxy_->AsObject();
@@ -71,7 +70,7 @@ int32_t LightClient::InitLightClient()
             lightInfoList_ = miscdeviceProxy_->GetLightList();
             return ERR_OK;
         }
-        MISC_HILOGW("Get service failed, retry:%{public}d", retry);
+        MISC_HILOGW("Get service failed, retry: %{public}d", retry);
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
         retry++;
     }
@@ -87,7 +86,7 @@ bool LightClient::IsLightIdValid(int32_t lightId)
     CALL_LOG_ENTER;
     int32_t ret = InitLightClient();
     if (ret != ERR_OK) {
-        MISC_HILOGE("InitLightClient failed, ret:%{public}d", ret);
+        MISC_HILOGE("InitLightClient failed, ret: %{public}d", ret);
         return false;
     }
     for (const auto &item : lightInfoList_) {
@@ -125,11 +124,11 @@ bool LightClient::IsLightAnimationValid(const LightAnimation &animation)
 {
     CALL_LOG_ENTER;
     if ((animation.mode < 0) || (animation.mode >= LIGHT_MODE_BUTT)) {
-        MISC_HILOGE("animation mode is invalid, mode:%{pubilc}d", animation.mode);
+        MISC_HILOGE("animation mode is invalid, mode: %{pubilc}d", animation.mode);
         return false;
     }
     if ((animation.onTime < 0) || (animation.offTime < 0)) {
-        MISC_HILOGE("animation onTime or offTime is invalid, onTime:%{pubilc}d, offTime:%{pubilc}d",
+        MISC_HILOGE("animation onTime or offTime is invalid, onTime: %{pubilc}d, offTime:%{pubilc}d",
             animation.onTime, animation.offTime);
         return false;
     }
@@ -140,7 +139,7 @@ int32_t LightClient::TurnOn(int32_t lightId, const LightColor &color, const Ligh
 {
     CALL_LOG_ENTER;
     if (!IsLightIdValid(lightId)) {
-        MISC_HILOGE("lightId is invalid, lightId:%{pubilc}d", lightId);
+        MISC_HILOGE("lightId is invalid, lightId: %{pubilc}d", lightId);
         return PARAMETER_ERROR;
     }
     if (!IsLightAnimationValid(animation)) {
@@ -159,7 +158,7 @@ int32_t LightClient::TurnOff(int32_t lightId)
 {
     CALL_LOG_ENTER;
     if (!IsLightIdValid(lightId)) {
-        MISC_HILOGE("lightId is invalid, lightId:%{pubilc}d", lightId);
+        MISC_HILOGE("lightId is invalid, lightId: %{pubilc}d", lightId);
         return LIGHT_ID_NOT_SUPPORT;
     }
     CHKPR(miscdeviceProxy_, ERROR);
@@ -173,7 +172,7 @@ void LightClient::ProcessDeathObserver(wptr<IRemoteObject> object)
     miscdeviceProxy_ = nullptr;
     auto ret = InitLightClient();
     if (ret != ERR_OK) {
-        MISC_HILOGE("InitLightClient failed, ret:%{public}d", ret);
+        MISC_HILOGE("InitLightClient failed, ret: %{public}d", ret);
         return;
     }
 }

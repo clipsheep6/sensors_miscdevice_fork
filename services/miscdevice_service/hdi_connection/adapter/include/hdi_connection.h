@@ -27,20 +27,20 @@ namespace Sensors {
 class HdiConnection : public IVibratorHdiConnection {
 public:
     HdiConnection() = default;
-    virtual ~HdiConnection() {};
-    int32_t ConnectHdi() override;
-    int32_t StartOnce(uint32_t duration) override;
-    int32_t Start(const std::string &effectType) override;
+    virtual ~HdiConnection() = default;
+    virtual int32_t ConnectHdi() override;
+    virtual int32_t StartOnce(uint32_t duration) override;
+    virtual int32_t Start(const std::string &effectType) override;
 #ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
-    int32_t EnableCompositeEffect(const HdfCompositeEffect &hdfCompositeEffect) override;
-    bool IsVibratorRunning() override;
+    virtual int32_t EnableCompositeEffect(const HdfCompositeEffect &hdfCompositeEffect) override;
+    virtual bool IsVibratorRunning() override;
 #endif // OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
-    std::optional<HdfEffectInfo> GetEffectInfo(const std::string &effect) override;
-    int32_t Stop(HdfVibratorMode mode) override;
-    int32_t GetDelayTime(int32_t mode, int32_t &delayTime) override;
-    int32_t GetVibratorCapacity(VibratorCapacity &capacity) override;
-    int32_t PlayPattern(const VibratePattern &pattern) override;
-    int32_t DestroyHdiConnection() override;
+    virtual std::optional<HdfEffectInfo> GetEffectInfo(const std::string &effect) override;
+    virtual int32_t Stop(HdfVibratorMode mode) override;
+    virtual int32_t GetDelayTime(int32_t mode, int32_t &delayTime) override;
+    virtual int32_t GetVibratorCapacity(VibratorCapacity &capacity) override;
+    virtual int32_t PlayPattern(const VibratePattern &pattern) override;
+    virtual int32_t DestroyHdiConnection() override;
     void ProcessDeathObserver(const wptr<IRemoteObject> &object);
 
 private:

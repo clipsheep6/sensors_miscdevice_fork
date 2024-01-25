@@ -26,6 +26,7 @@ extern "C" {
 #ifndef NAME_MAX_LEN
 #define NAME_MAX_LEN 32
 #endif /* NAME_MAX_LEN */
+
 /**
  * @brief Enumerates the light types.
  *

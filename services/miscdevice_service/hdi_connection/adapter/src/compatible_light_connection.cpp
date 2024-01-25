@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "compatible_light_connection.h"
 
 #include <ctime>
@@ -54,7 +55,7 @@ int32_t CompatibleLightConnection::TurnOn(int32_t lightId,  const LightColor &co
 {
     CALL_LOG_ENTER;
     if (std::find(supportLights.begin(), supportLights.end(), lightId) == supportLights.end()) {
-        MISC_HILOGE("Not support TurnOn lightId:%{public}d", lightId);
+        MISC_HILOGE("Not support TurnOn lightId: %{public}d", lightId);
         return LIGHT_ID_NOT_SUPPORT;
     }
     int32_t mode = animation.GetMode();
@@ -67,7 +68,7 @@ int32_t CompatibleLightConnection::TurnOn(int32_t lightId,  const LightColor &co
     }
     std::lock_guard<std::mutex> lock(turnOnLightsMutex_);
     if (std::find(turnOnLights_.begin(), turnOnLights_.end(), lightId) != turnOnLights_.end()) {
-        MISC_HILOGI("lightId:%{public}d has been turnOn", lightId);
+        MISC_HILOGI("lightId: %{public}d has been turnOn", lightId);
         return ERR_OK;
     }
     turnOnLights_.push_back(lightId);
@@ -78,12 +79,12 @@ int32_t CompatibleLightConnection::TurnOff(int32_t lightId)
 {
     CALL_LOG_ENTER;
     if (std::find(supportLights.begin(), supportLights.end(), lightId) == supportLights.end()) {
-        MISC_HILOGE("Not support TurnOff lightId:%{public}d", lightId);
+        MISC_HILOGE("Not support TurnOff lightId: %{public}d", lightId);
         return LIGHT_ID_NOT_SUPPORT;
     }
     std::lock_guard<std::mutex> lock(turnOnLightsMutex_);
     if (std::find(turnOnLights_.begin(), turnOnLights_.end(), lightId) == turnOnLights_.end()) {
-        MISC_HILOGE("lightId:%{public}d should not be turn off", lightId);
+        MISC_HILOGE("lightId: %{public}d should not be turn off", lightId);
         return LIGHT_END_ERROR;
     }
     std::vector<int32_t>::iterator iter = std::find(turnOnLights_.begin(), turnOnLights_.end(), lightId);

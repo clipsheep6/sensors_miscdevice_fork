@@ -26,12 +26,12 @@ using OHOS::HDI::Light::V1_0::ILightInterface;
 class HdiLightConnection : public ILightHdiConnection {
 public:
     HdiLightConnection() = default;
-    virtual ~HdiLightConnection() {};
-    int32_t ConnectHdi() override;
-    int32_t GetLightList(std::vector<LightInfoIPC> &lightList) const override;
-    int32_t TurnOn(int32_t lightId, const LightColor &color, const LightAnimationIPC &animation) override;
-    int32_t TurnOff(int32_t lightId) override;
-    int32_t DestroyHdiConnection() override;
+    virtual ~HdiLightConnection() = default;
+    virtual int32_t ConnectHdi() override;
+    virtual int32_t GetLightList(std::vector<LightInfoIPC> &lightList) const override;
+    virtual int32_t TurnOn(int32_t lightId, const LightColor &color, const LightAnimationIPC &animation) override;
+    virtual int32_t TurnOff(int32_t lightId) override;
+    virtual int32_t DestroyHdiConnection() override;
     void ProcessDeathObserver(const wptr<IRemoteObject> &object);
 
 private:

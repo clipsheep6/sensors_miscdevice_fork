@@ -28,15 +28,13 @@
 
 namespace OHOS {
 namespace Sensors {
-
 struct VibratorDecodeHandle {
     void *handle;
     IVibratorDecoder *decoder;
     IVibratorDecoder *(*create)(const RawFileDescriptor &);
     void (*destroy)(IVibratorDecoder *);
 
-    VibratorDecodeHandle(): handle(nullptr), decoder(nullptr),
-        create(nullptr), destroy(nullptr) {}
+    VibratorDecodeHandle(): handle(nullptr), decoder(nullptr), create(nullptr), destroy(nullptr) {}
 
     void Free()
     {
@@ -70,8 +68,8 @@ public:
 
 private:
     int32_t InitServiceClient();
-    int32_t LoadDecoderLibrary(const std::string& path);
-    int32_t ConvertVibratePackage(const VibratePackage& inPkg, VibratorPackage &outPkg);
+    int32_t LoadDecoderLibrary(const std::string &path);
+    int32_t ConvertVibratePackage(const VibratePackage &inPkg, VibratorPackage &outPkg);
     sptr<IRemoteObject::DeathRecipient> serviceDeathObserver_ = nullptr;
     sptr<IMiscdeviceService> miscdeviceProxy_ = nullptr;
     VibratorDecodeHandle decodeHandle_;

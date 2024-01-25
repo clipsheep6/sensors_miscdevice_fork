@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "compatible_connection.h"
 
 #include <ctime>
@@ -43,6 +44,7 @@ std::unordered_map<std::string, int32_t> g_vibratorEffect = {
 HdfVibratorMode g_vibrateMode;
 constexpr int32_t VIBRATE_DELAY_TIME = 10;
 } // namespace
+
 int32_t CompatibleConnection::duration_ = 0;
 std::atomic_bool CompatibleConnection::isStop_ = true;
 
@@ -134,7 +136,7 @@ int32_t CompatibleConnection::Stop(HdfVibratorMode mode)
 {
     CALL_LOG_ENTER;
     if (mode < 0 || mode >= HDF_VIBRATOR_MODE_BUTT) {
-        MISC_HILOGE("Invalid mode:%{public}d", mode);
+        MISC_HILOGE("Invalid mode: %{public}d", mode);
         return VIBRATOR_OFF_ERR;
     }
     if (g_vibrateMode != mode) {
