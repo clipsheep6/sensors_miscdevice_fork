@@ -336,6 +336,14 @@ static napi_value Stop(napi_env env, napi_callback_info info)
         return Cancel(env, info);
     }
 }
+static napi_value StopVibrationSync(napi_env env, napi_callback_info info)
+{
+    int32_t ret = Cancel();
+    if (ret != SUCCESS) {
+        ThrowErr(env, ret, "Cancel execution failed");
+    }
+    return nullptr;
+}
 
 static napi_value IsSupportEffect(napi_env env, napi_callback_info info)
 {
@@ -360,6 +368,31 @@ static napi_value IsSupportEffect(napi_env env, napi_callback_info info)
         return EmitAsyncWork(args[1], asyncCallbackInfo);
     }
     return EmitAsyncWork(nullptr, asyncCallbackInfo);
+}
+
+static napi_value IsSupportEffectSync(napi_env env, napi_callback_info info)
+{
+    size_t argc = 1;
+    napi_value args[1] = {};
+    napi_value thisArg = nullptr;
+    napi_status status = napi_get_cb_info(env, info, &argc, args, &thisArg, nullptr);
+    if (status != napi_ok) {
+        ThrowErr(env, PARAMETER_ERROR, "napi_get_cb_info fail or number of parameter invalid");
+        return nullptr;
+    }
+    string effectId;
+    if (!GetStringValue(env, args[0], effectId)) {
+        ThrowErr(env, PARAMETER_ERROR, "GetStringValue fail");
+        return nullptr;
+    }
+    bool isSupportEffect = false;
+    if(IsSupportEffect(effectId.c_str(), &isSupportEffect) != SUCCESS){
+        ThrowErr(env, PARAMETER_ERROR, "GetStringValue fail");
+        return nullptr;
+    }
+    napi_value isSupport = nullptr;
+    napi_get_boolean(env, isSupportEffect, &isSupport);
+    return isSupport;
 }
 
 static napi_value EnumClassConstructor(const napi_env env, const napi_callback_info info)
@@ -409,9 +442,11 @@ static napi_value Init(napi_env env, napi_value exports)
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("vibrate", Vibrate),
         DECLARE_NAPI_FUNCTION("stop", Stop),
+        DECLARE_NAPI_FUNCTION("stopVibrationSync", StopVibrationSync),
         DECLARE_NAPI_FUNCTION("startVibration", StartVibrate),
         DECLARE_NAPI_FUNCTION("stopVibration", Stop),
         DECLARE_NAPI_FUNCTION("isSupportEffect", IsSupportEffect),
+        DECLARE_NAPI_FUNCTION("isSupportEffectSync", IsSupportEffectSync),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));
     NAPI_ASSERT_BASE(env, CreateEnumStopMode(env, exports) != nullptr, "Create enum stop mode fail", exports);
