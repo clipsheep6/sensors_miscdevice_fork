@@ -20,9 +20,11 @@
 
 #include <string_ex.h>
 
+#include "death_recipient_template.h"
 #include "sensors_errors.h"
 #include "system_ability_definition.h"
 #include "vibration_priority_manager.h"
+#include "vibrator_infos.h"
 #ifdef HDF_DRIVERS_INTERFACE_LIGHT
 #include "v1_0/light_interface_proxy.h"
 #endif // HDF_DRIVERS_INTERFACE_LIGHT
@@ -52,6 +54,8 @@ constexpr int32_t INTENSITY_ADJUST_MIN = 0;
 constexpr int32_t INTENSITY_ADJUST_MAX = 100;
 constexpr int32_t FREQUENCY_ADJUST_MIN = -100;
 constexpr int32_t FREQUENCY_ADJUST_MAX = 100;
+constexpr int32_t INVALID_PID = -1;
+constexpr int32_t VIBRATOR_ID = 1;
 VibratorCapacity g_capacity;
 #ifdef OHOS_BUILD_ENABLE_VIBRATOR_CUSTOM
 const std::string PHONE_TYPE = "phone";
@@ -595,6 +599,110 @@ void MiscdeviceService::MergeVibratorParmeters(const VibrateParameter &parameter
             }
         }
     }
+}
+
+int32_t MiscdeviceService::SendClientRemoteObject(const sptr<IRemoteObject> &vibratorServiceClient)
+{
+    auto clientPid = GetCallingPid();
+    if (clientPid < 0) {
+        MISC_HILOGE("ClientPid is invalid, clientPid:%{public}d", clientPid);
+        return ERROR;
+    }
+    if (vibratorThread_ == nullptr) {
+        vibratorThread_ = std::make_shared<VibratorThread>();
+    }
+    VibrateInfo info = vibratorThread_->GetCurrentVibrateInfo();
+    RegisterClientDeathRecipient(vibratorServiceClient, clientPid);
+    return ERR_OK;
+}
+
+void MiscdeviceService::ProcessDeathObserver(const wptr<IRemoteObject> &object)
+{
+    sptr<IRemoteObject> client = object.promote();
+    int32_t clientPid = FindClientPid(client);
+    VibrateInfo info = vibratorThread_->GetCurrentVibrateInfo();
+    int32_t VibratePid = info.pid;
+    MISC_HILOGD("ClientPid:%{public}d, VibratePid:%{public}d", clientPid, VibratePid);
+    if ((clientPid != INVALID_PID) && (clientPid == VibratePid)) {
+        StopVibrator(VIBRATOR_ID);
+    }
+    UnregisterClientDeathRecipient(client);
+    return;
+}
+
+void  MiscdeviceService::RegisterClientDeathRecipient(sptr<IRemoteObject> vibratorServiceClient, int32_t pid)
+{
+    if (vibratorServiceClient == nullptr) {
+        MISC_HILOGE("VibratorServiceClient is nullptr");
+        return;
+    }
+    if (clientDeathObserver_ == nullptr) {
+        clientDeathObserver_ = new (std::nothrow) DeathRecipientTemplate(*const_cast<MiscdeviceService *>(this));
+        if (clientDeathObserver_ == nullptr) {
+            MISC_HILOGE("ClientDeathObserver_ is nullptr");
+            return;
+        }
+    }
+    vibratorServiceClient->AddDeathRecipient(clientDeathObserver_);
+    SaveClientPid(vibratorServiceClient, pid);
+}
+
+void MiscdeviceService::UnregisterClientDeathRecipient(sptr<IRemoteObject> vibratorServiceClient)
+{
+    if (vibratorServiceClient == nullptr) {
+        MISC_HILOGE("vibratorServiceClient is nullptr");
+        return;
+    }
+    int32_t clientPid = FindClientPid(vibratorServiceClient);
+    if (clientPid == INVALID_PID) {
+        MISC_HILOGE("Pid is invalid");
+        return;
+    }
+    vibratorServiceClient->RemoveDeathRecipient(clientDeathObserver_);
+    DestroyClientPid(vibratorServiceClient);
+}
+
+bool MiscdeviceService::SaveClientPid(const sptr<IRemoteObject> &vibratorServiceClient, int32_t pid)
+{
+    if (vibratorServiceClient == nullptr) {
+        MISC_HILOGE("VibratorServiceClient is nullptr");
+        return false;
+    }
+    auto it = clientPidMap_.find(vibratorServiceClient);
+    if (it == clientPidMap_.end()) {
+        clientPidMap_.insert(std::make_pair(vibratorServiceClient, pid));
+        return true;
+    }
+    clientPidMap_.insert(std::make_pair(vibratorServiceClient, pid));
+    return true;
+}
+
+int32_t MiscdeviceService::FindClientPid(const sptr<IRemoteObject> &vibratorServiceClient)
+{
+    if (vibratorServiceClient == nullptr) {
+        MISC_HILOGE("VibratorServiceClient is nullptr");
+        return false;
+    }
+    auto it = clientPidMap_.find(vibratorServiceClient);
+    if (it == clientPidMap_.end()) {
+        MISC_HILOGE("Cannot find client pid");
+        return INVALID_PID;
+    }
+    return it->second;
+}
+
+void MiscdeviceService::DestroyClientPid(const sptr<IRemoteObject> &vibratorServiceClient)
+{
+    if (vibratorServiceClient == nullptr) {
+        MISC_HILOGD("VibratorServiceClient is nullptr");
+        return;
+    }
+    auto it = clientPidMap_.find(vibratorServiceClient);
+    if (it == clientPidMap_.end()) {
+        MISC_HILOGD("Cannot find client pid");
+        return;
+    }
+    clientPidMap_.erase(it);
 }
 }  // namespace Sensors
 }  // namespace OHOS

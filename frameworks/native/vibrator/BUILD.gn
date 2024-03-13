@@ -79,6 +79,7 @@ ohos_shared_library("libvibrator_native") {
   sources = [
     "$SUBSYSTEM_DIR/frameworks/native/common/src/miscdevice_service_proxy.cpp",
     "src/vibrator_service_client.cpp",
+    "src/vibrator_client_stub.cpp"
   ]
 
   include_dirs = [
