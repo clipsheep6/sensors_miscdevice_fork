@@ -65,7 +65,7 @@ MiscdeviceServiceStub::MiscdeviceServiceStub()
     baseFuncs_[static_cast<uint32_t>(MiscdeviceInterfaceCode::GET_DELAY_TIME)] =
         &MiscdeviceServiceStub::GetDelayTimeStub;
     baseFuncs_[static_cast<uint32_t>(MiscdeviceInterfaceCode::SEND_CLIENT_REMOTE_OBJECT)] =
-        &MiscdeviceServiceStub::CreatClientRemoteObject;
+        &MiscdeviceServiceStub::TransferClientRemoteObjectStub;
 }
 
 MiscdeviceServiceStub::~MiscdeviceServiceStub()
@@ -341,7 +341,7 @@ int32_t MiscdeviceServiceStub::GetDelayTimeStub(MessageParcel &data, MessageParc
     return NO_ERROR;
 }
 
-int32_t MiscdeviceServiceStub::CreatClientRemoteObject(MessageParcel &data, MessageParcel &reply)
+int32_t MiscdeviceServiceStub::TransferClientRemoteObjectStub(MessageParcel &data, MessageParcel &reply)
 {
     CALL_LOG_ENTER;
     sptr<IRemoteObject> vibratorServiceClient = data.ReadRemoteObject();
@@ -349,7 +349,7 @@ int32_t MiscdeviceServiceStub::CreatClientRemoteObject(MessageParcel &data, Mess
         MISC_HILOGD("vibratorServiceClient is null");
         return ERROR;
     }
-    return SendClientRemoteObject(vibratorServiceClient);
+    return TransferClientRemoteObject(vibratorServiceClient);
 }
 }  // namespace Sensors
 }  // namespace OHOS

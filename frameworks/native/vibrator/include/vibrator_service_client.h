@@ -24,7 +24,6 @@
 
 #include "i_vibrator_decoder.h"
 #include "i_vibrator_client.h"
-#include "i_miscdevice_service.h"
 
 #include "miscdevice_service_proxy.h"
 #include "vibrator_agent_type.h"
@@ -71,7 +70,7 @@ public:
     int32_t GetDelayTime(int32_t &delayTime);
     int32_t PlayPattern(const VibratorPattern &pattern, int32_t usage, const VibratorParameter &parameter);
     int32_t FreeVibratorPackage(VibratorPackage &package);
-    int32_t SendClientRemoteObject();
+    int32_t TransferClientRemoteObject();
 
 private:
     int32_t InitServiceClient();

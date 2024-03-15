@@ -601,17 +601,13 @@ void MiscdeviceService::MergeVibratorParmeters(const VibrateParameter &parameter
     }
 }
 
-int32_t MiscdeviceService::SendClientRemoteObject(const sptr<IRemoteObject> &vibratorServiceClient)
+int32_t MiscdeviceService::TransferClientRemoteObject(const sptr<IRemoteObject> &vibratorServiceClient)
 {
     auto clientPid = GetCallingPid();
     if (clientPid < 0) {
         MISC_HILOGE("ClientPid is invalid, clientPid:%{public}d", clientPid);
         return ERROR;
     }
-    if (vibratorThread_ == nullptr) {
-        vibratorThread_ = std::make_shared<VibratorThread>();
-    }
-    VibrateInfo info = vibratorThread_->GetCurrentVibrateInfo();
     RegisterClientDeathRecipient(vibratorServiceClient, clientPid);
     return ERR_OK;
 }
@@ -620,14 +616,16 @@ void MiscdeviceService::ProcessDeathObserver(const wptr<IRemoteObject> &object)
 {
     sptr<IRemoteObject> client = object.promote();
     int32_t clientPid = FindClientPid(client);
+    if (vibratorThread_ == nullptr) {
+        vibratorThread_ = std::make_shared<VibratorThread>();
+    }
     VibrateInfo info = vibratorThread_->GetCurrentVibrateInfo();
     int32_t VibratePid = info.pid;
-    MISC_HILOGD("ClientPid:%{public}d, VibratePid:%{public}d", clientPid, VibratePid);
+    MISC_HILOGI("ClientPid:%{public}d, VibratePid:%{public}d", clientPid, VibratePid);
     if ((clientPid != INVALID_PID) && (clientPid == VibratePid)) {
         StopVibrator(VIBRATOR_ID);
     }
     UnregisterClientDeathRecipient(client);
-    return;
 }
 
 void  MiscdeviceService::RegisterClientDeathRecipient(sptr<IRemoteObject> vibratorServiceClient, int32_t pid)
@@ -636,6 +634,7 @@ void  MiscdeviceService::RegisterClientDeathRecipient(sptr<IRemoteObject> vibrat
         MISC_HILOGE("VibratorServiceClient is nullptr");
         return;
     }
+    std::lock_guard<std::mutex> lock(vibratorThreadMutex_);
     if (clientDeathObserver_ == nullptr) {
         clientDeathObserver_ = new (std::nothrow) DeathRecipientTemplate(*const_cast<MiscdeviceService *>(this));
         if (clientDeathObserver_ == nullptr) {
@@ -662,19 +661,14 @@ void MiscdeviceService::UnregisterClientDeathRecipient(sptr<IRemoteObject> vibra
     DestroyClientPid(vibratorServiceClient);
 }
 
-bool MiscdeviceService::SaveClientPid(const sptr<IRemoteObject> &vibratorServiceClient, int32_t pid)
+void MiscdeviceService::SaveClientPid(const sptr<IRemoteObject> &vibratorServiceClient, int32_t pid)
 {
     if (vibratorServiceClient == nullptr) {
         MISC_HILOGE("VibratorServiceClient is nullptr");
-        return false;
+        return;
     }
-    auto it = clientPidMap_.find(vibratorServiceClient);
-    if (it == clientPidMap_.end()) {
-        clientPidMap_.insert(std::make_pair(vibratorServiceClient, pid));
-        return true;
-    }
+    std::lock_guard<std::mutex> lock(clientPidMutex_);
     clientPidMap_.insert(std::make_pair(vibratorServiceClient, pid));
-    return true;
 }
 
 int32_t MiscdeviceService::FindClientPid(const sptr<IRemoteObject> &vibratorServiceClient)
@@ -683,6 +677,7 @@ int32_t MiscdeviceService::FindClientPid(const sptr<IRemoteObject> &vibratorServ
         MISC_HILOGE("VibratorServiceClient is nullptr");
         return false;
     }
+    std::lock_guard<std::mutex> lock(clientPidMutex_);
     auto it = clientPidMap_.find(vibratorServiceClient);
     if (it == clientPidMap_.end()) {
         MISC_HILOGE("Cannot find client pid");
@@ -697,6 +692,7 @@ void MiscdeviceService::DestroyClientPid(const sptr<IRemoteObject> &vibratorServ
         MISC_HILOGD("VibratorServiceClient is nullptr");
         return;
     }
+    std::lock_guard<std::mutex> lock(clientPidMutex_);
     auto it = clientPidMap_.find(vibratorServiceClient);
     if (it == clientPidMap_.end()) {
         MISC_HILOGD("Cannot find client pid");

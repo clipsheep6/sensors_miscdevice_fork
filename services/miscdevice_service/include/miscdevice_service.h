@@ -76,7 +76,7 @@ public:
     virtual int32_t PlayPattern(const VibratePattern &pattern, int32_t usage,
         const VibrateParameter &parameter) override;
     virtual int32_t GetDelayTime(int32_t &delayTime) override;
-    virtual int32_t SendClientRemoteObject(const sptr<IRemoteObject> &vibratorServiceClient) override;
+    virtual int32_t TransferClientRemoteObject(const sptr<IRemoteObject> &vibratorServiceClient) override;
 
 private:
     DISALLOW_COPY_AND_MOVE(MiscdeviceService);
@@ -91,7 +91,7 @@ private:
     bool InitLightList();
     void RegisterClientDeathRecipient(sptr<IRemoteObject> vibratorServiceClient, int32_t pid);
     void UnregisterClientDeathRecipient(sptr<IRemoteObject> vibratorServiceClient);
-    bool SaveClientPid(const sptr<IRemoteObject> &vibratorServiceClient, int32_t pid);
+    void SaveClientPid(const sptr<IRemoteObject> &vibratorServiceClient, int32_t pid);
     int32_t FindClientPid(const sptr<IRemoteObject> &vibratorServiceClient);
     void DestroyClientPid(const sptr<IRemoteObject> &vibratorServiceClient);
     VibratorHdiConnection &vibratorHdiConnection_ = VibratorHdiConnection::GetInstance();
@@ -103,6 +103,7 @@ private:
     MiscdeviceServiceState state_;
     std::shared_ptr<VibratorThread> vibratorThread_ = nullptr;
     std::mutex vibratorThreadMutex_;
+    std::mutex clientPidMutex_;
     sptr<IRemoteObject::DeathRecipient> clientDeathObserver_ = nullptr;
     std::map<sptr<IRemoteObject>, int32_t> clientPidMap_;
 };

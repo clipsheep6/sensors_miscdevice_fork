@@ -87,9 +87,9 @@ int32_t VibratorServiceClient::InitServiceClient()
             auto remoteObject = miscdeviceProxy_->AsObject();
             CHKPR(remoteObject, MISC_NATIVE_GET_SERVICE_ERR);
             remoteObject->AddDeathRecipient(serviceDeathObserver_);
-            int32_t ret = SendClientRemoteObject();
+            int32_t ret = TransferClientRemoteObject();
             if (ret != ERR_OK) {
-                MISC_HILOGE("SendClientRemoteObject failed, ret:%{public}d", ret);
+                MISC_HILOGE("TransferClientRemoteObject failed, ret:%{public}d", ret);
                 return ERROR;
             }
             return ERR_OK;
@@ -104,11 +104,11 @@ int32_t VibratorServiceClient::InitServiceClient()
     return MISC_NATIVE_GET_SERVICE_ERR;
 }
 
-int32_t VibratorServiceClient::SendClientRemoteObject()
+int32_t VibratorServiceClient::TransferClientRemoteObject()
 {
     auto remoteObject = vibratorClient->AsObject();
     CHKPR(remoteObject, MISC_NATIVE_GET_SERVICE_ERR);
-    int32_t ret = miscdeviceProxy_->SendClientRemoteObject(remoteObject);
+    int32_t ret = miscdeviceProxy_->TransferClientRemoteObject(remoteObject);
     return ret;
 }
 

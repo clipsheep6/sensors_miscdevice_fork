@@ -392,17 +392,17 @@ int32_t MiscdeviceServiceProxy::PlayPattern(const VibratePattern &pattern, int32
     return ret;
 }
 
-int32_t MiscdeviceServiceProxy::SendClientRemoteObject(const sptr<IRemoteObject> &vibratorClient)
+int32_t MiscdeviceServiceProxy::TransferClientRemoteObject(const sptr<IRemoteObject> &vibratorClient)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(MiscdeviceServiceProxy::GetDescriptor())) {
-        MISC_HILOGD("Write descriptor failed");
+        MISC_HILOGE("Write descriptor failed");
         return WRITE_MSG_ERR;
     }
     if (!data.WriteRemoteObject(vibratorClient)) {
-        MISC_HILOGD("Parcel writeRemoteObject failed");
+        MISC_HILOGE("Parcel writeRemoteObject failed");
         return WRITE_MSG_ERR;
     }
     sptr<IRemoteObject> remote = Remote();
@@ -411,7 +411,7 @@ int32_t MiscdeviceServiceProxy::SendClientRemoteObject(const sptr<IRemoteObject>
         data, reply, option);
     if (ret != NO_ERROR) {
         HiSysEventWrite(HiSysEvent::Domain::MISCDEVICE, "MISC_SERVICE_IPC_EXCEPTION",
-            HiSysEvent::EventType::FAULT, "PKG_NAME", "SendClientRemoteObject", "ERROR_CODE", ret);
+            HiSysEvent::EventType::FAULT, "PKG_NAME", "TransferClientRemoteObject", "ERROR_CODE", ret);
         MISC_HILOGD("SendRequest failed, ret:%{public}d", ret);
     }
     return ret;
