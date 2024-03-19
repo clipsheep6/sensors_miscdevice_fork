@@ -33,7 +33,7 @@ enum class MiscdeviceInterfaceCode {
     TURN_OFF,
     PlAY_PATTERN,
     GET_DELAY_TIME,
-    SEND_CLIENT_REMOTE_OBJECT,
+    TRANSFER_CLIENT_REMOTE_OBJECT,
 };
 }  // namespace Sensors
 }  // namespace OHOS

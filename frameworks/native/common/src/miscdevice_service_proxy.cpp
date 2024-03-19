@@ -407,7 +407,7 @@ int32_t MiscdeviceServiceProxy::TransferClientRemoteObject(const sptr<IRemoteObj
     }
     sptr<IRemoteObject> remote = Remote();
     CHKPR(remote, ERROR);
-    int32_t ret = remote->SendRequest(static_cast<uint32_t>(MiscdeviceInterfaceCode::SEND_CLIENT_REMOTE_OBJECT),
+    int32_t ret = remote->SendRequest(static_cast<uint32_t>(MiscdeviceInterfaceCode::TRANSFER_CLIENT_REMOTE_OBJECT),
         data, reply, option);
     if (ret != NO_ERROR) {
         HiSysEventWrite(HiSysEvent::Domain::MISCDEVICE, "MISC_SERVICE_IPC_EXCEPTION",

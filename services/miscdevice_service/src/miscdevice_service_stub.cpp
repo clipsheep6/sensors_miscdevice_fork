@@ -64,7 +64,7 @@ MiscdeviceServiceStub::MiscdeviceServiceStub()
         &MiscdeviceServiceStub::PlayPatternStub;
     baseFuncs_[static_cast<uint32_t>(MiscdeviceInterfaceCode::GET_DELAY_TIME)] =
         &MiscdeviceServiceStub::GetDelayTimeStub;
-    baseFuncs_[static_cast<uint32_t>(MiscdeviceInterfaceCode::SEND_CLIENT_REMOTE_OBJECT)] =
+    baseFuncs_[static_cast<uint32_t>(MiscdeviceInterfaceCode::TRANSFER_CLIENT_REMOTE_OBJECT)] =
         &MiscdeviceServiceStub::TransferClientRemoteObjectStub;
 }
 
