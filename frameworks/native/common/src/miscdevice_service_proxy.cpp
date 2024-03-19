@@ -391,5 +391,30 @@ int32_t MiscdeviceServiceProxy::PlayPattern(const VibratePattern &pattern, int32
     }
     return ret;
 }
+
+int32_t MiscdeviceServiceProxy::TransferClientRemoteObject(const sptr<IRemoteObject> &vibratorClient)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(MiscdeviceServiceProxy::GetDescriptor())) {
+        MISC_HILOGE("Write descriptor failed");
+        return WRITE_MSG_ERR;
+    }
+    if (!data.WriteRemoteObject(vibratorClient)) {
+        MISC_HILOGE("Parcel writeRemoteObject failed");
+        return WRITE_MSG_ERR;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    CHKPR(remote, ERROR);
+    int32_t ret = remote->SendRequest(static_cast<uint32_t>(MiscdeviceInterfaceCode::TRANSFER_CLIENT_REMOTE_OBJECT),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HiSysEventWrite(HiSysEvent::Domain::MISCDEVICE, "MISC_SERVICE_IPC_EXCEPTION",
+            HiSysEvent::EventType::FAULT, "PKG_NAME", "TransferClientRemoteObject", "ERROR_CODE", ret);
+        MISC_HILOGD("SendRequest failed, ret:%{public}d", ret);
+    }
+    return ret;
+}
 }  // namespace Sensors
 }  // namespace OHOS

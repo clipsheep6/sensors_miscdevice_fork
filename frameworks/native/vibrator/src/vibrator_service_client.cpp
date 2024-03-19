@@ -68,6 +68,9 @@ int32_t VibratorServiceClient::InitServiceClient()
         MISC_HILOGD("miscdeviceProxy_ already init");
         return ERR_OK;
     }
+    if (vibratorClient == nullptr) {
+        vibratorClient = new (std::nothrow) VibratorClientStub();
+    }
     auto sm = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sm == nullptr) {
         MISC_HILOGE("sm cannot be null");
@@ -84,6 +87,11 @@ int32_t VibratorServiceClient::InitServiceClient()
             auto remoteObject = miscdeviceProxy_->AsObject();
             CHKPR(remoteObject, MISC_NATIVE_GET_SERVICE_ERR);
             remoteObject->AddDeathRecipient(serviceDeathObserver_);
+            int32_t ret = TransferClientRemoteObject();
+            if (ret != ERR_OK) {
+                MISC_HILOGE("TransferClientRemoteObject failed, ret:%{public}d", ret);
+                return ERROR;
+            }
             return ERR_OK;
         }
         MISC_HILOGW("Get service failed, retry:%{public}d", retry);
@@ -94,6 +102,14 @@ int32_t VibratorServiceClient::InitServiceClient()
         HiSysEvent::EventType::FAULT, "PKG_NAME", "InitServiceClient", "ERROR_CODE", MISC_NATIVE_GET_SERVICE_ERR);
     MISC_HILOGE("Get service failed");
     return MISC_NATIVE_GET_SERVICE_ERR;
+}
+
+int32_t VibratorServiceClient::TransferClientRemoteObject()
+{
+    auto remoteObject = vibratorClient->AsObject();
+    CHKPR(remoteObject, MISC_NATIVE_GET_SERVICE_ERR);
+    int32_t ret = miscdeviceProxy_->TransferClientRemoteObject(remoteObject);
+    return ret;
 }
 
 int32_t VibratorServiceClient::Vibrate(int32_t vibratorId, int32_t timeOut, int32_t usage)

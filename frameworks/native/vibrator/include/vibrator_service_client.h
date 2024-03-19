@@ -23,8 +23,11 @@
 #include "singleton.h"
 
 #include "i_vibrator_decoder.h"
+#include "i_vibrator_client.h"
+
 #include "miscdevice_service_proxy.h"
 #include "vibrator_agent_type.h"
+#include "vibrator_client_stub.h"
 
 namespace OHOS {
 namespace Sensors {
@@ -67,6 +70,7 @@ public:
     int32_t GetDelayTime(int32_t &delayTime);
     int32_t PlayPattern(const VibratorPattern &pattern, int32_t usage, const VibratorParameter &parameter);
     int32_t FreeVibratorPackage(VibratorPackage &package);
+    int32_t TransferClientRemoteObject();
 
 private:
     int32_t InitServiceClient();
@@ -74,6 +78,7 @@ private:
     int32_t ConvertVibratePackage(const VibratePackage& inPkg, VibratorPackage &outPkg);
     sptr<IRemoteObject::DeathRecipient> serviceDeathObserver_ = nullptr;
     sptr<IMiscdeviceService> miscdeviceProxy_ = nullptr;
+    sptr<VibratorClientStub> vibratorClient = nullptr;
     VibratorDecodeHandle decodeHandle_;
     std::mutex clientMutex_;
     std::mutex decodeMutex_;

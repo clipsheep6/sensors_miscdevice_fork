@@ -51,6 +51,7 @@ public:
     virtual int32_t TurnOff(int32_t lightId) = 0;
     virtual int32_t GetDelayTime(int32_t &delayTime) = 0;
     virtual int32_t PlayPattern(const VibratePattern &pattern, int32_t usage, const VibrateParameter &parameter) = 0;
+    virtual int32_t TransferClientRemoteObject(const sptr<IRemoteObject> &vibratorClient) = 0;
 };
 }  // namespace Sensors
 }  // namespace OHOS
