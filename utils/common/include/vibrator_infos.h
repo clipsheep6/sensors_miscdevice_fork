@@ -124,6 +124,17 @@ struct VibrateInfo {
     VibratePackage package;
 };
 
+struct VibrateMsg {
+    std::string type;
+    std::string usage;
+    int32_t duration = 0;
+    std::string effectId;
+    int32_t count = 0;
+    int32_t fd = -1;
+    int64_t offset = 0;
+    int64_t length = -1;
+};
+
 struct VibrateParameter {
     int32_t intensity = 100;  // from 0 to 100
     int32_t frequency = 0;    // from -100 to 100

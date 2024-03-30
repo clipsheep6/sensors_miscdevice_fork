@@ -25,6 +25,7 @@
 #include "refbase.h"
 
 #include "sensors_errors.h"
+#include "vibrator_infos.h"
 
 namespace OHOS {
 namespace Sensors {
@@ -36,6 +37,16 @@ enum CallbackType {
     SYSTEM_VIBRATE_CALLBACK = 1,
     COMMON_CALLBACK,
     IS_SUPPORT_EFFECT_CALLBACK,
+};
+
+enum class VibrateType {
+    CANCEL,
+    IS_SUPPORT_EFFECT_CALLBACK,
+    START_VIBRATE,
+    START_VIBRATE_TIME,
+    STOP_VIBRATOR,
+    VIBRATE_EFFECT_ID,
+    SYSTEM_VIBRATE_CALLBACK,
 };
 
 class AsyncCallbackInfo : public RefBase {
@@ -53,7 +64,12 @@ public:
     napi_ref callback[CALLBACK_NUM] = {0};
     AsyncCallbackError error;
     CallbackType callbackType = COMMON_CALLBACK;
+    VibrateType vibrateType;
     bool isSupportEffect {false};
+    VibrateMsg msg;
+    std::string effectId;
+    std::string mode;
+    int32_t duration {0};
     AsyncCallbackInfo(napi_env env) : env(env) {}
     ~AsyncCallbackInfo();
 };
@@ -76,6 +92,9 @@ bool ConstructCommonResult(const napi_env &env, sptr<AsyncCallbackInfo> asyncCal
     int32_t length);
 bool ConstructIsSupportEffectResult(const napi_env &env, sptr<AsyncCallbackInfo> asyncCallbackInfo,
     napi_value result[], int32_t length);
+void ExecuteAsyncWork(napi_env env, void *data);
+void CompleteCallback(napi_env env, napi_status status, void *data);
+void CompletePromise(napi_env env, napi_status status, void *data);
 void EmitAsyncCallbackWork(sptr<AsyncCallbackInfo> async_callback_info);
 void EmitPromiseWork(sptr<AsyncCallbackInfo> asyncCallbackInfo);
 }  // namespace Sensors
