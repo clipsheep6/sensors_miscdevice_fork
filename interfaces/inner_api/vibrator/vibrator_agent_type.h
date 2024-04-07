@@ -77,6 +77,13 @@ const char *VIBRATOR_TYPE_SLIDE_LIGHT = "haptic.slide.light";
 const char *VIBRATOR_TYPE_THRESHOID = "haptic.threshold";
 
 /**
+ * @brief Describes the vibration effect of the vibrator when slide.
+ *
+ * @since 11
+ */
+const char *VIBRATOR_TYPE_SLIDE = "haptic.slide";
+
+/**
  * @brief Describes the hard vibration effect of the vibrator.
  *
  * @since 12
