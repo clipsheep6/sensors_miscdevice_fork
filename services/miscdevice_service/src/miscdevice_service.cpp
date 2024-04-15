@@ -447,12 +447,12 @@ std::string MiscdeviceService::GetPackageName(AccessTokenID tokenId)
         }
         case ATokenTypeEnum::TOKEN_NATIVE:
         case ATokenTypeEnum::TOKEN_SHELL: {
-            NativeTokenInfo tokenInfo;
-            if (AccessTokenKit::GetNativeTokenInfo(tokenId, tokenInfo) != 0) {
+            std::string processName;
+            if (AccessTokenKit::GetNativeTokenName(tokenId, processName) != 0) {
                 MISC_HILOGE("Get native token info fail");
                 return {};
             }
-            packageName = tokenInfo.processName;
+            packageName = processName;
             break;
         }
         default: {
