@@ -52,6 +52,7 @@ constexpr float CURVE_INTENSITY_SCALE = 100.00;
 constexpr int32_t SLICE_STEP = 50;
 constexpr int32_t CONTINUOUS_VIBRATION_DURATION_MIN = 15;
 constexpr int32_t INDEX_MIN_RESTRICT = 1;
+constexpr int32_t NUM_TWO = 2;
 }  // namespace
 
 int32_t CustomVibrationMatcher::TransformTime(const VibratePackage &package,
@@ -172,52 +173,66 @@ void CustomVibrationMatcher::PreProcessEvent(VibrateEvent &event)
     }
 }
 
+void CustomVibrationMatcher::MergeAlgorithm(const std::vector<VibrateCurvePoint> &curveLeft,
+    const std::vector<VibrateCurvePoint> &curveRight, std::vector<VibrateCurvePoint> &newCurve, size_t &i, size_t &j)
+{
+    VibrateCurvePoint newCurvePoint;
+    if (i < curveLeft.size() && j < curveRight.size()) {
+        if ((curveLeft[i].time < curveRight[j].time) && (j > 0)) {
+            int32_t intensity = Interpolation(curveRight[j - 1].time, curveRight[j].time,
+                curveRight[j - 1].intensity, curveRight[j].intensity, curveLeft[i].time);
+            int32_t frequency = Interpolation(curveRight[j - 1].time, curveRight[j].time,
+                curveRight[j - 1].frequency, curveRight[j].frequency, curveLeft[i].time);
+            newCurvePoint.time = curveLeft[i].time;
+            newCurvePoint.intensity = std::max(curveLeft[i].intensity, intensity);
+            newCurvePoint.frequency = (curveLeft[i].frequency + frequency) / NUM_TWO;
+            ++i;
+        } else if ((curveLeft[i].time > curveRight[j].time) && (i > 0)) {
+            int32_t intensity = Interpolation(curveLeft[i - 1].time, curveLeft[i].time,
+                curveLeft[i - 1].intensity, curveLeft[i].intensity, curveRight[j].time);
+            int32_t frequency = Interpolation(curveLeft[i - 1].time, curveLeft[i].time,
+                curveLeft[i - 1].frequency, curveLeft[i].frequency, curveRight[j].time);
+            newCurvePoint.time = curveRight[j].time;
+            newCurvePoint.intensity = std::max(curveRight[j].intensity, intensity);
+            newCurvePoint.frequency = (curveRight[j].frequency + frequency) / NUM_TWO;
+            ++j;
+        } else {
+            newCurvePoint.time = curveRight[i].time;
+            newCurvePoint.intensity = std::max(curveLeft[i].intensity, curveRight[j].intensity);
+            newCurvePoint.frequency = (curveLeft[i].frequency + curveRight[j].frequency) / NUM_TWO;
+            ++i;
+            ++j;
+        }
+        newCurve.push_back(newCurvePoint);
+    }
+}
+
 std::vector<VibrateCurvePoint> CustomVibrationMatcher::MergeCurve(const std::vector<VibrateCurvePoint> &curveLeft,
     const std::vector<VibrateCurvePoint> &curveRight)
 {
+    if (curveLeft.empty()) {
+        return curveRight;
+    }
+    if (curveRight.empty()) {
+        return curveLeft;
+    }
     int32_t overlapLeft = std::max(curveLeft.front().time, curveRight.front().time);
     int32_t overlapRight = std::min(curveLeft.back().time, curveRight.back().time);
     std::vector<VibrateCurvePoint> newCurve;
     size_t i = 0;
     size_t j = 0;
     while (i < curveLeft.size() || j < curveRight.size()) {
-        while (i < curveLeft.size() && ((curveLeft[i].time < overlapLeft) || (curveLeft[i].time > overlapRight) || (j == curveRight.size()))) {
+        while (i < curveLeft.size() && ((curveLeft[i].time < overlapLeft) || (curveLeft[i].time > overlapRight) ||
+              (j == curveRight.size()))) {
             newCurve.push_back(curveLeft[i]);
             ++i;
         }
-        while (j < curveRight.size() && ((curveRight[j].time < overlapLeft) || (curveRight[j].time > overlapRight) || (i == curveLeft.size()))) {
+        while (j < curveRight.size() && ((curveRight[j].time < overlapLeft) || (curveRight[j].time > overlapRight) ||
+              (i == curveLeft.size()))) {
             newCurve.push_back(curveRight[j]);
             ++j;
         }
-        VibrateCurvePoint newCurvePoint;
-        if (i < curveLeft.size() && j < curveRight.size()) {
-            if (curveLeft[i].time < curveRight[j].time) {
-                int32_t intensity = Interpolation(curveRight[j - 1].time, curveRight[j].time,
-                    curveRight[j - 1].intensity, curveRight[j].intensity, curveLeft[i].time);
-                int32_t frequency = Interpolation(curveRight[j - 1].time, curveRight[j].time,
-                    curveRight[j - 1].frequency, curveRight[j].frequency, curveLeft[i].time);
-                newCurvePoint.time = curveLeft[i].time;
-                newCurvePoint.intensity = std::max(curveLeft[i].intensity, intensity);
-                newCurvePoint.frequency = (curveLeft[i].frequency + frequency) / 2;
-                ++i;
-            } else if (curveLeft[i].time > curveRight[j].time) {
-                int32_t intensity = Interpolation(curveLeft[i - 1].time, curveLeft[i].time,
-                    curveLeft[i - 1].intensity, curveLeft[i].intensity, curveRight[j].time);
-                int32_t frequency = Interpolation(curveLeft[i - 1].time, curveLeft[i].time,
-                    curveLeft[i - 1].frequency, curveLeft[i].frequency, curveRight[j].time);
-                newCurvePoint.time = curveRight[j].time;
-                newCurvePoint.intensity = std::max(curveRight[j].intensity, intensity);
-                newCurvePoint.frequency = (curveRight[j].frequency + frequency) / 2;
-                ++j;
-            } else {
-                newCurvePoint.time = curveRight[i].time;
-                newCurvePoint.intensity = std::max(curveLeft[i].intensity, curveRight[j].intensity);
-                newCurvePoint.frequency = (curveLeft[i].frequency + curveRight[j].frequency) / 2;
-                ++i;
-                ++j;
-            }
-            newCurve.push_back(newCurvePoint);
-        }
+        MergeAlgorithm(curveLeft, curveRight, newCurve, i, j);
     }
     return newCurve;
 }
