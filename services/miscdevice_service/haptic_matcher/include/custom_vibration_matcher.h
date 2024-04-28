@@ -38,6 +38,9 @@ private:
     void PreProcessEvent(VibrateEvent &event);
     std::vector<VibrateCurvePoint> MergeCurve(const std::vector<VibrateCurvePoint> &curveLeft,
         const std::vector<VibrateCurvePoint> &curveRight);
+    void MergeAlgorithm(const std::vector<VibrateCurvePoint> &curveLeft,
+        const std::vector<VibrateCurvePoint> &curveRight, std::vector<VibrateCurvePoint> &newCurve,
+        size_t &i, size_t &j);
     void ProcessContinuousEvent(const VibrateEvent &event, int32_t &preStartTime,
         int32_t &preDuration, std::vector<CompositeEffect> &compositeEffects);
     void ProcessContinuousEventSlice(const VibrateSlice &slice, int32_t &preStartTime, int32_t &preDuration,
